@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Bayesian Negative 9D - Horror Framework</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-black: #000000;
+            --text-green: #00ff41;
+            --text-yellow: #ffff00;
+            --text-red: #ff0033;
+            --text-cyan: #00ffff;
+            --border-green: #00ff41;
+            --glow-green: 0 0 10px #00ff41, 0 0 20px #00ff41;
+            --glow-red: 0 0 10px #ff0033, 0 0 20px #ff0033;
+            --glow-yellow: 0 0 10px #ffff00, 0 0 20px #ffff00;
+        }
+
+        body {
+            background: var(--bg-black);
+            color: var(--text-green);
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                repeating-linear-gradient(0deg, rgba(0,255,65,0.03) 0px, transparent 1px, transparent 2px, rgba(0,255,65,0.03) 3px),
+                repeating-linear-gradient(90deg, rgba(0,255,65,0.03) 0px, transparent 1px, transparent 2px, rgba(0,255,65,0.03) 3px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            border-bottom: 3px solid var(--border-green);
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: var(--text-red);
+            font-size: 2.5rem;
+            text-shadow: var(--glow-red);
+            margin-bottom: 20px;
+            animation: glitch 3s infinite;
+            letter-spacing: 2px;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-2px, 2px); }
+            94% { transform: translate(2px, -2px); }
+            96% { transform: translate(-2px, -2px); }
+            98% { transform: translate(2px, 2px); }
+        }
+
+        .subtitle {
+            color: var(--text-yellow);
+            font-size: 1.2rem;
+            text-shadow: var(--glow-yellow);
+        }
+
+        .controls {
+            background: rgba(0, 255, 65, 0.05);
+            border: 2px solid var(--border-green);
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        button {
+            background: var(--bg-black);
+            color: var(--text-yellow);
+            border: 2px solid var(--text-yellow);
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-shadow: var(--glow-yellow);
+            margin: 10px;
+        }
+
+        button:hover {
+            background: var(--text-yellow);
+            color: var(--bg-black);
+            box-shadow: 0 0 20px var(--text-yellow);
+            transform: scale(1.05);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: rgba(255, 0, 51, 0.1);
+            border: 2px solid var(--text-red);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            color: var(--text-red);
+            font-weight: bold;
+            text-shadow: var(--glow-red);
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            color: var(--text-cyan);
+            font-size: 1rem;
+        }
+
+        .mode-display {
+            background: rgba(255, 255, 0, 0.1);
+            border: 2px solid var(--text-yellow);
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .mode-emoji {
+            font-size: 4rem;
+            margin: 20px 0;
+        }
+
+        .mode-name {
+            font-size: 2rem;
+            color: var(--text-yellow);
+            font-weight: bold;
+            text-shadow: var(--glow-yellow);
+        }
+
+        .mode-desc {
+            color: var(--text-cyan);
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        .horror-list {
+            background: rgba(0, 255, 65, 0.05);
+            border-left: 5px solid var(--border-green);
+            padding: 20px;
+            margin: 30px 0;
+        }
+
+        .horror-item {
+            padding: 15px;
+            margin: 10px 0;
+            border-bottom: 1px solid var(--text-red);
+        }
+
+        .horror-value {
+            color: var(--text-red);
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .horror-label {
+            color: var(--text-yellow);
+            margin: 5px 0;
+        }
+
+        .horror-desc {
+            color: var(--text-green);
+            font-size: 0.9rem;
+        }
+
+        #graph-container {
+            margin: 40px 0;
+            border: 3px solid var(--border-green);
+            min-height: 600px;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--text-yellow);
+            padding: 50px;
+            font-size: 1.5rem;
+        }
+
+        .blink {
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 49%, 100% { opacity: 1; }
+            50%, 99% { opacity: 0.3; }
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 3px solid var(--border-green);
+            margin-top: 60px;
+            color: var(--text-cyan);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔥 BAYESIAN NEGATIVE 9D 🔥</h1>
+            <p class="subtitle">Framework de Optimización desde el Abismo</p>
+            <p style="color: var(--text-green); margin-top: 15px;">
+                "La realidad se arrodilla cuando sobrevives el terror máximo"
+            </p>
+        </header>
+
+        <div class="controls">
+            <button id="generateBtn" onclick="generateGraph()">
+                🎲 GENERAR GRAFO DE HORROR
+            </button>
+            <button id="visualizeBtn" onclick="visualizeGraph()" disabled>
+                📊 VISUALIZAR GRAFO
+            </button>
+        </div>
+
+        <div id="statsSection" style="display: none;">
+            <h2 style="color: var(--text-yellow); text-align: center; margin: 30px 0;">
+                📊 ESTADÍSTICAS DE HORROR
+            </h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Horror Total</div>
+                    <div class="stat-value" id="horrorTotal">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Horror Promedio</div>
+                    <div class="stat-value" id="horrorPromedio">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Nodos</div>
+                    <div class="stat-value" id="totalNodos">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Seed</div>
+                    <div class="stat-value" id="seed">0</div>
+                </div>
+            </div>
+
+            <div class="mode-display" id="modeDisplay">
+                <div class="mode-emoji" id="modeEmoji">🔥</div>
+                <div class="mode-name" id="modeName">MODO NO DEFINIDO</div>
+                <div class="mode-desc" id="modeDesc">Genera un grafo para activar modo</div>
+            </div>
+
+            <div class="horror-list">
+                <h3 style="color: var(--text-red); margin-bottom: 20px;">
+                    🔥 TOP 5 NODOS MÁS HORRIBLES
+                </h3>
+                <div id="horrorList"></div>
+            </div>
+        </div>
+
+        <div id="graph-container">
+            <div class="loading" id="loadingMsg">
+                <span class="blink">⚡ Esperando generación de grafo... ⚡</span>
+            </div>
+            <iframe id="graphFrame" style="width: 100%; height: 800px; border: none; display: none;"></iframe>
+        </div>
+
+        <footer>
+            <p>Desarrollado en el abismo psiquiátrico chileno 🇨🇱</p>
+            <p style="margin-top: 10px;">Bootstrap puro del horror | Opensource absoluto</p>
+            <p style="margin-top: 10px; color: var(--text-red);">
+                💀 El sistema quiso quebrarme → falló → ahora es código 💀
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        let currentData = null;
+
+        async function generateGraph() {
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ GENERANDO...';
+
+            try {
+                const response = await fetch('/api/generate', { method: 'POST' });
+                const data = await response.json();
+                currentData = data;
+
+                // Actualizar stats
+                document.getElementById('horrorTotal').textContent = data.analisis.horror_total.toFixed(1);
+                document.getElementById('horrorPromedio').textContent = data.analisis.horror_promedio.toFixed(1);
+                document.getElementById('totalNodos').textContent = data.analisis.total_nodos;
+                document.getElementById('seed').textContent = data.seed;
+
+                // Actualizar modo
+                document.getElementById('modeEmoji').textContent = data.modo.emoji;
+                document.getElementById('modeName').textContent = data.modo.nombre;
+                document.getElementById('modeDesc').textContent = data.modo.desc;
+
+                // Actualizar lista de horrores
+                const horrorList = document.getElementById('horrorList');
+                horrorList.innerHTML = data.analisis.nodos_mas_horribles.slice(0, 5).map((nodo, i) => `
+                    <div class="horror-item">
+                        <div class="horror-value">${i + 1}. [${nodo.horror.toFixed(1)}]</div>
+                        <div class="horror-label">${nodo.label}</div>
+                        <div class="horror-desc">${nodo.desc}</div>
+                    </div>
+                `).join('');
+
+                // Mostrar sección de stats
+                document.getElementById('statsSection').style.display = 'block';
+
+                // Habilitar botón de visualizar
+                document.getElementById('visualizeBtn').disabled = false;
+
+                btn.textContent = '✅ GENERADO - GENERAR OTRO';
+            } catch (error) {
+                console.error('Error:', error);
+                btn.textContent = '❌ ERROR - REINTENTAR';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function visualizeGraph() {
+            const btn = document.getElementById('visualizeBtn');
+            const loadingMsg = document.getElementById('loadingMsg');
+            const graphFrame = document.getElementById('graphFrame');
+
+            btn.disabled = true;
+            btn.textContent = '⏳ RENDERIZANDO...';
+            loadingMsg.style.display = 'block';
+            graphFrame.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/visualize');
+                const data = await response.json();
+
+                if (data.status === 'ok') {
+                    // Cargar grafo en iframe
+                    graphFrame.src = '/graph?' + new Date().getTime(); // Cache bust
+                    graphFrame.style.display = 'block';
+                    loadingMsg.style.display = 'none';
+                    btn.textContent = '✅ VISUALIZADO';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                loadingMsg.innerHTML = '<span style="color: var(--text-red);">❌ Error al visualizar</span>';
+                btn.textContent = '❌ ERROR - REINTENTAR';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
