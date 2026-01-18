@@ -230,11 +230,18 @@
 
         <div class="controls">
             <button id="generateBtn" onclick="generateGraph()">
-                🎲 GENERAR GRAFO DE HORROR
+                🎲 GENERAR GRAFO
             </button>
             <button id="visualizeBtn" onclick="visualizeGraph()" disabled>
-                📊 VISUALIZAR GRAFO
+                📊 VISUALIZAR
             </button>
+            <button id="monteCarloBtn" onclick="runMonteCarlo()" style="border-color: var(--text-red); color: var(--text-red);">
+                ⚡ MONTE CARLO (x50)
+            </button>
+            <br><br>
+            <a href="/hall_of_shame" style="color: var(--text-yellow); text-decoration: none; border-bottom: 1px dotted var(--text-yellow);">
+                🏆 VER HALL OF SHAME 🏆
+            </a>
         </div>
 
         <div id="statsSection" style="display: none;">
@@ -265,10 +272,20 @@
                 <div class="mode-name" id="modeName">MODO NO DEFINIDO</div>
                 <div class="mode-desc" id="modeDesc">Genera un grafo para activar modo</div>
             </div>
+            
+            <!-- HALL DE TOP 3 MINI DASHBOARD -->
+            <div style="margin: 30px 0; border: 2px solid var(--border-green); padding: 20px;">
+                <h3 style="color: var(--text-red); text-align: center; margin-bottom: 20px;">
+                    🏆 ETERNIDAD TOP 3 (HALL OF SHAME)
+                </h3>
+                <div id="topHallList" style="text-align: center;">
+                    <span class="blink">Cargando la eternidad...</span>
+                </div>
+            </div>
 
             <div class="horror-list">
                 <h3 style="color: var(--text-red); margin-bottom: 20px;">
-                    🔥 TOP 5 NODOS MÁS HORRIBLES
+                    🔥 TOP 5 NODOS MÁS HORRIBLES (ACUAL)
                 </h3>
                 <div id="horrorList"></div>
             </div>
@@ -293,13 +310,56 @@
     <script>
         let currentData = null;
 
-        async function generateGraph() {
+        // Cargar Top Hall al inicio si ya hay stats (o agregarlo al generate)
+        // Mejor lo llamamos dentro de generateGraph para refrescar siempre
+        
+        async function loadTopHall() {
+            try {
+                const res = await fetch('/api/hall?limit=3');
+                const runs = await res.json();
+                
+                const hallDiv = document.getElementById('topHallList');
+                if (runs.length === 0) {
+                    hallDiv.innerHTML = '<span style="color: #555;">El abismo aún está vacío...</span>';
+                    return;
+                }
+                
+                hallDiv.innerHTML = runs.map((run, i) => `
+                    <div style="margin: 10px 0; border-bottom: 1px dotted #333; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>
+                            <span style="color: var(--text-yellow);">#${i+1}</span> 
+                            <span style="color: var(--text-red); font-weight: bold;">${run.horror_total.toFixed(1)}</span>
+                            <span style="color: #666; font-size: 0.8rem;"> (${new Date(run.timestamp).toLocaleDateString()})</span>
+                        </span>
+                        <button onclick="replaySeed(${run.seed})" style="padding: 2px 10px; font-size: 0.8rem; border: 1px solid var(--text-cyan); color: var(--text-cyan); background: transparent; margin: 0;">
+                             ↺ REPLAY
+                        </button>
+                    </div>
+                `).join('');
+                
+            } catch (e) {
+                console.error("Error loading hall", e);
+            }
+        }
+        
+        async function replaySeed(seed) {
+            window.scrollTo(0,0);
+            await generateGraph(seed);
+        }
+
+        async function generateGraph(forceSeed = null) {
             const btn = document.getElementById('generateBtn');
             btn.disabled = true;
-            btn.textContent = '⏳ GENERANDO...';
+            btn.textContent = forceSeed ? '↺ REGENERANDO PASADO...' : '⏳ GENERANDO...';
 
             try {
-                const response = await fetch('/api/generate', { method: 'POST' });
+                const body = forceSeed ? JSON.stringify({seed: forceSeed}) : '{}';
+                
+                const response = await fetch('/api/generate', { 
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: body
+                });
                 const data = await response.json();
                 currentData = data;
 
@@ -329,8 +389,11 @@
 
                 // Habilitar botón de visualizar
                 document.getElementById('visualizeBtn').disabled = false;
+                
+                // Recargar top hall
+                loadTopHall();
 
-                btn.textContent = '✅ GENERADO - GENERAR OTRO';
+                btn.textContent = '🎲 GENERAR OTRO';
             } catch (error) {
                 console.error('Error:', error);
                 btn.textContent = '❌ ERROR - REINTENTAR';
@@ -366,6 +429,51 @@
                 btn.textContent = '❌ ERROR - REINTENTAR';
             } finally {
                 btn.disabled = false;
+            }
+        }
+
+        async function runMonteCarlo() {
+            const btn = document.getElementById('monteCarloBtn');
+            const originalText = btn.textContent;
+            
+            const countStr = prompt("¿Cuántos universos paralelos quieres simular? (Recomendado: 50-200, Max: 500)", "50");
+            if (!countStr) return;
+            
+            const n_sims = parseInt(countStr);
+            if (isNaN(n_sims) || n_sims < 1) return;
+
+            btn.disabled = true;
+            btn.textContent = `⚡ SIMULANDO (${n_sims})...`;
+            
+            try {
+                const response = await fetch('/api/monte_carlo', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({n_sims: n_sims})
+                });
+                const data = await response.json();
+                
+                // Alert simple por ahora (BRUTAL)
+                const play = confirm(
+                    `⚡ RESULTADOS MONTE CARLO (${n_sims} sims) ⚡\n\n` +
+                    `💀 Peor Horror: ${data.max_horror.toFixed(1)}\n` +
+                    `🎲 Seed Maldita: ${data.worst_seed}\n` +
+                    `📉 Promedio: ${data.avg_horror.toFixed(1)}\n\n` +
+                    `¿Quieres visualizar la PEOR realidad ahora mismo?`
+                );
+                
+                if (play) {
+                    replaySeed(data.worst_seed);
+                } else {
+                    loadTopHall(); // Refrescar hall
+                }
+                
+            } catch (error) {
+                console.error(error);
+                alert('Error ejecutando Monte Carlo');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
             }
         }
     </script>
