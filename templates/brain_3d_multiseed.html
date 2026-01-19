@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multi-Seed Cosmic Brain - Bayesian Negative 9D</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000000 !important;
+            font-family: 'Courier New', monospace;
+        }
+
+        #monitor-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #ffffff;
+            background: rgba(0,0,0,0.92);
+            padding: 12px 16px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            z-index: 100;
+            font-size: 0.9rem;
+            box-shadow: 0 0 12px rgba(0,0,0,0.8);
+            pointer-events: none;
+        }
+
+        #seed-display {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #00ffff;
+            background: rgba(0,0,0,0.92);
+            padding: 10px 14px;
+            border: 1px solid #00ffff;
+            border-radius: 4px;
+            z-index: 100;
+            font-size: 0.85rem;
+        }
+
+        .seed-item {
+            margin: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .seed-color-box {
+            width: 14px;
+            height: 14px;
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        #controls-panel {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            z-index: 100;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hud-btn {
+            background: #111;
+            border: 1px solid #00ffff;
+            color: #00ffff;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 0.9rem;
+            transition: all 0.25s;
+        }
+
+        .hud-btn:hover {
+            background: #00ffff;
+            color: #000;
+            box-shadow: 0 0 12px #00ffff;
+        }
+    </style>
+</head>
+<body>
+    <div id="monitor-panel">
+        <div>MODO: <span id="mode-label">MULTI-SEED COSMIC</span></div>
+        <div>SEEDS: <span id="seed-count">{{ seeds|length }}</span></div>
+        <div>TOTAL NODOS: <span id="node-count">0</span></div>
+    </div>
+
+    <div id="seed-display">
+        <div style="margin-bottom:8px; font-weight:bold;">🌌 SEMILLAS ACTIVAS</div>
+        {% for graph in graphs %}
+        <div class="seed-item">
+            <span class="seed-color-box" style="background:{{ graph.color }}"></span>
+            <span>Seed #{{ graph.seed }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div id="controls-panel">
+        <button class="hud-btn" onclick="toggleFullscreen()">Fullscreen</button>
+        <button class="hud-btn" onclick="resetCamera()">Reset Cam</button>
+        <button class="hud-btn" onclick="toggleOrbits()">Toggle Órbitas</button>
+        <button class="hud-btn" onclick="window.location.href='/'">← Dashboard</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        // ──────────────────────────────────────────────────────────────
+        // DATOS INYECTADOS DESDE FLASK
+        // ──────────────────────────────────────────────────────────────
+        
+        const graphsData = {{ graphs | tojson }};
+        console.log("Multi-Seed: Grafos recibidos:", graphsData.length);
+
+        let totalNodes = 0;
+        graphsData.forEach(g => totalNodes += g.nodes.length);
+        document.getElementById('node-count').innerText = totalNodes;
+
+        // ──────────────────────────────────────────────────────────────
+        // CONFIGURACIÓN THREE.JS
+        // ──────────────────────────────────────────────────────────────
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 20000);
+        camera.position.set(0, 300, 1200);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        let controls;
+        try {
+            if (typeof THREE.OrbitControls === 'function') {
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.07;
+                controls.rotateSpeed = 0.6;
+                controls.target.set(0, 0, 0);
+            }
+        } catch (e) { 
+            console.error("Error inicializando controles:", e); 
+        }
+
+        // Arrays para almacenar grupos y meshes
+        const seedGroups = [];
+        const nodeMeshes = {};
+        const lineMeshes = [];
+        let showOrbits = true;
+
+        // ──────────────────────────────────────────────────────────────
+        // CREACIÓN DE SINGULARIDAD CENTRAL (CERO ABSOLUTO)
+        // ──────────────────────────────────────────────────────────────
+
+        const centralSingularity = new THREE.Group();
+        centralSingularity.position.set(0, 0, 0);
+
+        // Agujero negro central
+        const blackHoleGeo = new THREE.SphereGeometry(25, 32, 32);
+        const blackHoleMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const blackHole = new THREE.Mesh(blackHoleGeo, blackHoleMat);
+        centralSingularity.add(blackHole);
+
+        // Event Horizon (borde dorado)
+        const horizonGeo = new THREE.SphereGeometry(28, 32, 32);
+        const horizonMat = new THREE.MeshBasicMaterial({
+            color: 0xffd700,
+            transparent: true,
+            opacity: 0.6,
+            wireframe: true
+        });
+        const horizon = new THREE.Mesh(horizonGeo, horizonMat);
+        centralSingularity.add(horizon);
+
+        // Glow central
+        try {
+            const glowTex = new THREE.TextureLoader().load('https://i.imgur.com/8cm5z.png');
+            const glow = new THREE.Sprite(new THREE.SpriteMaterial({
+                map: glowTex,
+                color: 0xffaa00,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                opacity: 0.7
+            }));
+            glow.scale.set(150, 150, 1);
+            centralSingularity.add(glow);
+        } catch(e) {
+            console.warn("No se pudo cargar textura de glow");
+        }
+
+        scene.add(centralSingularity);
+
+        // ──────────────────────────────────────────────────────────────
+        // FUNCIÓN: DISTRIBUCIÓN ESFÉRICA (NO RECTANGULAR)
+        // ──────────────────────────────────────────────────────────────
+
+        function randomSphericalPosition(innerRadius, outerRadius) {
+            // Distribución esférica uniforme (método de Marsaglia)
+            const u = Math.random();
+            const v = Math.random();
+            const theta = 2 * Math.PI * u;
+            const phi = Math.acos(2 * v - 1);
+            
+            // Radio con distribución cúbica para mejor dispersión
+            const r = innerRadius + Math.pow(Math.random(), 0.7) * (outerRadius - innerRadius);
+            
+            const x = r * Math.sin(phi) * Math.cos(theta);
+            const y = r * Math.sin(phi) * Math.sin(theta);
+            const z = r * Math.cos(phi);
+            
+            return new THREE.Vector3(x, y, z);
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        // CREACIÓN DE SEMILLAS CON GRADIENTE CÓSMICO
+        // ──────────────────────────────────────────────────────────────
+
+        graphsData.forEach((graphData, seedIndex) => {
+            const group = new THREE.Group();
+            
+            // Cada semilla tiene su órbita base
+            const orbitRadius = 600;
+            const orbitAngle = (seedIndex / graphsData.length) * Math.PI * 2;
+            group.position.x = Math.cos(orbitAngle) * orbitRadius;
+            group.position.z = Math.sin(orbitAngle) * orbitRadius;
+            group.position.y = 0;
+
+            // Metadata para animación
+            group.userData.orbitPhase = orbitAngle;
+            group.userData.orbitSpeed = graphData.orbit_speed;
+            group.userData.oscillationPhase = Math.random() * Math.PI * 2;
+            group.userData.seedColor = graphData.color;
+            group.userData.seedIndex = seedIndex;
+
+            // Calcular maxHorror para normalización
+            const maxHorror = Math.max(1, ...graphData.nodes.map(n => n.horror || 0));
+
+            // Crear nodos con distribución esférica
+            graphData.nodes.forEach(nodeData => {
+                const horror = nodeData.horror || 0;
+                const horrorNorm = horror / maxHorror;
+
+                // Distribución esférica cósmica (200 a 500 unidades del centro del grupo)
+                const localPos = randomSphericalPosition(150, 450);
+                
+                // Distancia al CENTRO ABSOLUTO (0,0,0) para gradiente
+                const globalPos = localPos.clone().add(group.position);
+                const distanceToCenter = globalPos.length();
+                
+                // GRADIENTE CÓSMICO: Lejos = blanco, Cerca = oscuro
+                // Normalizar distancia (0-2000 típicamente)
+                const maxDist = 1500;
+                const distanceNorm = Math.min(1, distanceToCenter / maxDist);
+                
+                // Color: Blanco brillante (lejano) → Gris oscuro (cercano)
+                // Invertido: distanceNorm = 1 (lejos) → brightness = 1 (blanco)
+                //            distanceNorm = 0 (cerca) → brightness = 0.05 (casi negro)
+                let brightness = 0.05 + (distanceNorm * 0.95);
+                
+                // Sobreescribir para nodo central si es Cero Absoluto
+                let color;
+                if (nodeData.is_central) {
+                    color = new THREE.Color(0xffd700); // Dorado
+                    brightness = 1.0;
+                } else {
+                    // Color base de la semilla + modulación por distancia
+                    color = new THREE.Color(graphData.color);
+                    color.multiplyScalar(brightness);
+                }
+
+                // Tamaño basado en horror (más horror = más grande)
+                const size = 2.0 + (horrorNorm * 6);
+
+                const geo = new THREE.SphereGeometry(size, 8, 8);
+                const mat = new THREE.MeshBasicMaterial({
+                    color: color,
+                    transparent: true,
+                    opacity: 0.85 + (distanceNorm * 0.15) // Más lejano = más opaco
+                });
+
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.copy(localPos);
+                mesh.userData = {
+                    ...nodeData,
+                    distanceToCenter: distanceToCenter,
+                    brightness: brightness
+                };
+
+                group.add(mesh);
+                nodeMeshes[nodeData.id] = mesh;
+            });
+
+            // Crear líneas (edges) dentro del grupo
+            graphData.edges.forEach(edgeData => {
+                const sourceMesh = nodeMeshes[edgeData.source];
+                const targetMesh = nodeMeshes[edgeData.target];
+                
+                if (!sourceMesh || !targetMesh) return;
+
+                // Posiciones globales para las líneas
+                const sourcePos = new THREE.Vector3();
+                const targetPos = new THREE.Vector3();
+                sourceMesh.getWorldPosition(sourcePos);
+                targetMesh.getWorldPosition(targetPos);
+
+                const mat = new THREE.LineBasicMaterial({
+                    color: graphData.color,
+                    opacity: 0.15,
+                    transparent: true,
+                    linewidth: 1
+                });
+
+                const geo = new THREE.BufferGeometry().setFromPoints([
+                    sourceMesh.position.clone(),
+                    targetMesh.position.clone()
+                ]);
+                
+                const line = new THREE.Line(geo, mat);
+                line.userData = { source: edgeData.source, target: edgeData.target };
+                group.add(line);
+                lineMeshes.push(line);
+            });
+
+            // Opcional: Visualizador de órbita
+            if (showOrbits) {
+                const orbitGeo = new THREE.RingGeometry(orbitRadius - 10, orbitRadius + 10, 128);
+                const orbitMat = new THREE.MeshBasicMaterial({
+                    color: graphData.color,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.08
+                });
+                const orbitRing = new THREE.Mesh(orbitGeo, orbitMat);
+                orbitRing.rotation.x = Math.PI / 2;
+                orbitRing.userData.isOrbit = true;
+                scene.add(orbitRing);
+            }
+
+            scene.add(group);
+            seedGroups.push(group);
+        });
+
+        // ──────────────────────────────────────────────────────────────
+        // PUENTES DE ENERGÍA ENTRE SEMILLAS
+        // ──────────────────────────────────────────────────────────────
+
+        if (seedGroups.length >= 2) {
+            for (let i = 0; i < seedGroups.length; i++) {
+                const nextIndex = (i + 1) % seedGroups.length;
+                const groupA = seedGroups[i];
+                const groupB = seedGroups[nextIndex];
+
+                const bridgeMat = new THREE.LineBasicMaterial({
+                    color: 0x00ff88,
+                    transparent: true,
+                    opacity: 0.3,
+                    linewidth: 2
+                });
+
+                const points = [
+                    groupA.position.clone(),
+                    groupB.position.clone()
+                ];
+
+                const bridgeGeo = new THREE.BufferGeometry().setFromPoints(points);
+                const bridge = new THREE.Line(bridgeGeo, bridgeMat);
+                bridge.userData.isBridge = true;
+                scene.add(bridge);
+            }
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        // ANIMACIÓN ORBITAL
+        // ──────────────────────────────────────────────────────────────
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (controls) controls.update();
+
+            // Animar cada semilla
+            seedGroups.forEach((group, idx) => {
+                // Rotación orbital alrededor del centro
+                group.userData.orbitPhase += group.userData.orbitSpeed;
+                const orbitR = 600;
+                group.position.x = Math.cos(group.userData.orbitPhase) * orbitR;
+                group.position.z = Math.sin(group.userData.orbitPhase) * orbitR;
+
+                // Oscilación vertical suave
+                group.userData.oscillationPhase += 0.0008;
+                group.position.y = Math.sin(group.userData.oscillationPhase) * 80;
+
+                // Rotación interna del grupo (giro sobre sí mismo)
+                group.rotation.y += 0.0002;
+            });
+
+            // Pulso del agujero negro central
+            const pulseScale = 1.0 + Math.sin(Date.now() * 0.001) * 0.05;
+            centralSingularity.scale.set(pulseScale, pulseScale, pulseScale);
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // ──────────────────────────────────────────────────────────────
+        // CONTROLES
+        // ──────────────────────────────────────────────────────────────
+
+        window.toggleFullscreen = () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen();
+            }
+        };
+
+        window.resetCamera = () => {
+            camera.position.set(0, 300, 1200);
+            if (controls) {
+                controls.target.set(0, 0, 0);
+                controls.update();
+            }
+        };
+
+        window.toggleOrbits = () => {
+            showOrbits = !showOrbits;
+            scene.children.forEach(child => {
+                if (child.userData.isOrbit) {
+                    child.visible = showOrbits;
+                }
+            });
+        };
+
+        // Resize handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

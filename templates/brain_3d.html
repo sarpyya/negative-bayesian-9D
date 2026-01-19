@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cosmic Brain - Bayesian Negative 9D</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000000 !important;
+            font-family: 'Courier New', monospace;
+        }
+
+        #monitor-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #ffffff;
+            background: rgba(0,0,0,0.92);
+            padding: 12px 16px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            z-index: 100;
+            font-size: 0.9rem;
+            box-shadow: 0 0 12px rgba(0,0,0,0.8);
+            pointer-events: none;
+        }
+
+        #motion-hud {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #ffdd00;
+            background: rgba(0,0,0,0.92);
+            padding: 10px 14px;
+            border: 1px solid #ffdd00;
+            border-radius: 4px;
+            z-index: 100;
+            font-size: 0.85rem;
+        }
+
+        #controls-panel {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            z-index: 100;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hud-btn {
+            background: #111;
+            border: 1px solid #00ffff;
+            color: #00ffff;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 0.9rem;
+            transition: all 0.25s;
+        }
+
+        .hud-btn:hover {
+            background: #00ffff;
+            color: #000;
+            box-shadow: 0 0 12px #00ffff;
+        }
+
+        select.hud-btn {
+            background: #111;
+            color: #00ffff;
+            border: 1px solid #00ffff;
+        }
+    </style>
+</head>
+<body>
+    <div id="monitor-panel">
+        <div>MODE: <span id="mode-label">Cargando...</span></div>
+        <div>NODES: <span id="node-count">0</span></div>
+        <div>EDGES: <span id="edge-count">0</span></div>
+    </div>
+
+    <div id="motion-hud">
+        DIRECTION: <span id="dir-val">STABLE</span>
+    </div>
+
+    <div id="controls-panel">
+        <button class="hud-btn" onclick="toggleFullscreen()">Fullscreen</button>
+        <button class="hud-btn" onclick="resetCamera()">Reset Cam</button>
+        <button class="hud-btn btn-fusion blink" onclick="ver2D()">🧪 VER 2D</button>
+        <button class="hud-btn" onclick="window.parent.runFusion()">🌀 FUSIÓN</button>
+        <select id="temaSelect" onchange="cambiarTema()" class="hud-btn">
+            <option value="cosmic">Cosmic (default) 🌌</option>
+            <option value="nino">Niño 🌈</option>
+            <option value="minecraft">Minecraft ⛏️</option>
+            <option value="onepiece">One Piece 🏴‍☠️</option>
+        </select>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        // ──────────────────────────────────────────────────────────────
+        // INICIALIZACIÓN DE DATOS Y UI
+        // ──────────────────────────────────────────────────────────────
+        
+        // Datos inyectados desde Flask (Jinja2)
+        const nodesData = {{ nodes | tojson if nodes else [] }};
+        const edgesData = {{ edges | tojson if edges else [] }};
+        const activeModo = {{ modo | tojson if modo else {} }};
+
+        console.log("Brain 3D: Nodos recibidos:", nodesData.length);
+
+        // Actualización inmediata del HUD
+        try {
+            document.getElementById('mode-label').innerText = activeModo.nombre || "Cosmic Brain";
+            document.getElementById('node-count').innerText = nodesData.length;
+            document.getElementById('edge-count').innerText = edgesData.length;
+        } catch (e) { console.error("HUD Update Error:", e); }
+
+        const nodeMeshes = {};
+        const lineMeshes = [];
+        const maxHorror = (nodesData.length > 0) ? Math.max(1, ...nodesData.map(n => n.horror || 0)) : 1;
+
+        // ──────────────────────────────────────────────────────────────
+        // CONFIGURACIÓN THREE.JS
+        // ──────────────────────────────────────────────────────────────
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 15000);
+        camera.position.set(0, 120, 700);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        let controls;
+        try {
+            if (typeof THREE.OrbitControls === 'function') {
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.07;
+                controls.rotateSpeed = 0.6;
+            } else {
+                console.warn("OrbitControls no cargado correctamente.");
+            }
+        } catch (e) { 
+            console.error("Error inicializando controles:", e); 
+        }
+
+        let selectedNodeId = null;
+
+        // ──────────────────────────────────────────────────────────────
+        // FUNCIÓN: DISTRIBUCIÓN ESFÉRICA (NO RECTANGULAR)
+        // ──────────────────────────────────────────────────────────────
+
+        function randomSphericalPosition(innerRadius, outerRadius) {
+            // Distribución esférica uniforme (método de Marsaglia)
+            const u = Math.random();
+            const v = Math.random();
+            const theta = 2 * Math.PI * u;
+            const phi = Math.acos(2 * v - 1);
+            
+            // Radio con distribución cúbica para mejor dispersión
+            const r = innerRadius + Math.pow(Math.random(), 0.7) * (outerRadius - innerRadius);
+            
+            const x = r * Math.sin(phi) * Math.cos(theta);
+            const y = r * Math.sin(phi) * Math.sin(theta);
+            const z = r * Math.cos(phi);
+            
+            return new THREE.Vector3(x, y, z);
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        // CREACIÓN DE NODOS: GRADIENTE CÓSMICO (Blanco lejos → Oscuro cerca)
+        // ──────────────────────────────────────────────────────────────
+
+        nodesData.forEach(n => {
+            const h = n.horror || 0;
+            const norm = Math.min(1, h / maxHorror);
+
+            // Distribución esférica cósmica (200 a 800 unidades del centro)
+            const position = randomSphericalPosition(200, 800);
+            
+            // Distancia al centro para gradiente cósmico
+            const distanceToCenter = position.length();
+            const maxDist = 900; // Distancia máxima esperada
+            const distanceNorm = Math.min(1, distanceToCenter / maxDist);
+            
+            // GRADIENTE CÓSMICO: Lejos = blanco brillante, Cerca = oscuro
+            // distanceNorm = 1 (lejos) → brightness = 1 (blanco estrella)
+            // distanceNorm = 0 (cerca) → brightness = 0.05 (oscuro agujero negro)
+            let brightness = 0.05 + (distanceNorm * 0.95);
+            
+            let color = new THREE.Color(brightness, brightness, brightness);
+
+            // SOBREESCRITURA POR SEMILLA (Fusion Mode)
+            const seedIdx = n.seed_index;
+            if (seedIdx !== undefined && seedIdx !== null) {
+                if (seedIdx === 0) color.set(0xcccccc); // Seed 0: Gris claro
+                else if (seedIdx === 1) color.set(0x00ffff); // Seed 1: Cyan
+                else if (seedIdx === 2) color.set(0xff00ff); // Seed 2: Magenta
+                
+                // En fusion, modular por distancia también
+                color.multiplyScalar(0.5 + distanceNorm * 0.5);
+            }
+
+            const size = 1.8 + norm * 7; // más horror = más grande
+
+            const geo = new THREE.SphereGeometry(size, 10, 10);
+            const mat = new THREE.MeshBasicMaterial({
+                color: color,
+                transparent: true,
+                opacity: 0.85 + (distanceNorm * 0.15)
+            });
+
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.copy(position);
+
+            mesh.userData = n;
+            scene.add(mesh);
+            nodeMeshes[n.id] = mesh;
+        });
+
+        // ──────────────────────────────────────────────────────────────
+        // SINGULARIDAD CENTRAL: SIEMPRE AMARILLO DORADO (SOL ETERNO)
+        // ──────────────────────────────────────────────────────────────
+
+        let singularity = null;
+        let centralData = nodesData.find(n => 
+            n.id.includes("Cero Absoluto") || 
+            n.id.includes("CERO_ABSOLUTO") || 
+            (n.horror || 0) === maxHorror
+        ) || nodesData.reduce((a, b) => (a.horror > b.horror) ? a : b);
+
+        if (centralData && nodeMeshes[centralData.id]) {
+            singularity = nodeMeshes[centralData.id];
+            
+            // Fuerza amarillo eterno
+            singularity.material.color.set(0xffd700);
+            singularity.scale.set(5, 5, 5);
+
+            // Disco de acreción (Interstellar style)
+            const diskGeo = new THREE.RingGeometry(18, 55, 96);
+            const diskMat = new THREE.MeshBasicMaterial({
+                color: 0xffaa00,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.75,
+                blending: THREE.AdditiveBlending
+            });
+            const disk = new THREE.Mesh(diskGeo, diskMat);
+            disk.rotation.x = Math.PI / 2;
+            disk.position.copy(singularity.position);
+            scene.add(disk);
+
+            // Glow radial (sprite simple)
+            const glowTex = new THREE.TextureLoader().load('https://i.imgur.com/8cm5z.png'); // glow blanco genérico
+            const glow = new THREE.Sprite(new THREE.SpriteMaterial({
+                map: glowTex,
+                color: 0xffd700,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                opacity: 0.85
+            }));
+            glow.scale.set(120, 120, 1);
+            glow.position.copy(singularity.position);
+            scene.add(glow);
+
+            // Event horizon negro
+            const holeGeo = new THREE.SphereGeometry(10, 32, 32);
+            const holeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            const hole = new THREE.Mesh(holeGeo, holeMat);
+            hole.position.copy(singularity.position);
+            scene.add(hole);
+
+            // Centrado inicial
+            controls.target.copy(singularity.position);
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        // LÍNEAS: Tenues gris por defecto
+        // ──────────────────────────────────────────────────────────────
+
+        edgesData.forEach(e => {
+            const p1 = nodeMeshes[e.source]?.position;
+            const p2 = nodeMeshes[e.target]?.position;
+            if (!p1 || !p2) return;
+
+            const isBridge = (e.label && (e.label.includes("Puente") || e.label.includes("Ciclo") || e.label.includes("Colapso")));
+
+            const mat = new THREE.LineBasicMaterial({
+                color: isBridge ? 0xffff00 : 0x333333,
+                opacity: isBridge ? 0.8 : 0.12,
+                transparent: true,
+                linewidth: isBridge ? 2 : 1
+            });
+
+            const geo = new THREE.BufferGeometry().setFromPoints([p1, p2]);
+            const line = new THREE.Line(geo, mat);
+            line.userData = { source: e.source, target: e.target, isBridge: isBridge };
+            scene.add(line);
+            lineMeshes.push(line);
+        });
+
+        // ──────────────────────────────────────────────────────────────
+        // SELECCIÓN + HIGHLIGHT DORADO
+        // ──────────────────────────────────────────────────────────────
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        window.addEventListener('click', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+
+            const intersects = raycaster.intersectObjects(Object.values(nodeMeshes));
+
+            // Reset previo
+            lineMeshes.forEach(l => {
+                l.material.color.set(0x333333);
+                l.material.opacity = 0.12;
+            });
+
+            if (intersects.length > 0) {
+                const mesh = intersects[0].object;
+                const nodeId = mesh.userData.id;
+
+                // Highlight dorado intenso
+                lineMeshes.forEach(line => {
+                    if (line.userData.source === nodeId || line.userData.target === nodeId) {
+                        line.material.color.set(0xffd700);
+                        line.material.opacity = 1.0;
+                    }
+                });
+
+                // Feedback escala
+                const originalScale = mesh.scale.x;
+                mesh.scale.set(originalScale * 2.2, originalScale * 2.2, originalScale * 2.2);
+                setTimeout(() => mesh.scale.set(originalScale, originalScale, originalScale), 1200);
+
+                // Info en HUD
+                document.getElementById('mode-label').innerText = 
+                    `NODO: ${nodeId} | Horror: ${mesh.userData.horror?.toFixed(1) || '?'}`;
+            } else {
+                document.getElementById('mode-label').innerText = "Cosmic Brain - Bayesian Negative 9D";
+            }
+        });
+
+        // ──────────────────────────────────────────────────────────────
+        // TEMAS DINÁMICOS
+        // ──────────────────────────────────────────────────────────────
+
+        window.cambiarTema = function() {
+            const tema = document.getElementById('temaSelect').value;
+            scene.background = new THREE.Color(0x000000);
+
+            Object.values(nodeMeshes).forEach(mesh => {
+                const norm = (mesh.userData.horror || 0) / maxHorror;
+                let color = new THREE.Color(1 - norm * 0.98, 1 - norm * 0.98, 1 - norm * 0.98);
+
+                if (tema === 'nino') {
+                    scene.background = new THREE.Color(0xa1c4fd);
+                    color.setHSL(Math.random() * 0.15 + 0.05, 0.9, 0.75);
+                } else if (tema === 'minecraft') {
+                    scene.background = new THREE.Color(0x87ceeb);
+                    mesh.geometry = new THREE.BoxGeometry(8,8,8);
+                    color.set(0x8b4513 + Math.random() * 0x00ff00);
+                } else if (tema === 'onepiece') {
+                    scene.background = new THREE.Color(0x001f3f);
+                    color.set(norm < 0.5 ? 0x00aaff : 0xc62828);
+                }
+
+                mesh.material.color.copy(color);
+            });
+
+            renderer.render(scene, camera);
+        };
+
+        // ──────────────────────────────────────────────────────────────
+        // MOTION HUD + ANIMACIÓN
+        // ──────────────────────────────────────────────────────────────
+
+        let prevPos = new THREE.Vector3().copy(camera.position);
+        const dirVal = document.getElementById('dir-val');
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+
+            const delta = camera.position.distanceTo(prevPos);
+            if (delta > 0.3) { // umbral más estable
+                const dz = camera.position.z - prevPos.z;
+                const dx = camera.position.x - prevPos.x;
+                const dy = camera.position.y - prevPos.y;
+
+                let dir = "STABLE";
+                if (Math.abs(dz) > Math.abs(dx) && Math.abs(dz) > Math.abs(dy)) {
+                    dir = dz > 0 ? "RETROCESO" : "AVANCE";
+                } else if (Math.abs(dx) > Math.abs(dy)) {
+                    dir = dx > 0 ? "PAN DERECHA" : "PAN IZQUIERDA";
+                } else {
+                    dir = dy > 0 ? "SUBIENDO" : "BAJANDO";
+                }
+                dirVal.innerText = dir;
+            } else {
+                dirVal.innerText = "ESTABLE";
+            }
+
+            prevPos.copy(camera.position);
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // ──────────────────────────────────────────────────────────────
+        // CONTROLES BÁSICOS
+        // ──────────────────────────────────────────────────────────────
+
+        window.toggleFullscreen = () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen();
+            }
+        };
+
+        window.ver2D = () => {
+            const isFusion = nodesData.some(n => n.seed_index > 0);
+            window.open(isFusion ? '/visualize/fusion' : '/graph', '_blank');
+        };
+
+        window.resetCamera = () => {
+            camera.position.set(0, 120, 700);
+            controls.target.set(0,0,0);
+            controls.update();
+        };
+
+        // Listener para mensajes del parent (dashboard)
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.action === 'resetCamera') {
+                window.resetCamera();
+            }
+        });
+
+        // Actualiza contador inicial
+        document.getElementById('node-count').innerText = nodesData.length;
+        document.getElementById('edge-count').innerText = edgesData.length;
+    </script>
+</body>
+</html>
