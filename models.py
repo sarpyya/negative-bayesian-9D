@@ -10,6 +10,7 @@ class HorrorRun(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     horror_total = db.Column(db.Float, nullable=False)
     modo = db.Column(db.String(50))
+    modo_desc = db.Column(db.Text)
     top_nodes = db.Column(db.Text)          # JSON string con top 5 nodos
     graph_json = db.Column(db.Text)         # Opcional: export graph to json
     
@@ -27,6 +28,7 @@ class HorrorRun(db.Model):
             'timestamp': self.timestamp.isoformat(),
             'horror_total': self.horror_total,
             'modo': self.modo,
+            'modo_desc': self.modo_desc,
             'top_nodes': json.loads(self.top_nodes) if self.top_nodes else [],
             'horror_promedio': self.horror_promedio,
             'total_nodos': self.total_nodos

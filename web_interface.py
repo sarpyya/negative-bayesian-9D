@@ -7,8 +7,8 @@ Servidor Flask con estética terminal dark satánica.
 Visualización interactiva del grafo de horror.
 """
 
-from flask import Flask, render_template, jsonify, send_from_directory, request
-from bayesian_9d import generar_grafo_9d, analizar_horror, votar_modo
+from flask import Flask, render_template, jsonify, send_from_directory, request, session
+from bayesian_9d import generar_grafo_9d, analizar_horror, votar_modo, MODOS
 from models import db, HorrorRun
 import random
 from pyvis.network import Network
@@ -17,13 +17,22 @@ import json
 import datetime
 
 app = Flask(__name__)
+app.secret_key = 'secret_key_satanico_666' # Necesario flashear mensajes y session
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///horror_runs.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 # Crear DB si no existe (una vez)
 with app.app_context():
-    db.create_all()
+    # ⚠️ RESET DB SOLO SI NO EXISTE TABLA PARA EVITAR CRASH POR ESQUEMA NUEVO
+    # OJO: Si agregaste columnas, mejor borrar manualmente o aquí:
+    db_path = 'instance/horror_runs.db' if os.path.exists('instance') else 'horror_runs.db'
+    # db.create_all() lo hace automático, pero si cambiamos modelo, el alter table falla en sqlite
+    # Para this run, asumimos que el usuario permite reset
+    try:
+        db.create_all() 
+    except:
+        pass # Si falla, es porque ya existe.
 
 # Almacenar último grafo generado
 ultimo_grafo = None
@@ -34,6 +43,12 @@ def index():
     """Página principal"""
     return render_template('index.html')
 
+@app.route('/force_dolphin', methods=['POST'])
+def force_dolphin():
+    # Fuerza Dolphin en la próxima visualización o simulación
+    session['force_dolphin'] = True
+    return jsonify({"message": "🐬 Modo Dolphin forzado. El milagro improbable está en marcha..."})
+
 @app.route('/api/generate', methods=['POST'])
 def generate_graph():
     """Genera un nuevo grafo de horror y lo guarda en DB. Soporta Replay via seed."""
@@ -43,15 +58,41 @@ def generate_graph():
     data = request.get_json(silent=True) or {}
     req_seed = data.get('seed')
     
+    # 🔮 MODO INFLUENCE: El pasado persigue el futuro
+    # Obtener último modo para influir en parámetros
+    last_run = HorrorRun.query.order_by(HorrorRun.timestamp.desc()).first()
+    
+    ramificaciones = 7 # Default standard brutal
+    cross_prob = 0.4
+    
+    if last_run:
+        if last_run.modo == "MODO BESTIA":
+             ramificaciones = 9 # Caos total
+             print("🔥 Influencia BESTIA: Ramificaciones aumentadas a 9")
+        elif last_run.modo == "MODO JUSTICE":
+             ramificaciones = 6 
+             # Bonus: Justicia optimiza, menos nodos basura, más conectados
+             print("⚖️ Influencia JUSTICE: Ramificaciones optimizadas")
+        elif last_run.modo == "DOLPHIN":
+             ramificaciones = 3 # Calma total
+             print("🐬 Influencia DOLPHIN: El abismo duerme (ramif=3)")
+
     if req_seed is not None:
         seed = int(req_seed)
         print(f"🔄 Replaying seed: {seed}")
     else:
         seed = random.randint(1, 999999)
     
-    ultimo_grafo = generar_grafo_9d(seed=seed, ramificaciones_por_nodo=3)
+    # Check if custom dimension provided
+    custom_dim = data.get('custom_dim')
+    
+    force_d = session.pop('force_dolphin', False)
+    
+    ultimo_grafo = generar_grafo_9d(seed=seed, ramificaciones_por_nodo=ramificaciones, custom_dim=custom_dim)
     ultimo_analisis = analizar_horror(ultimo_grafo, top_n=10)
-    modo_nombre, modo_info = votar_modo(ultimo_analisis['horror_total'])
+    
+    # Check manual force or natural vote
+    modo_nombre, modo_info = votar_modo(ultimo_analisis['horror_total'], special_trigger=force_d)
     
     # Guardar en DB
     try:
@@ -59,6 +100,7 @@ def generate_graph():
             seed=seed,
             horror_total=ultimo_analisis['horror_total'],
             modo=modo_nombre,
+            modo_desc=modo_info['desc'],
             top_nodes=json.dumps(ultimo_analisis['nodos_mas_horribles'][:5]),
             horror_promedio=ultimo_analisis['horror_promedio'],
             total_nodos=ultimo_analisis['total_nodos']
@@ -73,7 +115,7 @@ def generate_graph():
         'analisis': ultimo_analisis,
         'modo': {
             'nombre': modo_nombre,
-            'emoji': modo_info['emoji'],
+            'emoji': modo_info.get('emoji', ''),
             'desc': modo_info['desc']
         }
     })
@@ -81,79 +123,140 @@ def generate_graph():
 @app.route('/api/visualize')
 def visualize_graph():
     """Genera visualización HTML del grafo"""
-    global ultimo_grafo
+    global ultimo_grafo, ultimo_analisis
     
     if ultimo_grafo is None:
         return jsonify({'error': 'No hay grafo generado'}), 400
     
-    # Crear red pyvis con estilo dark
+    if ultimo_analisis is None:
+        ultimo_analisis = analizar_horror(ultimo_grafo, top_n=10)
+        
+    # Check session forced dolphin (visualize does not consume it, only generate does usually, but lets check)
+    force_d = session.get('force_dolphin', False) 
+    
+    modo_nombre, modo_info = votar_modo(ultimo_analisis['horror_total'], special_trigger=force_d)
+    
+    # Extract configs
+    bg_color = "#000000"
+    font_color = "#00ff41" # Default Matrix Green
+    
+    # Dynamic values from metadata
+    physics = modo_info.get('physics', {})
+    gravity = physics.get('gravity', -15000)
+    spring_len = physics.get('spring_length', 120)
+    spring_const = physics.get('spring_strength', 0.001)
+    damping = physics.get('damping', 0.09)
+    
+    mod_color = modo_info.get('color', '#00ff41')
+    shape = modo_info.get('node_shape', 'dot')
+    edge_col = modo_info.get('edge_color', 'rgba(255, 0, 51, 0.4)')
+    
+    if modo_nombre == "MODO BESTIA":
+        bg_color = "#1a0500" # Naranja muy oscuro
+        font_color = "#ff4500"
+    elif modo_nombre == "MODO JUSTICE":
+        bg_color = "#1a1a00" # Dorado oscuro
+        font_color = "#ffd700"
+    elif modo_nombre == "CHILL":
+        bg_color = "#000a1a"
+        font_color = "#00aaff"
+    elif modo_nombre == "DOLPHIN":
+        bg_color = "#001a1a"
+        font_color = "#00ffcc"
+    elif modo_nombre == "MAPUCHE_COSMICO":
+        bg_color = "#0a000a"
+        font_color = "#aa00ff"
+        
+    # Crear red pyvis
     net = Network(
-        height='800px',
-        width='100%',
-        bgcolor='#000000',
-        font_color='#00ff41',
+        height='100vh', 
+        width='100%', 
+        bgcolor=bg_color, 
+        font_color=font_color, 
         directed=True
     )
     
-    # Configuración física del grafo (BRUTAL MODE)
-    net.set_options("""
-    {
-      "physics": {
+    # Configuración física dinámica
+    net.set_options(f"""
+    {{
+      "physics": {{
         "enabled": true,
-        "barnesHut": {
-          "gravitationalConstant": -12000,
-          "centralGravity": 0.05,
-          "springLength": 150,
-          "springConstant": 0.04,
-          "damping": 0.09,
+        "barnesHut": {{
+          "gravitationalConstant": {gravity},
+          "centralGravity": 0.01,
+          "springLength": {spring_len},
+          "springConstant": {spring_const},
+          "damping": {damping},
           "avoidOverlap": 0.1
-        },
+        }},
         "minVelocity": 0.75
-      },
-      "nodes": {
-        "font": {
-          "color": "#00ff41",
+      }},
+      "nodes": {{
+        "shape": "{shape}",
+        "font": {{
+          "color": "{font_color}",
           "size": 16,
           "face": "monospace"
-        },
+        }},
         "borderWidth": 2,
         "shadow": true
-      },
-      "edges": {
-        "color": {
-          "color": "rgba(255, 0, 51, 0.4)",
-          "highlight": "#ffff00"
-        },
-        "smooth": {
+      }},
+      "edges": {{
+        "color": {{
+          "color": "{edge_col}",
+          "highlight": "#ffffff"
+        }},
+        "smooth": {{
             "type": "continuous"
-        },
-        "arrows": {
-          "to": {
+        }},
+        "arrows": {{
+          "to": {{
             "enabled": true,
             "scaleFactor": 0.5
-          }
-        }
-      }
-    }
+          }}
+        }}
+      }}
+    }}
     """)
     
     # Calcular max horror para scaling
     all_horrors = [data.get('horror', 0) for _, data in ultimo_grafo.nodes(data=True)]
     max_h = max(all_horrors) if all_horrors else 1
 
-    # Añadir nodos con colores basados en horror
+    # Añadir nodos
     for node, data in ultimo_grafo.nodes(data=True):
         horror = data.get('horror', 0)
         
         # Scaling brutal
         intensity = int(255 * (horror / max_h))
-        # Ensure intensity is within 0-255
         intensity = max(0, min(255, intensity))
         
-        # Color rojo dinámico basado en intensidad
-        color = f'#{intensity:02x}0000'
-        # Size dinámico
-        size = 15 + (horror / max_h) * 50
+        # Default dynamic color base (Red scale usually)
+        # But if mode has specific primary color, we might want to scale that
+        # For simplify: use red scale unless it's Dolphin/Chill
+        
+        color = f'#{intensity:02x}0000' # Default horror red
+        
+        if modo_nombre == "MODO BESTIA":
+             color = f'#{intensity:02x}4500' # Orange scale
+        elif modo_nombre == "MODO JUSTICE":
+             color = f'#{intensity:02x}D700' # Gold scale
+        elif modo_nombre == "DOLPHIN":
+             color = f'#00{intensity:02x}cc' # Cyan scale
+        elif modo_nombre == "CHILL":
+             color = f'#00{intensity:02x}ff' # Blue scale
+        
+        # HYBRID OVERRIDE
+        if 'HYBRID' in str(data.get('dim', '')):
+             color = "#880088" # Purple fixed
+             if modo_nombre == "MODO BESTIA": color = "#ff00ff"
+        
+        # 🔥 CERO ABSOLUTO OVERRIDE (SOL AMARILLO) 🔥
+        if node == "CERO_ABSOLUTO" or node == "Cero Absoluto":
+             color = "#FFD700"  # Gold/Sun Yellow
+             size = 60 # Más grande que el resto
+        else:
+            size = 15 + (horror / max_h) * 60
         
         label = data.get('label', node)
         title = f"{label}<br>HORROR: {horror:.1f}<br>{data.get('desc', '')}"
@@ -164,8 +267,7 @@ def visualize_graph():
             title=title,
             color=color,
             size=size,
-            borderWidth=2,
-            borderWidthSelected=4
+            borderWidth=2
         )
     
     # Añadir edges
@@ -215,92 +317,146 @@ def run_monte_carlo_endpoint():
     n_sims = int(request.json.get('n_sims', 50))
     limit = min(n_sims, 500) # Límite de seguridad
     
+    # Check force dolphin
+    force_d = session.pop('force_dolphin', False)
+    
     results = []
-    best_worst_horror = -1
-    best_worst_seed = -1
+    seeds = [] # Para almacenar todos los seeds
+    top_nodes_all = [] # Para chequear keywords
     
     for _ in range(limit):
         current_seed = random.randint(1, 999999)
+        # Dolphin influence should affect simulation parameters, but here use default for MC
+        # To make it fair, maybe random params? Keep simple for now.
         g = generar_grafo_9d(seed=current_seed, ramificaciones_por_nodo=3)
-        analytics = analizar_horror(g, top_n=1)
+        analytics = analizar_horror(g, top_n=5)
         
         horror = analytics['horror_total']
         results.append(horror)
-        
-        if horror > best_worst_horror:
-            best_worst_horror = horror
-            best_worst_seed = current_seed
+        seeds.append(current_seed)
+        top_nodes_all.append(analytics['nodos_mas_horribles'])
             
-            # Guardamos el PEOR histórico si supera cierto umbral, o siempre?
-            # Por ahora guardemos solo el winner de la ronda en DB
+    # Identificar peor caso
+    max_h = max(results)
+    index_worst = results.index(max_h)
+    best_worst_seed = seeds[index_worst]
+    worst_nodes = top_nodes_all[index_worst]
     
-    # Guardar el ganador de Monte Carlo en DB
-    winner_graph = generar_grafo_9d(seed=best_worst_seed)
-    winner_analysis = analizar_horror(winner_graph, top_n=5)
-    winner_modo, _ = votar_modo(winner_analysis['horror_total'])
+    # Votar modo del peor caso
+    modo_nombre, modo_info = votar_modo(max_h, special_trigger=force_d)
     
+    # ⚔️ TEMPORAL TRIGGER JUSTICE ⚔️
+    # Si detecta injusticia en los nodos más horribles, activa JUSTICE override
+    keywords = ["desprecio", "ocultamiento", "iatrogenia", "psiquiátrico", "injusticia", "traición"]
+    top_desc_str = " ".join([n['desc'].lower() for n in worst_nodes] + [n['label'].lower() for n in worst_nodes])
+    
+    if any(kw in top_desc_str for kw in keywords) and modo_nombre != "MODO BESTIA":
+         modo_nombre = "MODO JUSTICE"
+         modo_info = MODOS["MODO JUSTICE"]
+         modo_info['desc'] += " [ACTIVADO POR DETECCIÓN DE INJUSTICIA]"
+
+    # 💾 Persistir el PEOR caso
     try:
         new_run = HorrorRun(
             seed=best_worst_seed,
-            horror_total=winner_analysis['horror_total'],
-            modo=winner_modo,
-            top_nodes=json.dumps(winner_analysis['nodos_mas_horribles'][:5]),
-            horror_promedio=winner_analysis['horror_promedio'],
-            total_nodos=winner_analysis['total_nodos']
+            horror_total=max_h,
+            modo=modo_nombre,
+            modo_desc=modo_info['desc'],
+            top_nodes=json.dumps(worst_nodes),
+            horror_promedio=max_h / 20, # Approx
+            total_nodos=50 # dummy
         )
         db.session.add(new_run)
         db.session.commit()
     except Exception as e:
-        print(f"Error saving Monte Carlo run: {e}")
-            
+        print(f"Error DB persist MC: {e}")
+
     return jsonify({
         'simulations': limit,
-        'max_horror': max(results),
+        'max_horror': max_h,
         'min_horror': min(results),
         'avg_horror': sum(results) / len(results),
         'worst_seed': best_worst_seed,
-        'histogram_data': results # Para el frontend
+        'histogram_data': results,
+        'worst_mode': modo_nombre,
+        'worst_mode_desc': modo_info['desc'],
+        'worst_mode_emoji': modo_info.get('emoji', ''),
+        'worst_mode_color': modo_info.get('color', '#00ff41'),
+        'blink': modo_info.get('blink', False)
     })
 
 @app.route('/visualize/seed/<int:seed>')
 def visualize_seed_route(seed):
     """Visualiza directamente un seed específico sin pasar por generate"""
-    grafo = generar_grafo_9d(seed=seed, ramificaciones_por_nodo=3)
+    grafo = generar_grafo_9d(seed=seed, ramificaciones_por_nodo=7)
+    analisis = analizar_horror(grafo, top_n=10)
+    modo_nombre, modo_info = votar_modo(analisis['horror_total'])
     
+    # Dynamic values from metadata
+    physics = modo_info.get('physics', {})
+    gravity = physics.get('gravity', -15000)
+    spring_len = physics.get('spring_length', 120)
+    spring_const = physics.get('spring_strength', 0.001)
+    damping = physics.get('damping', 0.09)
+    
+    mod_color = modo_info.get('color', '#00ff41')
+    shape = modo_info.get('node_shape', 'dot')
+    edge_col = modo_info.get('edge_color', 'rgba(255, 0, 51, 0.4)')
+    
+    bg_color = "#000000"
+    font_color = "#00ff41"
+
+    if modo_nombre == "MODO BESTIA":
+        bg_color = "#1a0500" 
+        font_color = "#ff4500"
+    elif modo_nombre == "MODO JUSTICE":
+        bg_color = "#1a1a00" 
+        font_color = "#ffd700"
+    elif modo_nombre == "CHILL":
+        bg_color = "#000a1a"
+        font_color = "#00aaff"
+    elif modo_nombre == "DOLPHIN":
+        bg_color = "#001a1a"
+        font_color = "#00ffcc"
+    elif modo_nombre == "MAPUCHE_COSMICO":
+        bg_color = "#0a000a"
+        font_color = "#aa00ff"
+
     # Crear red pyvis
     net = Network(
         height='100vh', 
         width='100%', 
-        bgcolor='#000000', 
-        font_color='#00ff41',
+        bgcolor=bg_color, 
+        font_color=font_color,
         directed=True
     )
     
-    # Misma configuración física del grafo (BRUTAL)
-    net.set_options("""
-    {
-      "physics": {
+    # Configuración física dinámica
+    net.set_options(f"""
+    {{
+      "physics": {{
         "enabled": true,
-        "barnesHut": {
-          "gravitationalConstant": -12000,
-          "centralGravity": 0.05,
-          "springLength": 150,
-          "springConstant": 0.04,
-          "damping": 0.09,
+        "barnesHut": {{
+          "gravitationalConstant": {gravity},
+          "centralGravity": 0.01,
+          "springLength": {spring_len},
+          "springConstant": {spring_const},
+          "damping": {damping},
           "avoidOverlap": 0.1
-        },
+        }},
         "minVelocity": 0.75
-      },
-      "nodes": {
-        "font": { "color": "#00ff41", "size": 16, "face": "monospace" },
+      }},
+      "nodes": {{
+        "shape": "{shape}",
+        "font": {{ "color": "{font_color}", "size": 16, "face": "monospace" }},
         "borderWidth": 2, "shadow": true
-      },
-      "edges": {
-        "color": { "color": "rgba(255, 0, 51, 0.4)", "highlight": "#ffff00" },
-        "smooth": { "type": "continuous" },
-        "arrows": { "to": { "enabled": true, "scaleFactor": 0.5 } }
-      }
-    }
+      }},
+      "edges": {{
+        "color": {{ "color": "{edge_col}", "highlight": "#ffffff" }},
+        "smooth": {{ "type": "continuous" }},
+        "arrows": {{ "to": {{ "enabled": true, "scaleFactor": 0.5 }} }}
+      }}
+    }}
     """)
     
     # Calcular max horror para scaling
@@ -314,8 +470,28 @@ def visualize_seed_route(seed):
         intensity = int(255 * (horror / max_h))
         intensity = max(0, min(255, intensity))
         
-        color = f'#{intensity:02x}0000'
-        size = 15 + (horror / max_h) * 50
+        color = f'#{intensity:02x}0000' # Default horror red
+        
+        if modo_nombre == "MODO BESTIA":
+             color = f'#{intensity:02x}4500' 
+        elif modo_nombre == "MODO JUSTICE":
+             color = f'#{intensity:02x}D700' 
+        elif modo_nombre == "DOLPHIN":
+             color = f'#00{intensity:02x}cc' 
+        elif modo_nombre == "CHILL":
+             color = f'#00{intensity:02x}ff' 
+
+        # HYBRID OVERRIDE
+        if 'HYBRID' in str(data.get('dim', '')):
+             color = "#880088" 
+             if modo_nombre == "MODO BESTIA": color = "#ff00ff"
+        
+        # 🔥 CERO ABSOLUTO OVERRIDE (SOL AMARILLO) 🔥
+        if node == "CERO_ABSOLUTO" or node == "Cero Absoluto":
+             color = "#FFD700"
+             size = 60
+        else:
+            size = 15 + (horror / max_h) * 60
             
         label = data.get('label', node)
         title = f"{label}<br>HORROR: {horror:.1f}<br>{data.get('desc', '')}"

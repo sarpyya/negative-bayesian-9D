@@ -216,6 +216,8 @@
             margin-top: 60px;
             color: var(--text-cyan);
         }
+        @keyframes blinker { 50% { opacity: 0; } }
+        .blink { animation: blinker 1.5s linear infinite; }
     </style>
 </head>
 <body>
@@ -229,16 +231,16 @@
         </header>
 
         <div class="controls">
-            <button id="generateBtn" onclick="generateGraph()">
-                🎲 GENERAR GRAFO
-            </button>
-            <button id="visualizeBtn" onclick="visualizeGraph()" disabled>
-                📊 VISUALIZAR
-            </button>
-            <button id="monteCarloBtn" onclick="runMonteCarlo()" style="border-color: var(--text-red); color: var(--text-red);">
-                ⚡ MONTE CARLO (x50)
-            </button>
-            <br><br>
+            <!-- CONTROL PANEL -->
+            <div style="margin-bottom: 25px; display: grid; gap: 10px;">
+                <input type="text" id="customDimInput" placeholder="¿Qué horror personal quieres agregar? (Opcional)" 
+                       style="background: #111; border: 1px solid var(--border-green); color: var(--text-cyan); padding: 10px; width: 100%; box-sizing: border-box; font-family: 'Courier New';">
+                       
+                <button id="generateBtn" onclick="generateGraph()">🎲 GENERAR NUEVO CAOS</button>
+                <button id="monteCarloBtn" onclick="runMonteCarlo()" style="border-color: var(--text-yellow); color: var(--text-yellow);">⚡ MONTE CARLO (SIMULACIÓN MASIVA)</button>
+                <button id="visualizeBtn" onclick="visualizeGraph()" disabled>👁 VISUALIZAR GRAFO (PYVIS)</button>
+            </div>
+<br>
             <a href="/hall_of_shame" style="color: var(--text-yellow); text-decoration: none; border-bottom: 1px dotted var(--text-yellow);">
                 🏆 VER HALL OF SHAME 🏆
             </a>
@@ -281,6 +283,15 @@
                 <div id="topHallList" style="text-align: center;">
                     <span class="blink">Cargando la eternidad...</span>
                 </div>
+            </div>
+
+            <div style="margin: 30px 0; border: 2px solid var(--border-green); padding: 20px; display: flex; gap: 10px;">
+                <button class="btn btn-warning" style="flex: 1; padding: 15px; font-weight: bold; text-transform: uppercase; background: #ffff00; color: #000;" onclick="replaySeed(currentData.seed)">
+                    ♻️ REPLAY SEED
+                </button>
+                <button class="btn" style="flex: 1; padding: 15px; font-weight: bold; text-transform: uppercase; background: #00ffcc; color: #000;" id="force-dolphin" onclick="forceDolphin()">
+                    🐬 INTENTAR DOLPHIN
+                </button>
             </div>
 
             <div class="horror-list">
@@ -355,16 +366,20 @@
 
         async function generateGraph(forceSeed = null) {
             const btn = document.getElementById('generateBtn');
+            const customDimVal = document.getElementById('customDimInput').value;
+            
             btn.disabled = true;
             btn.textContent = forceSeed ? '↺ REGENERANDO PASADO...' : '⏳ GENERANDO...';
 
             try {
-                const body = forceSeed ? JSON.stringify({seed: forceSeed}) : '{}';
+                const bodyObj = {};
+                if (forceSeed) bodyObj.seed = forceSeed;
+                if (customDimVal && !forceSeed) bodyObj.custom_dim = customDimVal; // Solo aplicar custom dim si no es replay exacto
                 
                 const response = await fetch('/api/generate', { 
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: body
+                    body: JSON.stringify(bodyObj)
                 });
                 const data = await response.json();
                 currentData = data;
@@ -400,6 +415,9 @@
                 loadTopHall();
 
                 btn.textContent = '🎲 GENERAR OTRO';
+                
+                // 🔥 AUTO-VISUALIZAR 🔥
+                await visualizeGraph();
             } catch (error) {
                 console.error('Error:', error);
                 btn.textContent = '❌ ERROR - REINTENTAR';
@@ -463,34 +481,53 @@
                 // Mostrar Histograma en un modal o alert custom (BRUTAL)
                 // Por razones de tiempo (5 min), crearemos un DIV flotante brutal
                 
-                const overlay = document.createElement('div');
-                overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column;";
+                let overlay = document.getElementById('monteCarloOverlay');
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.id = 'monteCarloOverlay';
+                    overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column;";
+                    document.body.appendChild(overlay);
+                }
+                overlay.style.display = 'flex'; // Ensure it's visible
+                
+                const blinkClass = data.blink ? 'blink' : '';
+                
                 overlay.innerHTML = `
-                    <div style="background:#111; border:2px solid #ff0033; padding:30px; max-width:600px; width:90%; color:#00ff41; text-align:center; box-shadow: 0 0 50px #ff0033;">
-                        <h2 style="color:#ffff00; margin-bottom:20px;">⚡ RESULTADOS MONTE CARLO (${n_sims} sims) ⚡</h2>
+                    <div style="background:#111; border:2px solid ${data.worst_mode_color}; padding:30px; max-width:600px; width:90%; color:#00ff41; text-align:center; box-shadow: 0 0 50px ${data.worst_mode_color}; position:relative;">
+                        <h2 style="color:${data.worst_mode_color}; margin-bottom:20px;">⚡ RESULTADOS MONTE CARLO (${n_sims} sims) ⚡</h2>
+                        
+                        <div style="background: rgba(0,0,0,0.3); border: 1px dashed ${data.worst_mode_color}; padding: 15px; margin-bottom: 20px;">
+                            <h3 style="color: ${data.worst_mode_color}; margin:0 0 10px 0;" class="${blinkClass}">MODO: ${data.worst_mode_emoji} ${data.worst_mode}</h3>
+                            <p style="color: #ccc; font-style: italic; margin:0;">"${data.worst_mode_desc}"</p>
+                            ${data.worst_mode === 'MODO BESTIA' ? '<p style="color:red; font-weight:bold; margin-top:10px;">👹 FACTOR OSVALDO ELIMINADO 👹</p>' : ''}
+                            ${data.worst_mode === 'MODO JUSTICIA' ? '<p style="color:var(--text-cyan); font-weight:bold; margin-top:10px;">⚖️ JUSTICIA DIVINA APLICADA ⚖️</p>' : ''}
+                            ${data.worst_mode === 'MODO DOLPHIN' ? '<p style="color:#00ffcc; font-weight:bold; margin-top:10px;">🐬 DOLPHIN MODE ACTIVADO 🐬</p>' : ''}
+                        </div>
+
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; font-size:1.2rem;">
-                            <div>💀 Peor: <span style="color:#ff0033; font-weight:bold;">${data.max_horror.toFixed(1)}</span></div>
+                            <div>💀 Peor: <span style="color:${data.worst_mode_color}; font-weight:bold;">${data.max_horror.toFixed(1)}</span></div>
                             <div>📉 Promedio: <span style="color:#ffff00;">${data.avg_horror.toFixed(1)}</span></div>
                             <div>🎲 Seed Maldita: <span style="color:#00ffff;">${data.worst_seed}</span></div>
                             <div>😇 Mejor (Peor-Peor): <span style="color:#00ff41;">${data.min_horror.toFixed(1)}</span></div>
                         </div>
-                        
-                        <div style="margin-bottom:20px; height:200px;">
-                            <canvas id="histoChart"></canvas>
+
+                        <div style="height:200px; margin-bottom:20px;">
+                            <canvas id="mcChart"></canvas>
                         </div>
                         
-                        <button id="viewWorstBtn" style="background:#ff0033; color:black; border:none; padding:15px 30px; font-size:1.2rem; font-weight:bold; cursor:pointer; margin-right:10px;">
-                             👁 VER PEOR CASO
-                        </button>
-                        <button onclick="this.parentElement.parentElement.remove(); window.loadTopHall();" style="background:transparent; color:#00ff41; border:1px solid #00ff41; padding:15px 30px; font-size:1.2rem; cursor:pointer;">
-                             CERRAR
-                        </button>
+                        <div style="display:flex; gap:10px; justify-content:center;">
+                             <button class="btn" style="background:${data.worst_mode_color}; color:black; font-weight:bold;" onclick="visualizeWorstCase(${data.worst_seed})">
+                                👁️ VER PEOR CASO
+                            </button>
+                            <button class="btn btn-warning" onclick="document.getElementById('monteCarloOverlay').style.display='none'">
+                                CERRAR
+                            </button>
+                        </div>
                     </div>
                 `;
-                document.body.appendChild(overlay);
                 
                 // Renderizar Chart
-                const ctx = document.getElementById('histoChart').getContext('2d');
+                const ctx = document.getElementById('mcChart').getContext('2d');
                 // Crear bins simples
                 const bins = 20;
                 const minH = data.min_horror;
