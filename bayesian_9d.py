@@ -73,7 +73,7 @@ MODOS = {
 
 def generar_grafo_9d(
     seed: int = None,
-    ramificaciones_por_nodo: int = 3,
+    ramificaciones_por_nodo: int = 7,
     factor_agravacion: Tuple[float, float] = (1.35, 1.85)
 ) -> nx.DiGraph:
     """
@@ -122,6 +122,7 @@ def generar_grafo_9d(
         G.add_edge("CERO_ABSOLUTO", node_id, weight=1.0, label="raíz→dim")
         
         # Ramificación: sub-nodos más horribles
+        sub_nodes = []
         for j in range(1, ramificaciones_por_nodo + 1):
             factor = np.random.uniform(factor_agravacion[0], factor_agravacion[1])
             sub_horror = horror_base * factor  # +35–85% peor
@@ -139,6 +140,61 @@ def generar_grafo_9d(
                 color="darkred" if sub_horror > 1200 else "red"
             )
             G.add_edge(node_id, sub_id, weight=factor, label=f"agrav×{factor:.2f}")
+            sub_nodes.append(sub_id)
+
+            sub_nodes.append(sub_id)
+
+    # 🔥 CONEXIONES TRANSVERSALES & HIBRIDACIÓN (CROSS-DIMENSIONAL MUTATION) 🔥
+    nodes_list = list(G.nodes())
+    cross_prob = 0.4
+    synergy_bonus = 1.666  # 66.6% bonus
+    
+    # Copia de lista para no iterar sobre lo que añadimos
+    static_nodes_list = [n for n in nodes_list if n != "CERO_ABSOLUTO"]
+    
+    for n in static_nodes_list:
+        # Probabilidad de conexión cruzada
+        if random.random() < cross_prob:
+            target = random.choice(static_nodes_list)
+            
+            # Evitar auto-conexión y misma dimensión (queremos cruce real)
+            n_dim = G.nodes[n].get('dim', 0)
+            t_dim = G.nodes[target].get('dim', 0)
+            
+            if target != n and n_dim != t_dim:
+                # Calcular peso sinérgico
+                cross_weight = random.uniform(0.5, 1.5) * synergy_bonus
+                G.add_edge(n, target, weight=cross_weight, label="sinergia")
+                
+                # 🔥 GENERACIÓN DE NODO HÍBRIDO (El Horror Mutante)
+                # Si la conexión es muy fuerte, nace un nuevo horror puros
+                if cross_weight > 1.8:
+                    n_data = G.nodes[n]
+                    t_data = G.nodes[target]
+                    
+                    # Nombre compuesto
+                    h_name = f"HYBRID [{n_dim}+{t_dim}]"
+                    
+                    # Horror promedio * bonus
+                    n_h = n_data.get('horror', 0)
+                    t_h = t_data.get('horror', 0)
+                    h_horror = ((n_h + t_h) / 2) * (cross_weight * 0.8) # Un poco menos que el link directo pero horrible
+                    
+                    match_id = f"HYBRID_{n}_{target}"[:30] # ID único corto
+                    
+                    G.add_node(
+                        match_id,
+                        horror=h_horror,
+                        dim="HYBRID",
+                        timestamp=datetime.datetime.now().isoformat(),
+                        desc=f"Mutación entre Dim {n_dim} y Dim {t_dim}",
+                        label=h_name,
+                        color="purple" 
+                    )
+                    
+                    # Conectar padres a hijo mutante
+                    G.add_edge(n, match_id, weight=2.0, label="engendra")
+                    G.add_edge(target, match_id, weight=2.0, label="engendra")
     
     return G
 

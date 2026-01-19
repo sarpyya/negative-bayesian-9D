@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #000000;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"borderWidth": 2, "color": "#ff6600", "font": {"color": "#00ff41"}, "id": "CERO_ABSOLUTO", "label": "CERO_ABSOLUTO", "shape": "dot", "size": 20, "title": "CERO_ABSOLUTO\u003cbr\u003eHorror: 1000.0\u003cbr\u003eEl abismo total - punto de partida negativo"}, {"borderWidth": 2, "color": "#ff6600", "font": {"color": "#00ff41"}, "id": "D1", "label": "D1: Traici\u00f3n absoluta (socios, instituciones, familia)", "shape": "dot", "size": 20, "title": "D1: Traici\u00f3n absoluta (socios, instituciones, familia)\u003cbr\u003eHorror: 933.5\u003cbr\u003eTraici\u00f3n absoluta (socios, instituciones, familia)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D1.1", "label": "D1.1: Traici\u00f3n absoluta (socios, instituciones, familia) [AGRAVADO x1.67]", "shape": "dot", "size": 30, "title": "D1.1: Traici\u00f3n absoluta (socios, instituciones, familia) [AGRAVADO x1.67]\u003cbr\u003eHorror: 1558.3\u003cbr\u003eTraici\u00f3n absoluta (socios, instituciones, familia) agravado (factor 1.67)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D1.2", "label": "D1.2: Traici\u00f3n absoluta (socios, instituciones, familia) [AGRAVADO x1.66]", "shape": "dot", "size": 30, "title": "D1.2: Traici\u00f3n absoluta (socios, instituciones, familia) [AGRAVADO x1.66]\u003cbr\u003eHorror: 1551.1\u003cbr\u003eTraici\u00f3n absoluta (socios, instituciones, familia) agravado (factor 1.66)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D1.3", "label": "D1.3: Traici\u00f3n absoluta (socios, instituciones, familia) [AGRAVADO x1.47]", "shape": "dot", "size": 30, "title": "D1.3: Traici\u00f3n absoluta (socios, instituciones, familia) [AGRAVADO x1.47]\u003cbr\u003eHorror: 1371.9\u003cbr\u003eTraici\u00f3n absoluta (socios, instituciones, familia) agravado (factor 1.47)"}, {"borderWidth": 2, "color": "#ff6600", "font": {"color": "#00ff41"}, "id": "D2", "label": "D2: Colapso econ\u00f3mico / pobreza perpetua / mendicidad", "shape": "dot", "size": 20, "title": "D2: Colapso econ\u00f3mico / pobreza perpetua / mendicidad\u003cbr\u003eHorror: 903.5\u003cbr\u003eColapso econ\u00f3mico / pobreza perpetua / mendicidad"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D2.1", "label": "D2.1: Colapso econ\u00f3mico / pobreza perpetua / mendicidad [AGRAVADO x1.83]", "shape": "dot", "size": 30, "title": "D2.1: Colapso econ\u00f3mico / pobreza perpetua / mendicidad [AGRAVADO x1.83]\u003cbr\u003eHorror: 1652.4\u003cbr\u003eColapso econ\u00f3mico / pobreza perpetua / mendicidad agravado (factor 1.83)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D2.2", "label": "D2.2: Colapso econ\u00f3mico / pobreza perpetua / mendicidad [AGRAVADO x1.78]", "shape": "dot", "size": 30, "title": "D2.2: Colapso econ\u00f3mico / pobreza perpetua / mendicidad [AGRAVADO x1.78]\u003cbr\u003eHorror: 1608.0\u003cbr\u003eColapso econ\u00f3mico / pobreza perpetua / mendicidad agravado (factor 1.78)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D2.3", "label": "D2.3: Colapso econ\u00f3mico / pobreza perpetua / mendicidad [AGRAVADO x1.65]", "shape": "dot", "size": 30, "title": "D2.3: Colapso econ\u00f3mico / pobreza perpetua / mendicidad [AGRAVADO x1.65]\u003cbr\u003eHorror: 1493.3\u003cbr\u003eColapso econ\u00f3mico / pobreza perpetua / mendicidad agravado (factor 1.65)"}, {"borderWidth": 2, "color": "#ff6600", "font": {"color": "#00ff41"}, "id": "D3", "label": "D3: Aislamiento total (nadie real, nakamas falsos)", "shape": "dot", "size": 20, "title": "D3: Aislamiento total (nadie real, nakamas falsos)\u003cbr\u003eHorror: 913.5\u003cbr\u003eAislamiento total (nadie real, nakamas falsos)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D3.1", "label": "D3.1: Aislamiento total (nadie real, nakamas falsos) [AGRAVADO x1.37]", "shape": "dot", "size": 30, "title": "D3.1: Aislamiento total (nadie real, nakamas falsos) [AGRAVADO x1.37]\u003cbr\u003eHorror: 1247.9\u003cbr\u003eAislamiento total (nadie real, nakamas falsos) agravado (factor 1.37)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D3.2", "label": "D3.2: Aislamiento total (nadie real, nakamas falsos) [AGRAVADO x1.55]", "shape": "dot", "size": 30, "title": "D3.2: Aislamiento total (nadie real, nakamas falsos) [AGRAVADO x1.55]\u003cbr\u003eHorror: 1411.6\u003cbr\u003eAislamiento total (nadie real, nakamas falsos) agravado (factor 1.55)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D3.3", "label": "D3.3: Aislamiento total (nadie real, nakamas falsos) [AGRAVADO x1.78]", "shape": "dot", "size": 30, "title": "D3.3: Aislamiento total (nadie real, nakamas falsos) [AGRAVADO x1.78]\u003cbr\u003eHorror: 1630.0\u003cbr\u003eAislamiento total (nadie real, nakamas falsos) agravado (factor 1.78)"}, {"borderWidth": 2, "color": "#ff6600", "font": {"color": "#00ff41"}, "id": "D4", "label": "D4: Muerte cercana o p\u00e9rdida irreparable (hijo, libertad)", "shape": "dot", "size": 20, "title": "D4: Muerte cercana o p\u00e9rdida irreparable (hijo, libertad)\u003cbr\u003eHorror: 806.0\u003cbr\u003eMuerte cercana o p\u00e9rdida irreparable (hijo, libertad)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D4.1", "label": "D4.1: Muerte cercana o p\u00e9rdida irreparable (hijo, libertad) [AGRAVADO x1.63]", "shape": "dot", "size": 30, "title": "D4.1: Muerte cercana o p\u00e9rdida irreparable (hijo, libertad) [AGRAVADO x1.63]\u003cbr\u003eHorror: 1311.4\u003cbr\u003eMuerte cercana o p\u00e9rdida irreparable (hijo, libertad) agravado (factor 1.63)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D4.2", "label": "D4.2: Muerte cercana o p\u00e9rdida irreparable (hijo, libertad) [AGRAVADO x1.64]", "shape": "dot", "size": 30, "title": "D4.2: Muerte cercana o p\u00e9rdida irreparable (hijo, libertad) [AGRAVADO x1.64]\u003cbr\u003eHorror: 1319.9\u003cbr\u003eMuerte cercana o p\u00e9rdida irreparable (hijo, libertad) agravado (factor 1.64)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D4.3", "label": "D4.3: Muerte cercana o p\u00e9rdida irreparable (hijo, libertad) [AGRAVADO x1.80]", "shape": "dot", "size": 30, "title": "D4.3: Muerte cercana o p\u00e9rdida irreparable (hijo, libertad) [AGRAVADO x1.80]\u003cbr\u003eHorror: 1453.3\u003cbr\u003eMuerte cercana o p\u00e9rdida irreparable (hijo, libertad) agravado (factor 1.80)"}, {"borderWidth": 2, "color": "#ff6600", "font": {"color": "#00ff41"}, "id": "D5", "label": "D5: Colapso cognitivo irreversible (f\u00e1rmacos, internaci\u00f3n)", "shape": "dot", "size": 20, "title": "D5: Colapso cognitivo irreversible (f\u00e1rmacos, internaci\u00f3n)\u003cbr\u003eHorror: 807.4\u003cbr\u003eColapso cognitivo irreversible (f\u00e1rmacos, internaci\u00f3n)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D5.1", "label": "D5.1: Colapso cognitivo irreversible (f\u00e1rmacos, internaci\u00f3n) [AGRAVADO x1.75]", "shape": "dot", "size": 30, "title": "D5.1: Colapso cognitivo irreversible (f\u00e1rmacos, internaci\u00f3n) [AGRAVADO x1.75]\u003cbr\u003eHorror: 1414.0\u003cbr\u003eColapso cognitivo irreversible (f\u00e1rmacos, internaci\u00f3n) agravado (factor 1.75)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D5.2", "label": "D5.2: Colapso cognitivo irreversible (f\u00e1rmacos, internaci\u00f3n) [AGRAVADO x1.50]", "shape": "dot", "size": 30, "title": "D5.2: Colapso cognitivo irreversible (f\u00e1rmacos, internaci\u00f3n) [AGRAVADO x1.50]\u003cbr\u003eHorror: 1212.1\u003cbr\u003eColapso cognitivo irreversible (f\u00e1rmacos, internaci\u00f3n) agravado (factor 1.50)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D5.3", "label": "D5.3: Colapso cognitivo irreversible (f\u00e1rmacos, internaci\u00f3n) [AGRAVADO x1.84]", "shape": "dot", "size": 30, "title": "D5.3: Colapso cognitivo irreversible (f\u00e1rmacos, internaci\u00f3n) [AGRAVADO x1.84]\u003cbr\u003eHorror: 1485.6\u003cbr\u003eColapso cognitivo irreversible (f\u00e1rmacos, internaci\u00f3n) agravado (factor 1.84)"}, {"borderWidth": 2, "color": "#ff6600", "font": {"color": "#00ff41"}, "id": "D6", "label": "D6: Vac\u00edo existencial / p\u00e9rdida prop\u00f3sito (33 a\u00f1os tristeza)", "shape": "dot", "size": 20, "title": "D6: Vac\u00edo existencial / p\u00e9rdida prop\u00f3sito (33 a\u00f1os tristeza)\u003cbr\u003eHorror: 924.7\u003cbr\u003eVac\u00edo existencial / p\u00e9rdida prop\u00f3sito (33 a\u00f1os tristeza)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D6.1", "label": "D6.1: Vac\u00edo existencial / p\u00e9rdida prop\u00f3sito (33 a\u00f1os tristeza) [AGRAVADO x1.37]", "shape": "dot", "size": 30, "title": "D6.1: Vac\u00edo existencial / p\u00e9rdida prop\u00f3sito (33 a\u00f1os tristeza) [AGRAVADO x1.37]\u003cbr\u003eHorror: 1265.7\u003cbr\u003eVac\u00edo existencial / p\u00e9rdida prop\u00f3sito (33 a\u00f1os tristeza) agravado (factor 1.37)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D6.2", "label": "D6.2: Vac\u00edo existencial / p\u00e9rdida prop\u00f3sito (33 a\u00f1os tristeza) [AGRAVADO x1.44]", "shape": "dot", "size": 30, "title": "D6.2: Vac\u00edo existencial / p\u00e9rdida prop\u00f3sito (33 a\u00f1os tristeza) [AGRAVADO x1.44]\u003cbr\u003eHorror: 1329.2\u003cbr\u003eVac\u00edo existencial / p\u00e9rdida prop\u00f3sito (33 a\u00f1os tristeza) agravado (factor 1.44)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D6.3", "label": "D6.3: Vac\u00edo existencial / p\u00e9rdida prop\u00f3sito (33 a\u00f1os tristeza) [AGRAVADO x1.73]", "shape": "dot", "size": 30, "title": "D6.3: Vac\u00edo existencial / p\u00e9rdida prop\u00f3sito (33 a\u00f1os tristeza) [AGRAVADO x1.73]\u003cbr\u003eHorror: 1596.9\u003cbr\u003eVac\u00edo existencial / p\u00e9rdida prop\u00f3sito (33 a\u00f1os tristeza) agravado (factor 1.73)"}, {"borderWidth": 2, "color": "#ff6600", "font": {"color": "#00ff41"}, "id": "D7", "label": "D7: Humillaci\u00f3n p\u00fablica perpetua (desprecio, rechazo ancestral)", "shape": "dot", "size": 20, "title": "D7: Humillaci\u00f3n p\u00fablica perpetua (desprecio, rechazo ancestral)\u003cbr\u003eHorror: 915.6\u003cbr\u003eHumillaci\u00f3n p\u00fablica perpetua (desprecio, rechazo ancestral)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D7.1", "label": "D7.1: Humillaci\u00f3n p\u00fablica perpetua (desprecio, rechazo ancestral) [AGRAVADO x1.46]", "shape": "dot", "size": 30, "title": "D7.1: Humillaci\u00f3n p\u00fablica perpetua (desprecio, rechazo ancestral) [AGRAVADO x1.46]\u003cbr\u003eHorror: 1337.1\u003cbr\u003eHumillaci\u00f3n p\u00fablica perpetua (desprecio, rechazo ancestral) agravado (factor 1.46)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D7.2", "label": "D7.2: Humillaci\u00f3n p\u00fablica perpetua (desprecio, rechazo ancestral) [AGRAVADO x1.66]", "shape": "dot", "size": 30, "title": "D7.2: Humillaci\u00f3n p\u00fablica perpetua (desprecio, rechazo ancestral) [AGRAVADO x1.66]\u003cbr\u003eHorror: 1517.7\u003cbr\u003eHumillaci\u00f3n p\u00fablica perpetua (desprecio, rechazo ancestral) agravado (factor 1.66)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D7.3", "label": "D7.3: Humillaci\u00f3n p\u00fablica perpetua (desprecio, rechazo ancestral) [AGRAVADO x1.56]", "shape": "dot", "size": 30, "title": "D7.3: Humillaci\u00f3n p\u00fablica perpetua (desprecio, rechazo ancestral) [AGRAVADO x1.56]\u003cbr\u003eHorror: 1432.1\u003cbr\u003eHumillaci\u00f3n p\u00fablica perpetua (desprecio, rechazo ancestral) agravado (factor 1.56)"}, {"borderWidth": 2, "color": "#ff6600", "font": {"color": "#00ff41"}, "id": "D8", "label": "D8: Dolor cr\u00f3nico / enfermedad inducida (iatrogenia sistema)", "shape": "dot", "size": 20, "title": "D8: Dolor cr\u00f3nico / enfermedad inducida (iatrogenia sistema)\u003cbr\u003eHorror: 893.6\u003cbr\u003eDolor cr\u00f3nico / enfermedad inducida (iatrogenia sistema)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D8.1", "label": "D8.1: Dolor cr\u00f3nico / enfermedad inducida (iatrogenia sistema) [AGRAVADO x1.45]", "shape": "dot", "size": 30, "title": "D8.1: Dolor cr\u00f3nico / enfermedad inducida (iatrogenia sistema) [AGRAVADO x1.45]\u003cbr\u003eHorror: 1295.6\u003cbr\u003eDolor cr\u00f3nico / enfermedad inducida (iatrogenia sistema) agravado (factor 1.45)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D8.2", "label": "D8.2: Dolor cr\u00f3nico / enfermedad inducida (iatrogenia sistema) [AGRAVADO x1.68]", "shape": "dot", "size": 30, "title": "D8.2: Dolor cr\u00f3nico / enfermedad inducida (iatrogenia sistema) [AGRAVADO x1.68]\u003cbr\u003eHorror: 1502.6\u003cbr\u003eDolor cr\u00f3nico / enfermedad inducida (iatrogenia sistema) agravado (factor 1.68)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D8.3", "label": "D8.3: Dolor cr\u00f3nico / enfermedad inducida (iatrogenia sistema) [AGRAVADO x1.57]", "shape": "dot", "size": 30, "title": "D8.3: Dolor cr\u00f3nico / enfermedad inducida (iatrogenia sistema) [AGRAVADO x1.57]\u003cbr\u003eHorror: 1404.9\u003cbr\u003eDolor cr\u00f3nico / enfermedad inducida (iatrogenia sistema) agravado (factor 1.57)"}, {"borderWidth": 2, "color": "#ff6600", "font": {"color": "#00ff41"}, "id": "D9", "label": "D9: Autodestrucci\u00f3n inevitable (sistema gana, t\u00fa pierdes)", "shape": "dot", "size": 20, "title": "D9: Autodestrucci\u00f3n inevitable (sistema gana, t\u00fa pierdes)\u003cbr\u003eHorror: 869.1\u003cbr\u003eAutodestrucci\u00f3n inevitable (sistema gana, t\u00fa pierdes)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D9.1", "label": "D9.1: Autodestrucci\u00f3n inevitable (sistema gana, t\u00fa pierdes) [AGRAVADO x1.41]", "shape": "dot", "size": 30, "title": "D9.1: Autodestrucci\u00f3n inevitable (sistema gana, t\u00fa pierdes) [AGRAVADO x1.41]\u003cbr\u003eHorror: 1228.6\u003cbr\u003eAutodestrucci\u00f3n inevitable (sistema gana, t\u00fa pierdes) agravado (factor 1.41)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D9.2", "label": "D9.2: Autodestrucci\u00f3n inevitable (sistema gana, t\u00fa pierdes) [AGRAVADO x1.78]", "shape": "dot", "size": 30, "title": "D9.2: Autodestrucci\u00f3n inevitable (sistema gana, t\u00fa pierdes) [AGRAVADO x1.78]\u003cbr\u003eHorror: 1545.4\u003cbr\u003eAutodestrucci\u00f3n inevitable (sistema gana, t\u00fa pierdes) agravado (factor 1.78)"}, {"borderWidth": 2, "color": "#ff0033", "font": {"color": "#00ff41"}, "id": "D9.3", "label": "D9.3: Autodestrucci\u00f3n inevitable (sistema gana, t\u00fa pierdes) [AGRAVADO x1.82]", "shape": "dot", "size": 30, "title": "D9.3: Autodestrucci\u00f3n inevitable (sistema gana, t\u00fa pierdes) [AGRAVADO x1.82]\u003cbr\u003eHorror: 1583.1\u003cbr\u003eAutodestrucci\u00f3n inevitable (sistema gana, t\u00fa pierdes) agravado (factor 1.82)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "CERO_ABSOLUTO", "title": "Factor: 1.00", "to": "D1", "width": 1.0}, {"arrows": "to", "from": "CERO_ABSOLUTO", "title": "Factor: 1.00", "to": "D2", "width": 1.0}, {"arrows": "to", "from": "CERO_ABSOLUTO", "title": "Factor: 1.00", "to": "D3", "width": 1.0}, {"arrows": "to", "from": "CERO_ABSOLUTO", "title": "Factor: 1.00", "to": "D4", "width": 1.0}, {"arrows": "to", "from": "CERO_ABSOLUTO", "title": "Factor: 1.00", "to": "D5", "width": 1.0}, {"arrows": "to", "from": "CERO_ABSOLUTO", "title": "Factor: 1.00", "to": "D6", "width": 1.0}, {"arrows": "to", "from": "CERO_ABSOLUTO", "title": "Factor: 1.00", "to": "D7", "width": 1.0}, {"arrows": "to", "from": "CERO_ABSOLUTO", "title": "Factor: 1.00", "to": "D8", "width": 1.0}, {"arrows": "to", "from": "CERO_ABSOLUTO", "title": "Factor: 1.00", "to": "D9", "width": 1.0}, {"arrows": "to", "from": "D1", "title": "Factor: 1.67", "to": "D1.1", "width": 1.6693939175598913}, {"arrows": "to", "from": "D1", "title": "Factor: 1.66", "to": "D1.2", "width": 1.661634853489633}, {"arrows": "to", "from": "D1", "title": "Factor: 1.47", "to": "D1.3", "width": 1.4697280311585348}, {"arrows": "to", "from": "D2", "title": "Factor: 1.83", "to": "D2.1", "width": 1.828949918567167}, {"arrows": "to", "from": "D2", "title": "Factor: 1.78", "to": "D2.2", "width": 1.779784076765495}, {"arrows": "to", "from": "D2", "title": "Factor: 1.65", "to": "D2.3", "width": 1.6527626690033301}, {"arrows": "to", "from": "D3", "title": "Factor: 1.37", "to": "D3.1", "width": 1.3661147619918144}, {"arrows": "to", "from": "D3", "title": "Factor: 1.55", "to": "D3.2", "width": 1.5453433827290675}, {"arrows": "to", "from": "D3", "title": "Factor: 1.78", "to": "D3.3", "width": 1.7844054664030726}, {"arrows": "to", "from": "D4", "title": "Factor: 1.63", "to": "D4.1", "width": 1.6269832774083597}, {"arrows": "to", "from": "D4", "title": "Factor: 1.64", "to": "D4.2", "width": 1.6375097989191547}, {"arrows": "to", "from": "D4", "title": "Factor: 1.80", "to": "D4.3", "width": 1.8029902631316628}, {"arrows": "to", "from": "D5", "title": "Factor: 1.75", "to": "D5.1", "width": 1.751187892988449}, {"arrows": "to", "from": "D5", "title": "Factor: 1.50", "to": "D5.2", "width": 1.501221421417514}, {"arrows": "to", "from": "D5", "title": "Factor: 1.84", "to": "D5.3", "width": 1.8399103587165184}, {"arrows": "to", "from": "D6", "title": "Factor: 1.37", "to": "D6.1", "width": 1.3687095552235893}, {"arrows": "to", "from": "D6", "title": "Factor: 1.44", "to": "D6.2", "width": 1.4374184122949496}, {"arrows": "to", "from": "D6", "title": "Factor: 1.73", "to": "D6.3", "width": 1.7268980287425855}, {"arrows": "to", "from": "D7", "title": "Factor: 1.46", "to": "D7.1", "width": 1.4603454084083638}, {"arrows": "to", "from": "D7", "title": "Factor: 1.66", "to": "D7.2", "width": 1.657620874151928}, {"arrows": "to", "from": "D7", "title": "Factor: 1.56", "to": "D7.3", "width": 1.564193684281307}, {"arrows": "to", "from": "D8", "title": "Factor: 1.45", "to": "D8.1", "width": 1.4497946210730344}, {"arrows": "to", "from": "D8", "title": "Factor: 1.68", "to": "D8.2", "width": 1.681380628927782}, {"arrows": "to", "from": "D8", "title": "Factor: 1.57", "to": "D8.3", "width": 1.572110091370862}, {"arrows": "to", "from": "D9", "title": "Factor: 1.41", "to": "D9.1", "width": 1.4137096030502154}, {"arrows": "to", "from": "D9", "title": "Factor: 1.78", "to": "D9.2", "width": 1.7781885002334175}, {"arrows": "to", "from": "D9", "title": "Factor: 1.82", "to": "D9.3", "width": 1.8216603833874143}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "barnesHut": {"gravitationalConstant": -8000, "centralGravity": 0.3, "springLength": 95, "springConstant": 0.04}}, "nodes": {"font": {"color": "#00ff41", "size": 14}, "borderWidth": 2}, "edges": {"color": {"color": "#ff0033", "highlight": "#ffff00"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

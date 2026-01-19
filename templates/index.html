@@ -307,6 +307,7 @@
         </footer>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         let currentData = null;
 
@@ -315,7 +316,7 @@
         
         async function loadTopHall() {
             try {
-                const res = await fetch('/api/hall?limit=3');
+                const res = await fetch('/api/hall?limit=5');
                 const runs = await res.json();
                 
                 const hallDiv = document.getElementById('topHallList');
@@ -331,9 +332,14 @@
                             <span style="color: var(--text-red); font-weight: bold;">${run.horror_total.toFixed(1)}</span>
                             <span style="color: #666; font-size: 0.8rem;"> (${new Date(run.timestamp).toLocaleDateString()})</span>
                         </span>
-                        <button onclick="replaySeed(${run.seed})" style="padding: 2px 10px; font-size: 0.8rem; border: 1px solid var(--text-cyan); color: var(--text-cyan); background: transparent; margin: 0;">
-                             ↺ REPLAY
-                        </button>
+                        <div>
+                            <button onclick="replaySeed(${run.seed})" style="cursor:pointer; padding: 2px 10px; font-size: 0.8rem; border: 1px solid var(--text-cyan); color: var(--text-cyan); background: transparent; margin-right: 5px;">
+                                ↺ REPLAY
+                            </button>
+                            <a href="/visualize/seed/${run.seed}" target="_blank" style="text-decoration:none; padding: 2px 6px; font-size: 0.8rem; border: 1px solid var(--text-red); color: var(--text-red); background: transparent;">
+                                👁
+                            </a>
+                        </div>
                     </div>
                 `).join('');
                 
@@ -436,7 +442,8 @@
             const btn = document.getElementById('monteCarloBtn');
             const originalText = btn.textContent;
             
-            const countStr = prompt("¿Cuántos universos paralelos quieres simular? (Recomendado: 50-200, Max: 500)", "50");
+            // Input más sexy podría ser un slider en el HTML, pero prompt es rápido
+            const countStr = prompt("¿Cuántos universos paralelos quieres simular? (Recomendado: 50-500, Max: 5000)", "100");
             if (!countStr) return;
             
             const n_sims = parseInt(countStr);
@@ -453,20 +460,87 @@
                 });
                 const data = await response.json();
                 
-                // Alert simple por ahora (BRUTAL)
-                const play = confirm(
-                    `⚡ RESULTADOS MONTE CARLO (${n_sims} sims) ⚡\n\n` +
-                    `💀 Peor Horror: ${data.max_horror.toFixed(1)}\n` +
-                    `🎲 Seed Maldita: ${data.worst_seed}\n` +
-                    `📉 Promedio: ${data.avg_horror.toFixed(1)}\n\n` +
-                    `¿Quieres visualizar la PEOR realidad ahora mismo?`
-                );
+                // Mostrar Histograma en un modal o alert custom (BRUTAL)
+                // Por razones de tiempo (5 min), crearemos un DIV flotante brutal
                 
-                if (play) {
-                    replaySeed(data.worst_seed);
-                } else {
-                    loadTopHall(); // Refrescar hall
+                const overlay = document.createElement('div');
+                overlay.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; display:flex; justify-content:center; align-items:center; flex-direction:column;";
+                overlay.innerHTML = `
+                    <div style="background:#111; border:2px solid #ff0033; padding:30px; max-width:600px; width:90%; color:#00ff41; text-align:center; box-shadow: 0 0 50px #ff0033;">
+                        <h2 style="color:#ffff00; margin-bottom:20px;">⚡ RESULTADOS MONTE CARLO (${n_sims} sims) ⚡</h2>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; font-size:1.2rem;">
+                            <div>💀 Peor: <span style="color:#ff0033; font-weight:bold;">${data.max_horror.toFixed(1)}</span></div>
+                            <div>📉 Promedio: <span style="color:#ffff00;">${data.avg_horror.toFixed(1)}</span></div>
+                            <div>🎲 Seed Maldita: <span style="color:#00ffff;">${data.worst_seed}</span></div>
+                            <div>😇 Mejor (Peor-Peor): <span style="color:#00ff41;">${data.min_horror.toFixed(1)}</span></div>
+                        </div>
+                        
+                        <div style="margin-bottom:20px; height:200px;">
+                            <canvas id="histoChart"></canvas>
+                        </div>
+                        
+                        <button id="viewWorstBtn" style="background:#ff0033; color:black; border:none; padding:15px 30px; font-size:1.2rem; font-weight:bold; cursor:pointer; margin-right:10px;">
+                             👁 VER PEOR CASO
+                        </button>
+                        <button onclick="this.parentElement.parentElement.remove(); window.loadTopHall();" style="background:transparent; color:#00ff41; border:1px solid #00ff41; padding:15px 30px; font-size:1.2rem; cursor:pointer;">
+                             CERRAR
+                        </button>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+                
+                // Renderizar Chart
+                const ctx = document.getElementById('histoChart').getContext('2d');
+                // Crear bins simples
+                const bins = 20;
+                const minH = data.min_horror;
+                const maxH = data.max_horror;
+                const step = (maxH - minH) / bins;
+                const histData = new Array(bins).fill(0);
+                const labels = [];
+                
+                data.histogram_data.forEach(val => {
+                    let idx = Math.floor((val - minH) / step);
+                    if(idx >= bins) idx = bins - 1;
+                    histData[idx]++;
+                });
+                
+                for(let i=0; i<bins; i++) {
+                    labels.push((minH + i*step).toFixed(0));
                 }
+                
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Frecuencia de Horror',
+                            data: histData,
+                            backgroundColor: '#ff0033',
+                            borderColor: '#ffff00',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false } 
+                        },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: '#333' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+                
+                document.getElementById('viewWorstBtn').onclick = () => {
+                    overlay.remove();
+                    window.open(`/visualize/seed/${data.worst_seed}`, '_blank');
+                    // Opcional: replaySeed(data.worst_seed) si prefieren verlo en el dashboard en vez de nueva tab
+                    replaySeed(data.worst_seed); 
+                    loadTopHall();
+                };
                 
             } catch (error) {
                 console.error(error);

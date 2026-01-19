@@ -95,29 +95,37 @@ def visualize_graph():
         directed=True
     )
     
-    # Configuración física del grafo
+    # Configuración física del grafo (BRUTAL MODE)
     net.set_options("""
     {
       "physics": {
         "enabled": true,
         "barnesHut": {
-          "gravitationalConstant": -8000,
-          "centralGravity": 0.3,
-          "springLength": 95,
-          "springConstant": 0.04
-        }
+          "gravitationalConstant": -12000,
+          "centralGravity": 0.05,
+          "springLength": 150,
+          "springConstant": 0.04,
+          "damping": 0.09,
+          "avoidOverlap": 0.1
+        },
+        "minVelocity": 0.75
       },
       "nodes": {
         "font": {
           "color": "#00ff41",
-          "size": 14
+          "size": 16,
+          "face": "monospace"
         },
-        "borderWidth": 2
+        "borderWidth": 2,
+        "shadow": true
       },
       "edges": {
         "color": {
-          "color": "#ff0033",
+          "color": "rgba(255, 0, 51, 0.4)",
           "highlight": "#ffff00"
+        },
+        "smooth": {
+            "type": "continuous"
         },
         "arrows": {
           "to": {
@@ -129,23 +137,26 @@ def visualize_graph():
     }
     """)
     
+    # Calcular max horror para scaling
+    all_horrors = [data.get('horror', 0) for _, data in ultimo_grafo.nodes(data=True)]
+    max_h = max(all_horrors) if all_horrors else 1
+
     # Añadir nodos con colores basados en horror
     for node, data in ultimo_grafo.nodes(data=True):
         horror = data.get('horror', 0)
         
-        # Color según nivel de horror
-        if horror > 1200:
-            color = '#ff0033'  # Rojo oscuro
-            size = 30
-        elif horror > 800:
-            color = '#ff6600'  # Naranja
-            size = 20
-        else:
-            color = '#ffff00'  # Amarillo
-            size = 15
+        # Scaling brutal
+        intensity = int(255 * (horror / max_h))
+        # Ensure intensity is within 0-255
+        intensity = max(0, min(255, intensity))
+        
+        # Color rojo dinámico basado en intensidad
+        color = f'#{intensity:02x}0000'
+        # Size dinámico
+        size = 15 + (horror / max_h) * 50
         
         label = data.get('label', node)
-        title = f"{label}<br>Horror: {horror:.1f}<br>{data.get('desc', '')}"
+        title = f"{label}<br>HORROR: {horror:.1f}<br>{data.get('desc', '')}"
         
         net.add_node(
             node,
@@ -161,7 +172,11 @@ def visualize_graph():
     for u, v, data in ultimo_grafo.edges(data=True):
         weight = data.get('weight', 1.0)
         label = data.get('label', '')
-        net.add_edge(u, v, label=label, width=weight, title=f"Factor: {weight:.2f}")
+        # Edges transversales más tenues
+        if label == "transversal":
+             net.add_edge(u, v, label="", width=1, color="rgba(100,100,100,0.3)", dashes=True)
+        else:
+             net.add_edge(u, v, label="", width=weight, title=f"Factor: {weight:.2f}")
     
     # Guardar HTML
     output_file = os.path.join('static', 'graph.html')
@@ -246,6 +261,82 @@ def run_monte_carlo_endpoint():
         'worst_seed': best_worst_seed,
         'histogram_data': results # Para el frontend
     })
+
+@app.route('/visualize/seed/<int:seed>')
+def visualize_seed_route(seed):
+    """Visualiza directamente un seed específico sin pasar por generate"""
+    grafo = generar_grafo_9d(seed=seed, ramificaciones_por_nodo=3)
+    
+    # Crear red pyvis
+    net = Network(
+        height='100vh', 
+        width='100%', 
+        bgcolor='#000000', 
+        font_color='#00ff41',
+        directed=True
+    )
+    
+    # Misma configuración física del grafo (BRUTAL)
+    net.set_options("""
+    {
+      "physics": {
+        "enabled": true,
+        "barnesHut": {
+          "gravitationalConstant": -12000,
+          "centralGravity": 0.05,
+          "springLength": 150,
+          "springConstant": 0.04,
+          "damping": 0.09,
+          "avoidOverlap": 0.1
+        },
+        "minVelocity": 0.75
+      },
+      "nodes": {
+        "font": { "color": "#00ff41", "size": 16, "face": "monospace" },
+        "borderWidth": 2, "shadow": true
+      },
+      "edges": {
+        "color": { "color": "rgba(255, 0, 51, 0.4)", "highlight": "#ffff00" },
+        "smooth": { "type": "continuous" },
+        "arrows": { "to": { "enabled": true, "scaleFactor": 0.5 } }
+      }
+    }
+    """)
+    
+    # Calcular max horror para scaling
+    all_horrors = [data.get('horror', 0) for _, data in grafo.nodes(data=True)]
+    max_h = max(all_horrors) if all_horrors else 1
+
+    # Añadir nodos
+    for node, data in grafo.nodes(data=True):
+        horror = data.get('horror', 0)
+        # Scaling brutal
+        intensity = int(255 * (horror / max_h))
+        intensity = max(0, min(255, intensity))
+        
+        color = f'#{intensity:02x}0000'
+        size = 15 + (horror / max_h) * 50
+            
+        label = data.get('label', node)
+        title = f"{label}<br>HORROR: {horror:.1f}<br>{data.get('desc', '')}"
+        
+        net.add_node(node, label=label, title=title, color=color, size=size, borderWidth=2)
+    
+    # Añadir edges
+    for u, v, data in grafo.edges(data=True):
+        weight = data.get('weight', 1.0)
+        label = data.get('label', '')
+        if label == "transversal":
+             net.add_edge(u, v, width=1, color="rgba(100,100,100,0.3)", dashes=True)
+        else:
+             net.add_edge(u, v, width=weight, title=f"Factor: {weight:.2f}")
+        
+    # Guardar en temp
+    filename = f"graph_{seed}.html"
+    path = os.path.join('static', filename)
+    net.save_graph(path)
+    
+    return send_from_directory('static', filename)
 
 if __name__ == '__main__':
     # Crear directorio static si no existe
