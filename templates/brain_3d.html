@@ -72,6 +72,32 @@
             color: #00ffff;
             border: 1px solid #00ffff;
         }
+
+        /* STATS SEED STYLES */
+        .stat-row { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 4px; }
+        .seed-stat { font-size: 0.8rem; border-left: 3px solid #666; padding-left: 8px; margin-top: 4px; }
+        .seed-cyan { border-color: #00ffff; color: #ccffff; }
+        .seed-magenta { border-color: #ff00ff; color: #ffccff; }
+        .seed-white { border-color: #ffffff; color: #ffffff; }
+
+        /* TOOLTIP STYLE */
+        #tooltip {
+            position: absolute;
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid #ffd700;
+            color: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            pointer-events: none;
+            display: none;
+            z-index: 200;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+            max-width: 300px;
+        }
+        .tooltip-header { color: #ffd700; font-weight: bold; border-bottom: 1px solid #444; padding-bottom: 4px; margin-bottom: 4px; }
+        .tooltip-row { display: flex; justify-content: space-between; }
+        .tooltip-val { font-weight: bold; color: #00ffff; }
     </style>
 </head>
 <body>
@@ -79,7 +105,20 @@
         <div>MODE: <span id="mode-label">Cargando...</span></div>
         <div>NODES: <span id="node-count">0</span></div>
         <div>EDGES: <span id="edge-count">0</span></div>
+        <div id="seed-stats-container" style="margin-top:8px; border-top:1px solid #555; padding-top:4px;"></div>
+        
+        <!-- RESOURCE MONITOR -->
+        <div style="margin-top:12px; border-top:1px solid #444; padding-top:6px;">
+            <div style="color:#888; font-size:0.7rem; margin-bottom:2px;">SYSTEM VITALITY</div>
+            <div style="display:flex; justify-content:space-between;">
+                <span>FPS: <span id="fps-val" style="color:#0f0">60</span></span>
+                <span id="ping-val" style="color:#666; font-size:0.7rem;">--ms</span>
+            </div>
+            <div>CPU: <span id="cpu-val" style="color:#00aaff">--%</span> | RAM: <span id="ram-val" style="color:#ff00ff">--GB</span></div>
+        </div>
     </div>
+    
+    <div id="tooltip"></div>
 
     <div id="motion-hud">
         DIRECTION: <span id="dir-val">STABLE</span>
@@ -88,305 +127,273 @@
     <div id="controls-panel">
         <button class="hud-btn" onclick="toggleFullscreen()">Fullscreen</button>
         <button class="hud-btn" onclick="resetCamera()">Reset Cam</button>
-        <button class="hud-btn btn-fusion blink" onclick="ver2D()">🧪 VER 2D</button>
-        <button class="hud-btn" onclick="window.parent.runFusion()">🌀 FUSIÓN</button>
-        <select id="temaSelect" onchange="cambiarTema()" class="hud-btn">
-            <option value="cosmic">Cosmic (default) 🌌</option>
-            <option value="nino">Niño 🌈</option>
-            <option value="minecraft">Minecraft ⛏️</option>
-            <option value="onepiece">One Piece 🏴‍☠️</option>
-        </select>
+        <!-- Eliminados controles redundantes que confunden, se usan los del parent -->
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/controls/OrbitControls.js"></script>
 
     <script>
-        // ──────────────────────────────────────────────────────────────
-        // INICIALIZACIÓN DE DATOS Y UI
-        // ──────────────────────────────────────────────────────────────
+        const nodesData = {{ nodes | tojson }};
+        const edgesData = {{ edges | tojson }};
+        const modeData = {{ modo | tojson }};
         
-        // Datos inyectados desde Flask (Jinja2)
-        const nodesData = {{ nodes | tojson if nodes else [] }};
-        const edgesData = {{ edges | tojson if edges else [] }};
-        const activeModo = {{ modo | tojson if modo else {} }};
+        var selectedNodeId = null; 
+        // ──────────────────────────────────────────────────────────────
+        // STATS POR SEED
+        // ──────────────────────────────────────────────────────────────
+        const seedStats = {};
+        nodesData.forEach(n => {
+            const s = n.seed_index !== undefined ? n.seed_index : 'root';
+            if (!seedStats[s]) seedStats[s] = { count: 0, horrorSum: 0 };
+            seedStats[s].count++;
+            seedStats[s].horrorSum += (n.horror || 0);
+        });
 
-        console.log("Brain 3D: Nodos recibidos:", nodesData.length);
-
-        // Actualización inmediata del HUD
-        try {
-            document.getElementById('mode-label').innerText = activeModo.nombre || "Cosmic Brain";
-            document.getElementById('node-count').innerText = nodesData.length;
-            document.getElementById('edge-count').innerText = edgesData.length;
-        } catch (e) { console.error("HUD Update Error:", e); }
-
-        const nodeMeshes = {};
-        const lineMeshes = [];
-        const maxHorror = (nodesData.length > 0) ? Math.max(1, ...nodesData.map(n => n.horror || 0)) : 1;
+        const statsHtml = Object.keys(seedStats).map(k => {
+            const s = seedStats[k];
+            const avg = (s.horrorSum / s.count).toFixed(1);
+            let colorClass = 'seed-white';
+            let label = 'Root/White';
+            if (k == 1) { colorClass = 'seed-cyan'; label = 'Cyan Seed'; }
+            if (k == 2) { colorClass = 'seed-magenta'; label = 'Magenta Seed'; }
+            
+            return `<div class="seed-stat ${colorClass}">
+                <div>${label}</div>
+                <div style="font-size:0.75rem; opacity:0.8;">${s.count} nodos | 💀 Avg: ${avg}</div>
+            </div>`;
+        }).join('');
+        document.getElementById('seed-stats-container').innerHTML = statsHtml;
 
         // ──────────────────────────────────────────────────────────────
-        // CONFIGURACIÓN THREE.JS
+        // THREE.JS SETUP
         // ──────────────────────────────────────────────────────────────
-
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x000000);
+        scene.background = new THREE.Color(0x000000); // Fondo negro abismo
 
-        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 15000);
-        camera.position.set(0, 120, 700);
+        // Fog para profundidad
+        scene.fog = new THREE.FogExp2(0x000000, 0.0008);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+        camera.position.set(0, 100, 800); // Inicio lejos para anim
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         document.body.appendChild(renderer.domElement);
 
-        let controls;
-        try {
-            if (typeof THREE.OrbitControls === 'function') {
-                controls = new THREE.OrbitControls(camera, renderer.domElement);
-                controls.enableDamping = true;
-                controls.dampingFactor = 0.07;
-                controls.rotateSpeed = 0.6;
-            } else {
-                console.warn("OrbitControls no cargado correctamente.");
-            }
-        } catch (e) { 
-            console.error("Error inicializando controles:", e); 
-        }
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.5;
 
-        let selectedNodeId = null;
+        // Luz central (Cero Absoluto)
+        const pointLight = new THREE.PointLight(0xffffff, 2, 2000);
+        scene.add(pointLight);
+        scene.add(new THREE.AmbientLight(0x404040));
+
+        // SINGULARIDAD CENTRAL: Gargantua Refined
+        const centralSingularity = new THREE.Group();
+        centralSingularity.position.set(0, 0, 0);
+
+        // Agujero negro central (Negro Absoluto)
+        const blackHoleGeo = new THREE.SphereGeometry(28, 64, 64);
+        const blackHoleMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const blackHole = new THREE.Mesh(blackHoleGeo, blackHoleMat);
+        centralSingularity.add(blackHole);
+
+        // Photon Sphere / Glow (Shader)
+        const glowGeo = new THREE.SphereGeometry(28.5, 64, 64);
+        const glowMat = new THREE.ShaderMaterial({
+            uniforms: {
+                glowColor: { value: new THREE.Color(0xffffff) },
+                viewVector: { value: camera.position }
+            },
+            vertexShader: `
+                uniform vec3 viewVector;
+                varying float intensity;
+                void main() {
+                    vec3 vNormal = normalize( normalMatrix * normal );
+                    vec3 vNormel = normalize( normalMatrix * viewVector );
+                    intensity = pow( 0.6 - dot(vNormal, vNormel), 4.0 );
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 glowColor;
+                varying float intensity;
+                void main() {
+                    vec3 glow = glowColor * intensity;
+                    gl_FragColor = vec4( glow, 1.0 );
+                }
+            `,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending,
+            transparent: true
+        });
+        const photonSphere = new THREE.Mesh(glowGeo, glowMat);
+        centralSingularity.add(photonSphere);
+        scene.add(centralSingularity);
+
+        // Pulso del agujero negro (variable para animate)
+        const singularityMesh = centralSingularity;
+
+        const nodeMeshes = {};
+        const edgeMeshes = [];
+        const maxHorror = Math.max(...nodesData.map(n => n.horror || 1));
 
         // ──────────────────────────────────────────────────────────────
         // FUNCIÓN: DISTRIBUCIÓN ESFÉRICA (NO RECTANGULAR)
         // ──────────────────────────────────────────────────────────────
 
         function randomSphericalPosition(innerRadius, outerRadius) {
-            // Distribución esférica uniforme (método de Marsaglia)
             const u = Math.random();
             const v = Math.random();
             const theta = 2 * Math.PI * u;
             const phi = Math.acos(2 * v - 1);
-            
-            // Radio con distribución cúbica para mejor dispersión
             const r = innerRadius + Math.pow(Math.random(), 0.7) * (outerRadius - innerRadius);
             
-            const x = r * Math.sin(phi) * Math.cos(theta);
-            const y = r * Math.sin(phi) * Math.sin(theta);
-            const z = r * Math.cos(phi);
-            
-            return new THREE.Vector3(x, y, z);
+            return new THREE.Vector3(
+                r * Math.sin(phi) * Math.cos(theta),
+                r * Math.sin(phi) * Math.sin(theta),
+                r * Math.cos(phi)
+            );
         }
 
         // ──────────────────────────────────────────────────────────────
-        // CREACIÓN DE NODOS: GRADIENTE CÓSMICO (Blanco lejos → Oscuro cerca)
+        // CREACIÓN DE NODOS: GRADIENTE CÓSMICO + HYBRIDS
         // ──────────────────────────────────────────────────────────────
 
         nodesData.forEach(n => {
-            const h = n.horror || 0;
-            const norm = Math.min(1, h / maxHorror);
+            // Posición final objetivo
+            const targetPos = randomSphericalPosition(150, 700);
+            
+            // Posición inicial (LEJOS para collapse animation)
+            const startPos = targetPos.clone().normalize().multiplyScalar(2500); 
 
-            // Distribución esférica cósmica (200 a 800 unidades del centro)
-            const position = randomSphericalPosition(200, 800);
+            // Distancia al centro para gradiente
+            const dist = targetPos.length();
+            const distNorm = Math.min(1, dist / 800);
             
-            // Distancia al centro para gradiente cósmico
-            const distanceToCenter = position.length();
-            const maxDist = 900; // Distancia máxima esperada
-            const distanceNorm = Math.min(1, distanceToCenter / maxDist);
-            
-            // GRADIENTE CÓSMICO: Lejos = blanco brillante, Cerca = oscuro
-            // distanceNorm = 1 (lejos) → brightness = 1 (blanco estrella)
-            // distanceNorm = 0 (cerca) → brightness = 0.05 (oscuro agujero negro)
-            let brightness = 0.05 + (distanceNorm * 0.95);
-            
-            let color = new THREE.Color(brightness, brightness, brightness);
+            let color = new THREE.Color(0.8, 0.8, 0.8);
+            let size = 2 + (n.horror/maxHorror) * 5;
+            let opacity = 0.8;
 
-            // SOBREESCRITURA POR SEMILLA (Fusion Mode)
+            // Logica de colores por seed
             const seedIdx = n.seed_index;
-            if (seedIdx !== undefined && seedIdx !== null) {
-                if (seedIdx === 0) color.set(0xcccccc); // Seed 0: Gris claro
-                else if (seedIdx === 1) color.set(0x00ffff); // Seed 1: Cyan
-                else if (seedIdx === 2) color.set(0xff00ff); // Seed 2: Magenta
-                
-                // En fusion, modular por distancia también
-                color.multiplyScalar(0.5 + distanceNorm * 0.5);
+            if (seedIdx === 1) color.set(0x00ffff);
+            else if (seedIdx === 2) color.set(0xff00ff);
+            else color.setHSL(0, 0, 1.0 - (distNorm * 0.8)); // Blanco -> Gris
+
+            // HYBRID HIGHLIGHT
+            // Si el nombre dice "HYBRID" o tiene horror muy alto en fusion
+            const isHybrid = n.label && n.label.includes('HYBRID'); // O lógica custom
+            if (isHybrid || n.horror > maxHorror * 0.9) {
+                color.set(0xffffff); // Blanco puro
+                size *= 1.5;
+                // Borde/Glow simulado con sprite luego, o simplemente brillante
             }
 
-            const size = 1.8 + norm * 7; // más horror = más grande
-
-            const geo = new THREE.SphereGeometry(size, 10, 10);
             const mat = new THREE.MeshBasicMaterial({
                 color: color,
                 transparent: true,
-                opacity: 0.85 + (distanceNorm * 0.15)
+                opacity: opacity
             });
 
-            const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.copy(position);
-
-            mesh.userData = n;
+            const mesh = new THREE.Mesh(new THREE.SphereGeometry(size, 8, 8), mat);
+            
+            // Empezar lejos!
+            mesh.position.copy(startPos);
+            mesh.userData = { ...n, targetPos: targetPos, originalColor: color };
+            
             scene.add(mesh);
             nodeMeshes[n.id] = mesh;
         });
 
         // ──────────────────────────────────────────────────────────────
-        // SINGULARIDAD CENTRAL: SIEMPRE AMARILLO DORADO (SOL ETERNO)
-        // ──────────────────────────────────────────────────────────────
-
-        let singularity = null;
-        let centralData = nodesData.find(n => 
-            n.id.includes("Cero Absoluto") || 
-            n.id.includes("CERO_ABSOLUTO") || 
-            (n.horror || 0) === maxHorror
-        ) || nodesData.reduce((a, b) => (a.horror > b.horror) ? a : b);
-
-        if (centralData && nodeMeshes[centralData.id]) {
-            singularity = nodeMeshes[centralData.id];
-            
-            // Fuerza amarillo eterno
-            singularity.material.color.set(0xffd700);
-            singularity.scale.set(5, 5, 5);
-
-            // Disco de acreción (Interstellar style)
-            const diskGeo = new THREE.RingGeometry(18, 55, 96);
-            const diskMat = new THREE.MeshBasicMaterial({
-                color: 0xffaa00,
-                side: THREE.DoubleSide,
-                transparent: true,
-                opacity: 0.75,
-                blending: THREE.AdditiveBlending
-            });
-            const disk = new THREE.Mesh(diskGeo, diskMat);
-            disk.rotation.x = Math.PI / 2;
-            disk.position.copy(singularity.position);
-            scene.add(disk);
-
-            // Glow radial (sprite simple)
-            const glowTex = new THREE.TextureLoader().load('https://i.imgur.com/8cm5z.png'); // glow blanco genérico
-            const glow = new THREE.Sprite(new THREE.SpriteMaterial({
-                map: glowTex,
-                color: 0xffd700,
-                transparent: true,
-                blending: THREE.AdditiveBlending,
-                opacity: 0.85
-            }));
-            glow.scale.set(120, 120, 1);
-            glow.position.copy(singularity.position);
-            scene.add(glow);
-
-            // Event horizon negro
-            const holeGeo = new THREE.SphereGeometry(10, 32, 32);
-            const holeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-            const hole = new THREE.Mesh(holeGeo, holeMat);
-            hole.position.copy(singularity.position);
-            scene.add(hole);
-
-            // Centrado inicial
-            controls.target.copy(singularity.position);
-        }
 
         // ──────────────────────────────────────────────────────────────
-        // LÍNEAS: Tenues gris por defecto
+        // CÓDIGO VIEJO ELIMINADO PARA EVITAR DUPLICADOS
         // ──────────────────────────────────────────────────────────────
 
+
+        // ──────────────────────────────────────────────────────────────
+        // ARISTAS: PUENTES DIMENSIONALES & CONEXIONES
+        // ──────────────────────────────────────────────────────────────
+        const lineMaterialNormal = new THREE.LineBasicMaterial({ color: 0x333333, transparent: true, opacity: 0.15 });
+        const lineMaterialFusion = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 }); // Blanco absoluto
+        
         edgesData.forEach(e => {
-            const p1 = nodeMeshes[e.source]?.position;
-            const p2 = nodeMeshes[e.target]?.position;
-            if (!p1 || !p2) return;
+            const u = nodeMeshes[e.source];
+            const v = nodeMeshes[e.target];
+            if (!u || !v) return;
 
-            const isBridge = (e.label && (e.label.includes("Puente") || e.label.includes("Ciclo") || e.label.includes("Colapso")));
+            // Detectar si es un Puente Dimensional (Fusion visual)
+            const isDimensional = e.type === 'dimensional_bridge' || 
+                                (e.label && (e.label.includes("Dimensional") || e.label.includes("Bridge") || e.label.includes("Multiversal")));
+            
+            const mat = isDimensional ? lineMaterialFusion : lineMaterialNormal;
 
-            const mat = new THREE.LineBasicMaterial({
-                color: isBridge ? 0xffff00 : 0x333333,
-                opacity: isBridge ? 0.8 : 0.12,
-                transparent: true,
-                linewidth: isBridge ? 2 : 1
-            });
-
-            const geo = new THREE.BufferGeometry().setFromPoints([p1, p2]);
+            const geo = new THREE.BufferGeometry().setFromPoints([u.position, v.position]);
             const line = new THREE.Line(geo, mat);
-            line.userData = { source: e.source, target: e.target, isBridge: isBridge };
+            
+            // Metadata para animación
+            line.userData = { source: u, target: v, isDimensional: isDimensional };
+            
             scene.add(line);
-            lineMeshes.push(line);
+            edgeMeshes.push(line);
         });
 
         // ──────────────────────────────────────────────────────────────
-        // SELECCIÓN + HIGHLIGHT DORADO
+        // PARTICULAS ORBITALES (Singularidad)
         // ──────────────────────────────────────────────────────────────
+        const particlesGeo = new THREE.BufferGeometry();
+        const particleCount = 500;
+        const pPos = new Float32Array(particleCount * 3);
+        
+        for(let i=0; i<particleCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const r = 25 + Math.random() * 100; // Radio orbital
+            // Disco plano con leve variación vertical
+            pPos[i*3] = Math.cos(angle) * r;
+            pPos[i*3+1] = (Math.random() - 0.5) * 15; 
+            pPos[i*3+2] = Math.sin(angle) * r;
+        }
+        particlesGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+        
+        const particlesMat = new THREE.PointsMaterial({
+            color: 0xffffff, // Blanco absoluto
+            size: 2.5,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending
+        });
+        const orbitalParticles = new THREE.Points(particlesGeo, particlesMat);
+        scene.add(orbitalParticles);
 
+
+        // ──────────────────────────────────────────────────────────────
+        // ANIMACIÓN & INTERACCIÓN
+        // ──────────────────────────────────────────────────────────────
+        let startTime = Date.now();
+        const collapseDuration = 2000; // ms
+
+        // Raycasting
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
+        const tooltip = document.getElementById('tooltip');
 
-        window.addEventListener('click', (event) => {
+        window.addEventListener('mousemove', (event) => {
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-            raycaster.setFromCamera(mouse, camera);
-
-            const intersects = raycaster.intersectObjects(Object.values(nodeMeshes));
-
-            // Reset previo
-            lineMeshes.forEach(l => {
-                l.material.color.set(0x333333);
-                l.material.opacity = 0.12;
-            });
-
-            if (intersects.length > 0) {
-                const mesh = intersects[0].object;
-                const nodeId = mesh.userData.id;
-
-                // Highlight dorado intenso
-                lineMeshes.forEach(line => {
-                    if (line.userData.source === nodeId || line.userData.target === nodeId) {
-                        line.material.color.set(0xffd700);
-                        line.material.opacity = 1.0;
-                    }
-                });
-
-                // Feedback escala
-                const originalScale = mesh.scale.x;
-                mesh.scale.set(originalScale * 2.2, originalScale * 2.2, originalScale * 2.2);
-                setTimeout(() => mesh.scale.set(originalScale, originalScale, originalScale), 1200);
-
-                // Info en HUD
-                document.getElementById('mode-label').innerText = 
-                    `NODO: ${nodeId} | Horror: ${mesh.userData.horror?.toFixed(1) || '?'}`;
-            } else {
-                document.getElementById('mode-label').innerText = "Cosmic Brain - Bayesian Negative 9D";
-            }
+            
+            // Tooltip sigue al mouse
+            tooltip.style.left = (event.clientX + 20) + 'px';
+            tooltip.style.top = (event.clientY + 20) + 'px';
         });
 
-        // ──────────────────────────────────────────────────────────────
-        // TEMAS DINÁMICOS
-        // ──────────────────────────────────────────────────────────────
-
-        window.cambiarTema = function() {
-            const tema = document.getElementById('temaSelect').value;
-            scene.background = new THREE.Color(0x000000);
-
-            Object.values(nodeMeshes).forEach(mesh => {
-                const norm = (mesh.userData.horror || 0) / maxHorror;
-                let color = new THREE.Color(1 - norm * 0.98, 1 - norm * 0.98, 1 - norm * 0.98);
-
-                if (tema === 'nino') {
-                    scene.background = new THREE.Color(0xa1c4fd);
-                    color.setHSL(Math.random() * 0.15 + 0.05, 0.9, 0.75);
-                } else if (tema === 'minecraft') {
-                    scene.background = new THREE.Color(0x87ceeb);
-                    mesh.geometry = new THREE.BoxGeometry(8,8,8);
-                    color.set(0x8b4513 + Math.random() * 0x00ff00);
-                } else if (tema === 'onepiece') {
-                    scene.background = new THREE.Color(0x001f3f);
-                    color.set(norm < 0.5 ? 0x00aaff : 0xc62828);
-                }
-
-                mesh.material.color.copy(color);
-            });
-
-            renderer.render(scene, camera);
-        };
-
-        // ──────────────────────────────────────────────────────────────
-        // MOTION HUD + ANIMACIÓN
-        // ──────────────────────────────────────────────────────────────
+        let hoveredNode = null;
 
         let prevPos = new THREE.Vector3().copy(camera.position);
         const dirVal = document.getElementById('dir-val');
@@ -395,6 +402,87 @@
             requestAnimationFrame(animate);
             controls.update();
 
+            const now = Date.now();
+            const progress = Math.min(1, (now - startTime) / collapseDuration);
+            
+            // Easing cubic out
+            const ease = 1 - Math.pow(1 - progress, 3);
+            
+            // 0. PULSO SINGULARIDAD (Diseño Unificado)
+            if (typeof singularityMesh !== 'undefined') {
+                 const pulseScale = 1.0 + Math.sin(now * 0.001) * 0.05;
+                 singularityMesh.scale.set(pulseScale, pulseScale, pulseScale);
+            }
+
+            // 1. ANIMACIÓN DE COLAPSO (Intro)
+            if (progress < 1) {
+                // Mover nodos desde "lejos" hacia su posición final
+                for (let id in nodeMeshes) {
+                    const mesh = nodeMeshes[id];
+                    // StartPos implícito (calculado al vuelo para ahorrar memoria)
+                    // Asumimos que startPos era targetPos * 3
+                    const currentPos = new THREE.Vector3().copy(mesh.userData.targetPos).normalize().multiplyScalar(2000).lerp(mesh.userData.targetPos, ease);
+                    mesh.position.copy(currentPos);
+                }
+            }
+
+            // 2. ACTUALIZAR ARISTAS (Siempre, por si hay movimiento)
+            if (progress < 1) {
+                edgeMeshes.forEach(line => {
+                    const pos = line.geometry.attributes.position;
+                    pos.setXYZ(0, line.userData.source.position.x, line.userData.source.position.y, line.userData.source.position.z);
+                    pos.setXYZ(1, line.userData.target.position.x, line.userData.target.position.y, line.userData.target.position.z);
+                    pos.needsUpdate = true;
+                });
+            } else {
+                // Animación post-colapso (Pulso de Dimensional Bridges)
+                const pulse = 0.5 + Math.sin(now * 0.005) * 0.5;
+                if (lineMaterialFusion) {
+                    lineMaterialFusion.opacity = 0.4 + pulse * 0.6;
+                    // También podría pulsar el grosor si fuera Line2, pero en WebGL normal line width es 1
+                }
+            }
+
+            // 3. ROTACIÓN DE PARTÍCULAS
+            orbitalParticles.rotation.y = now * 0.0003;
+
+            // 4. INTERACCIÓN (RAYCAST)
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Solo intersectar si el mouse está en canvas (opcional)
+            const intersects = raycaster.intersectObjects(Object.values(nodeMeshes));
+
+            if (intersects.length > 0) {
+                const mesh = intersects[0].object;
+                if (hoveredNode !== mesh) {
+                    // Restaurar previo
+                    if (hoveredNode) hoveredNode.material.color.copy(hoveredNode.userData.originalColor);
+                    
+                    hoveredNode = mesh;
+                    // Highlight blanco brillante
+                    hoveredNode.material.color.set(0xffffff);
+                    
+                    // Mostrar Tooltip
+                    const d = mesh.userData;
+                    let seedLabel = d.seed_index === 1 ? '<span style="color:#00ffff">Cyan</span>' : 
+                                  d.seed_index === 2 ? '<span style="color:#ff00ff">Magenta</span>' : 'Root';
+                    
+                    tooltip.innerHTML = `
+                        <div class="tooltip-header">Seed #${d.seed_index||0} (${seedLabel})</div>
+                        <div style="font-size:0.8rem; margin-bottom:6px; color:#ddd;">${d.label}</div>
+                        <div class="tooltip-row"><span>Horror:</span> <span class="tooltip-val">${(d.horror||0).toFixed(1)}</span></div>
+                    `;
+                    tooltip.style.display = 'block';
+                }
+            } else {
+                if (hoveredNode) {
+                    hoveredNode.material.color.copy(hoveredNode.userData.originalColor);
+                    hoveredNode = null;
+                    tooltip.style.display = 'none';
+                }
+            }
+
+            // 5. MOTION HUD
             const delta = camera.position.distanceTo(prevPos);
             if (delta > 0.3) { // umbral más estable
                 const dz = camera.position.z - prevPos.z;
@@ -413,16 +501,84 @@
             } else {
                 dirVal.innerText = "ESTABLE";
             }
-
             prevPos.copy(camera.position);
+
             renderer.render(scene, camera);
         }
+
         animate();
 
-        // ──────────────────────────────────────────────────────────────
-        // CONTROLES BÁSICOS
-        // ──────────────────────────────────────────────────────────────
+        // 6. INTERACCIÓN CLICK (Highlight Dorado)
+        // 6. INTERACCIÓN CLICK (Highlight Blanco + Conexiones)
+        // Definir materiales globales para swap (Evitar modificar material compartido)
+        const matHighlight = new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 1.0, transparent: true, linewidth: 2 });
+        const matDim = new THREE.LineBasicMaterial({ color: 0x333333, opacity: 0.05, transparent: true });
 
+        window.addEventListener('click', (event) => {
+            if (!raycaster || !mouse) return;
+            
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            
+            const intersects = raycaster.intersectObjects(Object.values(nodeMeshes));
+            
+            // Función Helper para restaurar materiales originales
+            const resetLines = () => {
+                edgeMeshes.forEach(line => {
+                    // Restaurar material basado en si es dimensional o normal
+                    line.material = line.userData.isDimensional ? lineMaterialFusion : lineMaterialNormal;
+                });
+            };
+
+            if (intersects.length > 0) {
+                const mesh = intersects[0].object;
+                
+                // Toggle Highlight
+                if (selectedNodeId === mesh.userData.id) {
+                    // Deselect
+                    mesh.material.color.copy(mesh.userData.originalColor);
+                    selectedNodeId = null;
+                    resetLines(); 
+                } else {
+                    // Deselect prev
+                    if (selectedNodeId && nodeMeshes[selectedNodeId]) {
+                        nodeMeshes[selectedNodeId].material.color.copy(nodeMeshes[selectedNodeId].userData.originalColor);
+                    }
+                    
+                    selectedNodeId = mesh.userData.id;
+                    mesh.material.color.set(0xffffff); // Blanco eterno para el nodo
+                    
+                    // HIGHLIGHT CONEXIONES (SWAP MATERIAL)
+                    resetLines(); // Primero asegurar base limpia (aunque ineficiente, seguro)
+                    
+                    let connectedCount = 0;
+                    edgeMeshes.forEach(line => {
+                        // Comprobar si esta línea conecta con el nodo seleccionado
+                        if (line.userData.source === mesh || line.userData.target === mesh) {
+                            line.material = matHighlight; // Swap a material blanco brillante
+                            connectedCount++;
+                        } else {
+                             line.material = matDim; // Swap a material atenuado
+                        }
+                    });
+                    
+                    console.log(`Nodo seleccionado: ${mesh.userData.label} | Conexiones: ${connectedCount}`);
+                }
+            } else {
+                // Click en el vacío -> Deseleccionar todo
+                if (selectedNodeId && nodeMeshes[selectedNodeId]) {
+                    nodeMeshes[selectedNodeId].material.color.copy(nodeMeshes[selectedNodeId].userData.originalColor);
+                    selectedNodeId = null;
+                }
+                resetLines();
+            }
+        });
+
+
+        // ──────────────────────────────────────────────────────────────
+        // UTILS & LISTENERS
+        // ──────────────────────────────────────────────────────────────
         window.toggleFullscreen = () => {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(() => {});
@@ -430,28 +586,128 @@
                 document.exitFullscreen();
             }
         };
-
-        window.ver2D = () => {
-            const isFusion = nodesData.some(n => n.seed_index > 0);
-            window.open(isFusion ? '/visualize/fusion' : '/graph', '_blank');
-        };
-
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
         window.resetCamera = () => {
             camera.position.set(0, 120, 700);
             controls.target.set(0,0,0);
             controls.update();
         };
 
-        // Listener para mensajes del parent (dashboard)
         window.addEventListener('message', (event) => {
             if (event.data && event.data.action === 'resetCamera') {
                 window.resetCamera();
             }
         });
 
-        // Actualiza contador inicial
+        // Asegurarse de quitar loading screen si existiera en parent (opcional)
+        console.log("Brain 3D: Rendering iniciado.");
+
+        // ──────────────────────────────────────────────────────────────
+        // REPORTING INICIAL HUD
+        // ──────────────────────────────────────────────────────────────
         document.getElementById('node-count').innerText = nodesData.length;
         document.getElementById('edge-count').innerText = edgesData.length;
+        
+        // ──────────────────────────────────────────────────────────────
+        // RESOURCE MONITORING (FPS & POLL)
+        // ──────────────────────────────────────────────────────────────
+        let lastFrameTime = performance.now();
+        let frameCount = 0;
+        const fpsEl = document.getElementById('fps-val');
+        
+        function updateFPS() {
+            const now = performance.now();
+            frameCount++;
+            if (now - lastFrameTime >= 1000) {
+                fpsEl.innerText = frameCount;
+                fpsEl.style.color = frameCount < 30 ? '#ff0000' : (frameCount < 50 ? '#ffff00' : '#00ff00');
+                frameCount = 0;
+                lastFrameTime = now;
+            }
+            requestAnimationFrame(updateFPS);
+        }
+        updateFPS();
+
+        // Polling Server Resources
+        setInterval(() => {
+            const startPing = Date.now();
+            fetch('/api/resources')
+                .then(r => r.json())
+                .then(data => {
+                    const ping = Date.now() - startPing;
+                    document.getElementById('ping-val').innerText = ping + 'ms';
+                    
+                    const cpuEl = document.getElementById('cpu-val');
+                    const ramEl = document.getElementById('ram-val');
+                    
+                    cpuEl.innerText = data.cpu + '%';
+                    ramEl.innerText = data.ram_used + 'GB';
+                    
+                    // Alerta visual si carga alta
+                    cpuEl.style.color = data.cpu > 80 ? '#ff0000' : '#00aaff';
+                })
+                .catch(err => console.error("Monitor error:", err));
+        }, 2000);
+
+        // Actualizar etiqueta de modo
+        const hasFusionData = nodesData.some(n => n.seed_index && n.seed_index > 0);
+        const modeLabel = document.getElementById('mode-label');
+        if (modeLabel && modeData) {
+             const vizType = hasFusionData ? "FUSIÓN CÓSMICA" : "ABISMO SINGULAR";
+             const modeName = modeData.nombre || "DESCONOCIDO";
+             const emoji = modeData.info ? modeData.info.emoji : "";
+             const color = modeData.info ? modeData.info.color : "#ffffff";
+             
+             modeLabel.innerHTML = `${vizType} <span style="color:#666">|</span> <span style="color:${color}">${emoji} ${modeName}</span>`;
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        // SPIKE VISUAL EFFECT (IONIC CHANNELS)
+        // ──────────────────────────────────────────────────────────────
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'spike') {
+                trigger3DSpike(event.data.color || '#ffffff');
+            }
+        });
+
+        function trigger3DSpike(colorHex) {
+            const spikeColor = new THREE.Color(colorHex);
+            const originalColors = new Map();
+
+            // 1. Flash Singularity node
+            if (nodeMeshes["CERO_ABSOLUTO"]) {
+                const center = nodeMeshes["CERO_ABSOLUTO"];
+                center.scale.set(3, 3, 3);
+                setTimeout(() => center.scale.set(1, 1, 1), 500);
+            }
+
+            // 2. Pulse all nodes brightness
+            Object.values(nodeMeshes).forEach(mesh => {
+                if (mesh.material && mesh.material.color) {
+                    originalColors.set(mesh, mesh.material.color.clone());
+                    mesh.material.color.set(spikeColor);
+                    
+                    // Shake a little
+                    mesh.position.x += (Math.random() - 0.5) * 10;
+                    mesh.position.y += (Math.random() - 0.5) * 10;
+                }
+            });
+
+            // 3. Restore after delay
+            setTimeout(() => {
+                Object.values(nodeMeshes).forEach(mesh => {
+                    if (originalColors.has(mesh)) {
+                        mesh.material.color.copy(originalColors.get(mesh));
+                    }
+                });
+            }, 600);
+        }
     </script>
 </body>
 </html>

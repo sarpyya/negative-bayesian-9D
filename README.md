@@ -55,9 +55,25 @@ El grafo ahora "siente" y reacciona. No es estático.
 *   **🧊 CHILL / MAPUCHE CÓSMICO**: Estados intermedios de vibración.
 
 ### 🎛️ 3. Control Total de Realidad
-*   **Panel de Monitoreo Hardware**: Visualización en tiempo real de CPU/RAM (Ryzen Optimized) y Tiempos de Ops.
-*   **Slider de Densidad**: Controla desde 100 hasta 3,500 nodos en tiempo real.
-*   **Forzar Realidad**: Botón para **MPONER** un modo (ej. Forzar Dolphin) si la realidad natural es muy dura.
+*   **Monitor de Vitalidad (HUD)**: FPS integrado, CPU/RAM del servidor y Ping en tiempo real dentro del visualizador.
+*   **Slider de Densidad Extrema**: Controla hasta **6,000 nodos** en tiempo real.
+*   **Sincronización Iónica (Temporal Reversal)**: Control de tiempo absoluto que permite pausar (`0x`) o inclusive revertir el flujo causal (`-10x`), invirtiendo rotaciones y dinámicas gravitatorias en tiempo real.
+
+### 🌌 4. Arquitectura de Singularidad Gargantúa (v9.4.0)
+*   **Black Hole Physics**: Núcleo de "Negro Absoluto" con esfera de fotones (photon sphere) reactiva.
+*   **Accretion Disk**: Disco de acreción dinámico con distorsión de geometría orbital.
+*   **Lensing Gravitacional**: Simulación de curvatura de luz mediante post-procesamiento.
+*   **Hacia el Multiverso (Roblox & Beyond)**: El código está siendo desacoplado para ser integrado como motor de físicas de horror en **Roblox Engine**, permitiendo que nuevas generaciones exploren el abismo desde una perspectiva interactiva y lúdica.
+
+---
+
+## 📐 Fundamentos del Framework
+
+1.  **Raíz = Cero Absoluto Negativo**: Horror base 1000 en 9 dimensiones.
+2.  **Ramificación Exponencial**: Cada decisión errónea genera 3 sub-escenarios peores.
+3.  **Temporalidad no Lineal**: La capacidad de revertir el tiempo (`Negative Sync`) permite analizar el origen del colapso desde el futuro hacia el pasado.
+
+---
 
 ---
 
@@ -103,8 +119,9 @@ Abre **http://localhost:5000** en tu navegador.
 | **Monte Carlo** | ✅ | Simular 10,000 futuros y hallar el peor |
 | **Replay Seed** | ✅ | Volver a vivir un trauma específico (Seed) |
 | **Hall of Shame** | ✅ | Ranking de las peores simulaciones históricas |
-| **Modos Conscientes** | ✅ | El grafo cambia su física según su "emoción" |
-| **Monitor Hardware** | ✅ | Ver el coste físico (CPU/RAM) del horror |
+| **Modos Conscientes** | ✅ | El grafo cambia su física según su "emoción" (NIÑO WOWO, LOL GAMER...) |
+| **Monitor Hardware** | ✅ | HUD en tiempo real con FPS, CPU, RAM y Ping |
+| **Biometría (Sinc)** | ✅ | Inyectar Na+/K+ (sensores) para gatillar potenciales de acción |
 
 ---
 

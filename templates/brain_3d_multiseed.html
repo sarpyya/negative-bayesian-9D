@@ -17,13 +17,14 @@
             top: 10px;
             left: 10px;
             color: #ffffff;
-            background: rgba(0,0,0,0.92);
+            background: rgba(0, 15, 25, 0.85);
+            backdrop-filter: blur(8px);
             padding: 12px 16px;
-            border: 1px solid #444;
+            border: 1px solid rgba(0, 255, 255, 0.3);
             border-radius: 4px;
             z-index: 100;
             font-size: 0.9rem;
-            box-shadow: 0 0 12px rgba(0,0,0,0.8);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
             pointer-events: none;
         }
 
@@ -32,12 +33,14 @@
             top: 10px;
             right: 10px;
             color: #00ffff;
-            background: rgba(0,0,0,0.92);
+            background: rgba(0, 15, 25, 0.85);
+            backdrop-filter: blur(8px);
             padding: 10px 14px;
-            border: 1px solid #00ffff;
+            border: 1px solid rgba(0, 255, 255, 0.3);
             border-radius: 4px;
             z-index: 100;
             font-size: 0.85rem;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
         }
 
         .seed-item {
@@ -80,13 +83,108 @@
             color: #000;
             box-shadow: 0 0 12px #00ffff;
         }
+
+        /* FUTURE DIALOG - Cosmic Data Explorer v2.1 */
+        #node-details-dialog {
+            position: absolute;
+            top: 150px; /* Movido hacia abajo para no chocar con SEED DISPLAY */
+            right: 10px;
+            width: 250px;
+            background: rgba(0, 15, 25, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 255, 0.4);
+            border-left: 4px solid #00ffff;
+            color: #fff;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.15);
+            pointer-events: auto;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        #node-details-dialog.active {
+            display: block;
+            transform: translateX(0);
+        }
+
+        .dialog-header {
+            font-size: 0.7rem;
+            color: #00ffff;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+            padding-bottom: 4px;
+        }
+
+        .node-label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 5px;
+            color: #ffd700;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 0.8rem;
+        }
+
+        .horror-bar-container {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .horror-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #ff4400);
+            width: 0%;
+            transition: width 0.6s ease;
+        }
     </style>
 </head>
 <body>
+    <!-- NODE INFO DIALOG (NEW) -->
+    <div id="node-details-dialog">
+        <div class="dialog-header">NODE EXPLORER v2.1</div>
+        <div id="dialog-node-id" style="font-size: 0.6rem; color: #888;">ID: --</div>
+        <div id="dialog-node-label" class="node-label">--</div>
+        
+        <div class="stat-row">
+            <span>DIMENSION:</span>
+            <span id="dialog-node-dim">--</span>
+        </div>
+        <div class="stat-row">
+            <span>HORROR:</span>
+            <span id="dialog-node-horror">--</span>
+        </div>
+        <div class="horror-bar-container">
+            <div id="dialog-horror-fill" class="horror-bar-fill"></div>
+        </div>
+        <div id="dialog-node-desc" style="font-size: 0.7rem; color: #aaa; margin-top: 10px; font-style: italic;">
+            --
+        </div>
+    </div>
     <div id="monitor-panel">
         <div>MODO: <span id="mode-label">MULTI-SEED COSMIC</span></div>
         <div>SEEDS: <span id="seed-count">{{ seeds|length }}</span></div>
         <div>TOTAL NODOS: <span id="node-count">0</span></div>
+        
+        <!-- RESOURCE MONITOR -->
+        <div style="margin-top:10px; border-top:1px solid #444; padding-top:4px;">
+            <div style="color:#aaa; font-size:0.75rem;">SYSTEM VITALITY</div>
+            <div style="display:flex; justify-content:space-between; font-size: 0.85rem;">
+                <span>FPS: <span id="fps-val" style="color:#0f0">60</span></span>
+                <span id="ping-val" style="color:#666; font-size:0.7rem;">--ms</span>
+            </div>
+            <div style="font-size: 0.85rem;">CPU: <span id="cpu-val" style="color:#00aaff">--%</span> | RAM: <span id="ram-val" style="color:#ff00ff">--GB</span></div>
+        </div>
     </div>
 
     <div id="seed-display">
@@ -115,7 +213,7 @@
         // ──────────────────────────────────────────────────────────────
         
         const graphsData = {{ graphs | tojson }};
-        console.log("Multi-Seed: Grafos recibidos:", graphsData.length);
+        var selectedNodeId = null; 
 
         let totalNodes = 0;
         graphsData.forEach(g => totalNodes += g.nodes.length);
@@ -127,9 +225,10 @@
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x000000);
+        scene.fog = new THREE.FogExp2(0x000000, 0.0008);
 
         const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 20000);
-        camera.position.set(0, 300, 1200);
+        camera.position.set(0, 400, 1500);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -154,6 +253,12 @@
         const nodeMeshes = {};
         const lineMeshes = [];
         let showOrbits = true;
+
+        // SISTEMA DE PARTÍCULAS DORADAS (NEW v2.1) - Inicializado después de centralSingularity
+        const goldenParticles = [];
+        const particleCount = 100;
+        const pGeo = new THREE.SphereGeometry(1.2, 4, 4);
+        const pMat = new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.8 });
 
         // ──────────────────────────────────────────────────────────────
         // CREACIÓN DE SINGULARIDAD CENTRAL (CERO ABSOLUTO)
@@ -181,7 +286,7 @@
 
         // Glow central
         try {
-            const glowTex = new THREE.TextureLoader().load('https://i.imgur.com/8cm5z.png');
+            const glowTex = new THREE.TextureLoader().load('https://threejs.org/examples/textures/sprites/ball.png');
             const glow = new THREE.Sprite(new THREE.SpriteMaterial({
                 map: glowTex,
                 color: 0xffaa00,
@@ -193,6 +298,27 @@
             centralSingularity.add(glow);
         } catch(e) {
             console.warn("No se pudo cargar textura de glow");
+        }
+
+        // AGREGAR PARTÍCULAS AHORA QUE centralSingularity YA EXISTE
+        for(let i=0; i<particleCount; i++) {
+            const p = new THREE.Mesh(pGeo, pMat);
+            const r = 40 + Math.random() * 60;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.random() * Math.PI;
+            p.position.set(
+                r * Math.sin(phi) * Math.cos(theta),
+                r * Math.sin(phi) * Math.sin(theta),
+                r * Math.cos(phi)
+            );
+            p.userData = { 
+                r: r, 
+                angle: Math.random() * Math.PI * 2, 
+                speed: 0.01 + Math.random() * 0.03,
+                axis: new THREE.Vector3(Math.random(), Math.random(), Math.random()).normalize()
+            };
+            centralSingularity.add(p);
+            goldenParticles.push(p);
         }
 
         scene.add(centralSingularity);
@@ -244,71 +370,61 @@
 
             // Crear nodos con distribución esférica
             graphData.nodes.forEach(nodeData => {
-                const horror = nodeData.horror || 0;
-                const horrorNorm = horror / maxHorror;
-
-                // Distribución esférica cósmica (200 a 500 unidades del centro del grupo)
                 const localPos = randomSphericalPosition(150, 450);
-                
-                // Distancia al CENTRO ABSOLUTO (0,0,0) para gradiente
                 const globalPos = localPos.clone().add(group.position);
                 const distanceToCenter = globalPos.length();
-                
-                // GRADIENTE CÓSMICO: Lejos = blanco, Cerca = oscuro
-                // Normalizar distancia (0-2000 típicamente)
-                const maxDist = 1500;
-                const distanceNorm = Math.min(1, distanceToCenter / maxDist);
-                
-                // Color: Blanco brillante (lejano) → Gris oscuro (cercano)
-                // Invertido: distanceNorm = 1 (lejos) → brightness = 1 (blanco)
-                //            distanceNorm = 0 (cerca) → brightness = 0.05 (casi negro)
+                const distanceNorm = Math.min(1, distanceToCenter / 1500);
                 let brightness = 0.05 + (distanceNorm * 0.95);
-                
-                // Sobreescribir para nodo central si es Cero Absoluto
-                let color;
-                if (nodeData.is_central) {
-                    color = new THREE.Color(0xffd700); // Dorado
-                    brightness = 1.0;
-                } else {
-                    // Color base de la semilla + modulación por distancia
-                    color = new THREE.Color(graphData.color);
-                    color.multiplyScalar(brightness);
-                }
-
-                // Tamaño basado en horror (más horror = más grande)
-                const size = 2.0 + (horrorNorm * 6);
-
-                const geo = new THREE.SphereGeometry(size, 8, 8);
-                const mat = new THREE.MeshBasicMaterial({
-                    color: color,
-                    transparent: true,
-                    opacity: 0.85 + (distanceNorm * 0.15) // Más lejano = más opaco
-                });
-
-                const mesh = new THREE.Mesh(geo, mat);
-                mesh.position.copy(localPos);
-                mesh.userData = {
-                    ...nodeData,
-                    distanceToCenter: distanceToCenter,
-                    brightness: brightness
-                };
-
-                group.add(mesh);
-                nodeMeshes[nodeData.id] = mesh;
+                nodeMeshes[nodeData.id] = { userData: { ...nodeData, distanceToCenter, brightness }, localPos };
             });
+
+            // INSTANCED MESH PARA NODOS (OPTIMIZACIÓN MÁXIMA)
+            const nodeGeometry = new THREE.SphereGeometry(1, 8, 8); // Base geometry (scaled per instance)
+            const nodeMaterial = new THREE.MeshBasicMaterial({ 
+                transparent: true, 
+                opacity: 0.9,
+                blending: THREE.AdditiveBlending 
+            });
+            
+            const instancedMesh = new THREE.InstancedMesh(nodeGeometry, nodeMaterial, graphData.nodes.length);
+            const dummy = new THREE.Object3D();
+
+            graphData.nodes.forEach((nodeData, i) => {
+                const nodeRef = nodeMeshes[nodeData.id];
+                const horrorNorm = (nodeData.horror || 0) / maxHorror;
+                const size = 2.0 + (horrorNorm * 6);
+                
+                dummy.position.copy(nodeRef.localPos);
+                dummy.scale.set(size, size, size);
+                dummy.updateMatrix();
+                instancedMesh.setMatrixAt(i, dummy.matrix);
+
+                // Central node (Cero Absoluto) always Gold, others seed color * brightness
+                let color = new THREE.Color(graphData.color);
+                if (nodeData.is_central) {
+                    color.set(0xffd700);
+                } else {
+                    color.multiplyScalar(nodeRef.userData.brightness);
+                }
+                instancedMesh.setColorAt(i, color);
+            });
+            
+            instancedMesh.instanceMatrix.needsUpdate = true;
+            if (instancedMesh.instanceColor) instancedMesh.instanceColor.needsUpdate = true;
+            
+            group.add(instancedMesh);
+            // Referencia para raycasting (InstancedMesh requiere lógica especial, usaremos dummy meshes invisibles o bounding boxes si es necesario, 
+            // pero por ahora mantendremos la compatibilidad con el raycaster original usando invisibles para interactividad si el rendimiento lo permite)
+            // Para v2.1 usaremos una técnica de raycasting sobre InstancedMesh
+            instancedMesh.userData.isNodeInstance = true;
+            instancedMesh.userData.seedIndex = seedIndex;
 
             // Crear líneas (edges) dentro del grupo
             graphData.edges.forEach(edgeData => {
-                const sourceMesh = nodeMeshes[edgeData.source];
-                const targetMesh = nodeMeshes[edgeData.target];
+                const sourceData = nodeMeshes[edgeData.source];
+                const targetData = nodeMeshes[edgeData.target];
                 
-                if (!sourceMesh || !targetMesh) return;
-
-                // Posiciones globales para las líneas
-                const sourcePos = new THREE.Vector3();
-                const targetPos = new THREE.Vector3();
-                sourceMesh.getWorldPosition(sourcePos);
-                targetMesh.getWorldPosition(targetPos);
+                if (!sourceData || !targetData) return;
 
                 const mat = new THREE.LineBasicMaterial({
                     color: graphData.color,
@@ -317,9 +433,13 @@
                     linewidth: 1
                 });
 
+                // PUENTE ELÉCTRICO (Solicitado por el usuario)
+                // En multiseed detectamos si los IDs originales sugieren cruce (aunque aquí son intragrupo por ahora)
+                // La lógica de puentes globales está más abajo.
+
                 const geo = new THREE.BufferGeometry().setFromPoints([
-                    sourceMesh.position.clone(),
-                    targetMesh.position.clone()
+                    sourceData.localPos,
+                    targetData.localPos
                 ]);
                 
                 const line = new THREE.Line(geo, mat);
@@ -357,11 +477,12 @@
                 const groupA = seedGroups[i];
                 const groupB = seedGroups[nextIndex];
 
+                // PUENTE ELÉCTRICO v2.1 (Amarillo brillante y grueso)
                 const bridgeMat = new THREE.LineBasicMaterial({
-                    color: 0x00ff88,
+                    color: 0xffff00,
                     transparent: true,
-                    opacity: 0.3,
-                    linewidth: 2
+                    opacity: 0.8,
+                    linewidth: 4 // Más impactante
                 });
 
                 const points = [
@@ -377,33 +498,121 @@
         }
 
         // ──────────────────────────────────────────────────────────────
-        // ANIMACIÓN ORBITAL
+        // ANIMACIÓN ORBITAL & INTERACCIÓN (Energy Packets)
         // ──────────────────────────────────────────────────────────────
+
+        // Sistema de Energy Packets (partículas de intercambio)
+        const energyPackets = [];
+        const packetGeo = new THREE.SphereGeometry(3, 4, 4);
+        const packetMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+        function spawnPacket() {
+            if (seedGroups.length < 2) return;
+            const fromIdx = Math.floor(Math.random() * seedGroups.length);
+            let toIdx = Math.floor(Math.random() * seedGroups.length);
+            while(toIdx === fromIdx) toIdx = Math.floor(Math.random() * seedGroups.length);
+
+            const packet = new THREE.Mesh(packetGeo, packetMat);
+            
+            // Posición inicial (aleatoria dentro del grupo origen)
+            const startPos = seedGroups[fromIdx].position.clone().add(
+                randomSphericalPosition(0, 200) 
+            );
+            packet.position.copy(startPos);
+            
+            packet.userData = {
+                targetGroup: seedGroups[toIdx],
+                speed: 5 + Math.random() * 5,
+                life: 0
+            };
+            
+            scene.add(packet);
+            energyPackets.push(packet);
+        }
+
+        // Aumentar tráfico de datos (High Bandwidth)
+        setInterval(() => {
+            for(let i=0; i<8; i++) spawnPacket(); 
+        }, 200); // Ráfagas de 8 paquetes cada 200ms
+
 
         function animate() {
             requestAnimationFrame(animate);
             
             if (controls) controls.update();
 
-            // Animar cada semilla
+            // Animar cada semilla (Separación Aumentada)
             seedGroups.forEach((group, idx) => {
                 // Rotación orbital alrededor del centro
                 group.userData.orbitPhase += group.userData.orbitSpeed;
-                const orbitR = 600;
+                const orbitR = 1100; // AUMENTADO de 600 a 1100 para separación clara
+                
                 group.position.x = Math.cos(group.userData.orbitPhase) * orbitR;
                 group.position.z = Math.sin(group.userData.orbitPhase) * orbitR;
 
                 // Oscilación vertical suave
                 group.userData.oscillationPhase += 0.0008;
-                group.position.y = Math.sin(group.userData.oscillationPhase) * 80;
+                group.position.y = Math.sin(group.userData.oscillationPhase) * 120; // Más amplitud
 
                 // Rotación interna del grupo (giro sobre sí mismo)
-                group.rotation.y += 0.0002;
+                group.rotation.y += 0.0005;
+                
+                // Actualizar posición de puentes de energía si existen
+                // (Como los puentes son estáticos en vertices, hay que actualizarlos)
             });
 
-            // Pulso del agujero negro central
-            const pulseScale = 1.0 + Math.sin(Date.now() * 0.001) * 0.05;
+            // Actualizar Bridges (Lineas verdes)
+            scene.children.forEach(child => {
+                if (child.userData.isBridge) {
+                    // Recalcular posiciones (esto es costoso pero necesario si se mueven)
+                    // Simplificación: Asumimos bridge conecta idx i con i+1
+                    // Pero no guardamos referencia idx en bridge. 
+                    // Mejor borrar y recrear? O actualizar geometry?
+                    // Por performance, los bridges estáticos se ven mal si orbitan.
+                    // Vamos a ocultarlos o animarlos.
+                    // Mejor: Hacer que los bridges sean dinámicos.
+                    // Por ahora, eliminarlos de la escena y dejar solo energy packets 
+                    // O actualizarlos si tuvieramos referencia.
+                    child.visible = false; // Ocultar bridges estáticos viejos
+                }
+            });
+
+            // Animar Energy Packets
+            for (let i = energyPackets.length - 1; i >= 0; i--) {
+                const p = energyPackets[i];
+                const target = p.userData.targetGroup.position;
+                
+                // Mover hacia target
+                const dir = target.clone().sub(p.position).normalize();
+                p.position.add(dir.multiplyScalar(p.userData.speed));
+                
+                // Chequear llegada
+                if (p.position.distanceTo(target) < 50 || p.userData.life > 500) {
+                    scene.remove(p);
+                    energyPackets.splice(i, 1);
+                }
+                p.userData.life++;
+            }
+
+            // Pulso del agujero negro central (Dynamic Glow Pulsing)
+            const pulseFactor = Math.sin(Date.now() * 0.002);
+            const pulseScale = 1.0 + pulseFactor * 0.05;
             centralSingularity.scale.set(pulseScale, pulseScale, pulseScale);
+            
+            // Pulse glow opacity
+            if (centralSingularity.children[2]) {
+                centralSingularity.children[2].material.opacity = 0.5 + pulseFactor * 0.2;
+            }
+
+            // Animar partículas doradas
+            goldenParticles.forEach(p => {
+                p.userData.angle += p.userData.speed;
+                p.position.applyAxisAngle(p.userData.axis, p.userData.speed);
+            });
+            
+            // Rotación del anillo de eventos
+            centralSingularity.children[1].rotation.z += 0.002; 
+            centralSingularity.children[1].rotation.x += 0.001; 
 
             renderer.render(scene, camera);
         }
@@ -439,12 +648,183 @@
             });
         };
 
+        // ──────────────────────────────────────────────────────────────
+        // INTERACCIÓN: CLICK & HIGHLIGHT (Unificado)
+        // ──────────────────────────────────────────────────────────────
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        window.addEventListener('click', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+
+            // Raycasting sobre InstancedMesh (v2.1)
+            const instancedMeshes = [];
+            scene.traverse(child => {
+                if (child.isInstancedMesh) instancedMeshes.push(child);
+            });
+            
+            const intersects = raycaster.intersectObjects(instancedMeshes);
+
+            // Helper para resetear líneas
+            const resetLines = () => {
+                lineMeshes.forEach(line => {
+                    line.material.opacity = 0.15;
+                    line.material.color.set(line.userData.originalColor || 0x00ffff);
+                });
+                
+                scene.children.forEach(child => {
+                    if (child.userData.isBridge) {
+                        child.material.opacity = 0.8;
+                        child.material.color.set(0xffff00);
+                    }
+                });
+            };
+
+            if (lineMeshes.length > 0 && !lineMeshes[0].userData.originalColor) {
+                 lineMeshes.forEach(l => l.userData.originalColor = l.material.color.clone());
+            }
+
+            if (intersects.length > 0) {
+                const intersection = intersects[0];
+                const instanceId = intersection.instanceId;
+                const iMesh = intersection.object;
+                const seedIdx = iMesh.userData.seedIndex;
+                const graphNodes = graphsData[seedIdx].nodes;
+                const nodeData = graphNodes[instanceId];
+
+                if (selectedNodeId === nodeData.id) {
+                    selectedNodeId = null;
+                    resetLines();
+                    hideNodeDetails();
+                } else {
+                    selectedNodeId = nodeData.id;
+                    showNodeDetails(nodeData);
+
+                    resetLines();
+                    lineMeshes.forEach(line => {
+                        if (line.userData.source === nodeData.id || line.userData.target === nodeData.id) {
+                             line.material.color.set(0xffd700);
+                             line.material.opacity = 0.9;
+                        } else {
+                             line.material.opacity = 0.05;
+                        }
+                    });
+                }
+            } else {
+                selectedNodeId = null;
+                resetLines();
+                hideNodeDetails();
+            }
+        });
+
         // Resize handler
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+        // ──────────────────────────────────────────────────────────────
+        // RESOURCE MONITORING (FPS & POLL)
+        // ──────────────────────────────────────────────────────────────
+        let lastFrameTime = performance.now();
+        let frameCount = 0;
+        const fpsEl = document.getElementById('fps-val');
+        
+        function updateFPS() {
+            const now = performance.now();
+            frameCount++;
+            if (now - lastFrameTime >= 1000) {
+                if(fpsEl) {
+                    fpsEl.innerText = frameCount;
+                    fpsEl.style.color = frameCount < 30 ? '#ff0000' : (frameCount < 50 ? '#ffff00' : '#00ff00');
+                }
+                frameCount = 0;
+                lastFrameTime = now;
+            }
+            requestAnimationFrame(updateFPS);
+        }
+        updateFPS();
+
+        setInterval(() => {
+            const startPing = Date.now();
+            fetch('/api/resources')
+                .then(r => r.json())
+                .then(data => {
+                    const ping = Date.now() - startPing;
+                    if(document.getElementById('ping-val')) document.getElementById('ping-val').innerText = ping + 'ms';
+                    if(document.getElementById('cpu-val')) {
+                        document.getElementById('cpu-val').innerText = data.cpu + '%';
+                        document.getElementById('cpu-val').style.color = data.cpu > 80 ? '#ff0000' : '#00aaff';
+                    }
+                    if(document.getElementById('ram-val')) document.getElementById('ram-val').innerText = data.ram_used + 'GB';
+                })
+                .catch(err => console.error("Monitor error:", err));
+        }, 2000);
+
+        // ──────────────────────────────────────────────────────────────
+        // SPIKE VISUAL EFFECT (IONIC CHANNELS)
+        // ──────────────────────────────────────────────────────────────
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'spike') {
+                trigger3DMultiSpike(event.data.color || '#ffd700');
+            }
+        });
+
+        function trigger3DMultiSpike(colorHex) {
+            const spikeColor = new THREE.Color(colorHex);
+            
+            // 1. Flash all seed groups
+            seedGroups.forEach(group => {
+                group.scale.set(1.2, 1.2, 1.2);
+                setTimeout(() => group.scale.set(1, 1, 1), 500);
+            });
+
+            // 2. Pulse background temporarily
+            const originalBg = scene.background.clone();
+            scene.background.set(spikeColor).multiplyScalar(0.05); // Muy sutil
+            setTimeout(() => scene.background.copy(originalBg), 400);
+
+            // 3. Shake camera
+            const originalPos = camera.position.clone();
+            const shakeInterval = setInterval(() => {
+                camera.position.x += (Math.random() - 0.5) * 5;
+                camera.position.y += (Math.random() - 0.5) * 5;
+            }, 50);
+            
+            setTimeout(() => {
+                clearInterval(shakeInterval);
+                camera.position.copy(originalPos);
+            }, 500);
+        }
+        // ──────────────────────────────────────────────────────────────
+        // DIALOG LOGIC
+        // ──────────────────────────────────────────────────────────────
+        function showNodeDetails(data) {
+            const dialog = document.getElementById('node-details-dialog');
+            document.getElementById('dialog-node-id').innerText = `ID: ${data.id}`;
+            document.getElementById('dialog-node-label').innerText = data.label;
+            document.getElementById('dialog-node-dim').innerText = data.original_id ? data.original_id.split('.')[0] : 'UNKNOWN';
+            document.getElementById('dialog-node-horror').innerText = data.horror.toFixed(2);
+            document.getElementById('dialog-node-desc').innerText = `Captura de resonancia negativa en T+${Date.now()%1000}ms.`;
+            
+            // Fill bar (max approx 3000 horror for scale)
+            const fillPerc = Math.min((data.horror / 3000) * 100, 100);
+            document.getElementById('dialog-horror-fill').style.width = fillPerc + '%';
+
+            dialog.style.display = 'block';
+            setTimeout(() => dialog.classList.add('active'), 10);
+        }
+
+        function hideNodeDetails() {
+            const dialog = document.getElementById('node-details-dialog');
+            dialog.classList.remove('active');
+            setTimeout(() => {
+                if(!dialog.classList.contains('active')) dialog.style.display = 'none';
+            }, 400);
+        }
     </script>
 </body>
 </html>

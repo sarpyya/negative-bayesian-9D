@@ -14,8 +14,8 @@ import time
 from datetime import datetime
 import psutil
 import networkx as nx
-from flask import Flask, render_template, jsonify, send_from_directory, request, session
-from bayesian_9d import generar_grafo_9d, analizar_horror, votar_modo, MODOS
+from flask import Flask, render_template, jsonify, send_from_directory, request, session, redirect, url_for
+from bayesian_9d import generar_grafo_9d, analizar_horror, votar_modo, MODOS, update_from_sensors
 from models import db, HorrorRun
 from pyvis.network import Network
 
@@ -27,7 +27,7 @@ app = Flask(__name__)
 app.secret_key = 'secret_key_satanico_666_9d'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///horror_runs.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['MAX_NODES'] = 1500          # Hard limit para Vega 11
+app.config['MAX_NODES'] = 20000         # Hard limit expandido para Hardware Divino (20k)
 app.config['MAX_SIMS'] = 5000           # Límite Monte Carlo
 
 db.init_app(app)
@@ -120,10 +120,37 @@ def safe_db_commit(session):
 # RUTAS PRINCIPALES
 # ──────────────────────────────────────────────────────────────
 
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204
+
 @app.route('/')
 def index():
     """Página principal - Dashboard satánico"""
     return render_template('index.html')
+
+
+def serialize_graph_for_threejs(G):
+    """Convierte un grafo NetworkX a formato JSON para Three.js"""
+    nodes = []
+    for node, data in G.nodes(data=True):
+        nodes.append({
+            "id": node,
+            "label": data.get('label', str(node)),
+            "horror": data.get('horror', 0),
+            "pos_3d": data.get('pos_3d'),
+            "seed_index": data.get('seed_index', 0)
+        })
+
+    edges = []
+    for u, v, data in G.edges(data=True):
+        edges.append({
+            "source": u,
+            "target": v,
+            "weight": data.get('weight', 1.0),
+            "type": data.get('type', 'normal')
+        })
+    return nodes, edges
 
 
 @app.route('/brain_3d')
@@ -151,29 +178,20 @@ def brain_3d():
         modo_nombre, modo_info = votar_modo(ultimo_analisis['horror_total'])
 
     # Preparar datos para Three.js
-    nodes = []
-    for node, data in ultimo_grafo.nodes(data=True):
-        nodes.append({
-            "id": node,
-            "label": data.get('label', str(node)),
-            "horror": data.get('horror', 0),
-            "color": "#ffffff",  # JS manejará gradiente blanco→negro
-            "seed_index": data.get('seed_index', 0)
-        })
+    nodes_data, edges_data = serialize_graph_for_threejs(ultimo_grafo)
 
-    edges = []
-    for u, v, data in ultimo_grafo.edges(data=True):
-        edges.append({
-            "source": u,
-            "target": v,
-            "weight": data.get('weight', 1.0),
-            "label": data.get('label', '')
+    if request.args.get('json') == 'true':
+        return jsonify({
+            'nodes': nodes_data,
+            'edges': edges_data,
+            'horror_total': ultimo_analisis['horror_total'],
+            'modo': modo_nombre
         })
 
     return render_template(
         'brain_3d.html',
-        nodes=nodes,
-        edges=edges,
+        nodes=nodes_data,
+        edges=edges_data,
         modo={'nombre': modo_nombre, 'info': modo_info}
     )
 
@@ -203,17 +221,23 @@ def brain_3d_multiseed():
     if seeds_arg:
         seeds = [int(s) for s in seeds_arg.split(',')]
     else:
-        seeds = [random.randint(1, 999999) for _ in range(3)]
+        # Si no hay seeds, usar el parámetro num_seeds o default 3
+        num_seeds = min(max(int(request.args.get('num_seeds', 3)), 1), 10)
+        seeds = [random.randint(1, 999999) for _ in range(num_seeds)]
     
-    # Limitar a 3 semillas para performance (Vega 11)
-    seeds = seeds[:3]
+    total_seeds = len(seeds)
+    
+    # Obtener node_count desde args o config
+    target_nodes = int(request.args.get('node_count', 1500))
+    nodes_per_seed = max(50, int(target_nodes / total_seeds))
+    ramificaciones = max(3, int(nodes_per_seed / 9))
     
     graphs_data = []
     total_seeds = len(seeds)
     
     for i, seed in enumerate(seeds):
         # Generar grafo con nodos limitados por semilla
-        G = generar_grafo_9d(seed=seed, ramificaciones_por_nodo=4)
+        G = generar_grafo_9d(seed=seed, ramificaciones_por_nodo=ramificaciones)
         offset = calculate_seed_offset(i, total_seeds, radius=500)
         
         nodes = []
@@ -245,6 +269,9 @@ def brain_3d_multiseed():
             'orbit_speed': 0.0003 + (i * 0.0001)  # Velocidad orbital única
         })
     
+    if request.args.get('json') == 'true':
+        return jsonify(graphs_data)
+        
     return render_template('brain_3d_multiseed.html', graphs=graphs_data, seeds=seeds)
 
 
@@ -304,9 +331,13 @@ def api_generate():
         db.session.add(new_run)
         safe_db_commit(db.session)
 
+        nodes_data, edges_data = serialize_graph_for_threejs(ultimo_grafo)
+
         return jsonify({
             'status': 'ok',
             'seed': seed,
+            'nodes': nodes_data,
+            'edges': edges_data,
             'analisis': ultimo_analisis,
             'modo': {'nombre': modo_nombre, 'desc': modo_info.get('desc', '')},
             'elapsed': round(elapsed, 3),
@@ -318,14 +349,27 @@ def api_generate():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
-@app.route('/api/fusion', methods=['POST'])
+
+
+@app.route('/api/fusion', methods=['GET', 'POST'])
 def api_fusion():
-    """Genera y fusiona 3 semillas en un grafo multiversal"""
+    """Genera y fusiona 3 semillas en un grafo multiversal (Soporta GET y POST)"""
     global ultimo_grafo, ultimo_analisis
 
     try:
-        seeds = [random.randint(1, 999999) for _ in range(3)]
-        graphs = [generar_grafo_9d(seed=s, ramificaciones_por_nodo=4) for s in seeds]
+        if request.method == 'POST':
+            data = request.get_json(silent=True) or {}
+            target_nodes = int(data.get('node_count', 1500))
+            n_seeds = int(data.get('seeds', 3))
+        else:
+            target_nodes = request.args.get('nodes', default=1500, type=int)
+            n_seeds = request.args.get('seeds', default=3, type=int)
+
+        nodes_per_seed = max(50, int(target_nodes / n_seeds))
+        ramificaciones = max(3, int(nodes_per_seed / 10))
+
+        seeds = [random.randint(1, 999999) for _ in range(n_seeds)]
+        graphs = [generar_grafo_9d(seed=s, ramificaciones_por_nodo=ramificaciones) for s in seeds]
 
         # Relabeling para evitar colisiones de IDs
         labeled = []
@@ -344,11 +388,12 @@ def api_fusion():
                 top = max(g.nodes(data=True), key=lambda x: x[1].get('horror', 0))
                 top_per_seed.append(top[0])
 
-        # Puentes entre tops (si hay al menos 2)
+        # Puentes entre tops (si hay al menos 2) - Creación de Cadena Multiversal Circular
         if len(top_per_seed) >= 2:
-            U.add_edge(top_per_seed[0], top_per_seed[1], weight=5.0, label="Puente Dimensional")
-            U.add_edge(top_per_seed[1], top_per_seed[2], weight=5.0, label="Ciclo Multiversal")
-            U.add_edge(top_per_seed[2], top_per_seed[0], weight=5.0, label="Colapso Fractal")
+            for i in range(len(top_per_seed)):
+                u = top_per_seed[i]
+                v = top_per_seed[(i + 1) % len(top_per_seed)]
+                U.add_edge(u, v, weight=5.0, label="Puente Dimensional" if i < len(top_per_seed)-1 else "Ciclo Fractal")
 
         ultimo_grafo = U
         ultimo_analisis = analizar_horror(U, top_n=15)
@@ -356,13 +401,24 @@ def api_fusion():
         ultimo_analisis['seeds'] = seeds
 
         modo_nombre, modo_info = votar_modo(ultimo_analisis['horror_total'])
+        
+        # Serializar cada grafo individualmente para el visualizador (para que sea fluido e independiente)
+        serialized_graphs = []
+        for g, s in zip(graphs, seeds):
+            nodes_data, edges_data = serialize_graph_for_threejs(g)
+            serialized_graphs.append({
+                'nodes': nodes_data,
+                'edges': edges_data,
+                'seed': s,
+                'modo': modo_nombre 
+            })
 
         return jsonify({
             'status': 'ok',
-            'seeds': seeds,
+            'graphs': serialized_graphs,
             'analisis': ultimo_analisis,
             'modo': {'nombre': modo_nombre, 'desc': modo_info.get('desc', '')}
-        })
+        }) 
 
     except Exception as e:
         print(f"ERROR en fusion: {e}")
@@ -452,13 +508,122 @@ def api_history():
     return jsonify(history)
 
 
+@app.route('/hall')
+def hall():
+    """Sirve la galería del Hall de las Semillas con los peores casos"""
+    runs = HorrorRun.query.order_by(HorrorRun.horror_total.desc()).limit(50).all()
+    # Asegurar que top_nodes se deserialice para el template
+    for r in runs:
+        try:
+            r.top_nodes_list = json.loads(r.top_nodes) if r.top_nodes else []
+        except:
+            r.top_nodes_list = []
+    return render_template('hall.html', runs=runs)
+
+@app.route('/api/graph', methods=['GET', 'POST'])
+def api_graph():
+    """Endpoint unificado 9D: Generación (POST), Carga (GET ?run_id) y Visualizador (GET ?nodes)"""
+    global ultimo_grafo, ultimo_analisis
+    
+    if request.method == 'POST':
+        data = request.json or {}
+        seed = data.get('seed', random.randint(1, 999999))
+        ramif = data.get('ramificaciones', 7)
+        modo_forzado = data.get('modo_forzado')
+        target_nodes = min(max(int(data.get('node_count', 600)), 50), app.config['MAX_NODES'])
+        
+        if 'ramificaciones' not in data:
+            ramif = max(3, int(target_nodes / 9))
+
+        grafo = generar_grafo_9d(seed=seed, ramificaciones_por_nodo=ramif)
+        analisis = analizar_horror(grafo)
+        
+        modo_nombre, modo_info = votar_modo(analisis['horror_total'])
+        if modo_forzado and modo_forzado in MODOS:
+            modo_nombre = modo_forzado
+            modo_info = MODOS[modo_forzado]
+        
+        run = HorrorRun(
+            seed=seed,
+            horror_total=analisis['horror_total'],
+            modo=modo_nombre,
+            modo_desc=modo_info.get('desc', ''),
+            top_nodes=json.dumps(analisis.get('nodos_mas_horribles', [])[:5]),
+            horror_promedio=analisis.get('horror_promedio', 0),
+            total_nodos=analisis.get('total_nodos', 0),
+            graph_json=json.dumps(nx.node_link_data(grafo))
+        )
+        db.session.add(run)
+        safe_db_commit(db.session)
+        
+        nodes_data, edges_data = serialize_graph_for_threejs(grafo)
+        return jsonify({
+            'status': 'ok',
+            'run_id': run.id,
+            'seed': seed,
+            'modo': modo_nombre,
+            'analisis': analisis,
+            'nodes': nodes_data,
+            'edges': edges_data
+        })
+    
+    # GET Logic: Historia o Generación Visualizador
+    run_id = request.args.get('run_id')
+    if run_id:
+        run = HorrorRun.query.get(run_id)
+        if run and run.graph_json:
+            G = nx.node_link_graph(json.loads(run.graph_json))
+            nodes, edges = serialize_graph_for_threejs(G)
+            return jsonify({
+                'nodes': nodes, 'edges': edges, 'seed': run.seed, 'modo': run.modo, 'horror_total': run.horror_total
+            })
+    
+    # Fallback para Visualizador (GET ?nodes=...)
+    nodes_count = request.args.get('nodes', default=600, type=int)
+    seed = random.randint(1, 999999)
+    ramif = max(3, int(nodes_count / 9))
+    G = generar_grafo_9d(seed=seed, ramificaciones_por_nodo=ramif)
+    analisis = analizar_horror(G)
+    nodes_data, edges_data = serialize_graph_for_threejs(G)
+    return jsonify({
+        'status': 'ok', 'seed': seed, 'nodes': nodes_data, 'edges': edges_data,
+        'horror_total': analisis['horror_total'], 'modo': votar_modo(analisis['horror_total'])[0]
+    })
+@app.route('/api/update_sensors', methods=['POST'])
+def api_update_sensors():
+    global ultimo_grafo
+    if ultimo_grafo is None:
+        return jsonify({'error': 'No graph loaded'}), 404
+    
+    data = request.json
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+        
+    # El sensor envía gsr, eeg_beta_right, hrv_rmssd
+    # Detectar el spike antes o después de la actualización
+    spike_detected = float(data.get('gsr', 0) or 0) > 8.0
+    
+    # update_from_sensors devuelve el grafo modificado
+    ultimo_grafo = update_from_sensors(ultimo_grafo, data)
+    
+    analisis = analizar_horror(ultimo_grafo)
+    modo_nombre, _ = votar_modo(analisis['horror_total'])
+    
+    return jsonify({
+        'status': 'ok',
+        'horror_total': analisis['horror_total'],
+        'mode': modo_nombre,
+        'nodes_updated': len(ultimo_grafo.nodes),
+        'action_potential': spike_detected
+    })
+
+
+
+
 @app.route('/visualize/seed/<int:seed>')
 def visualize_seed(seed):
-    """Genera y visualiza una semilla específica en 2D"""
-    G = generar_grafo_9d(seed=seed)
-    filename = f"graph_{seed}.html"
-    visualize_graph(G, filename=filename)
-    return send_from_directory('static', filename)
+    """Redirige al visor 3D para una semilla específica"""
+    return redirect(url_for('brain_3d', seed=seed))
 
 
 @app.route('/visualize/fusion')

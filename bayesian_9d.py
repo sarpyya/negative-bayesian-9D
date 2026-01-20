@@ -65,6 +65,24 @@ MODOS: Dict[str, Dict[str, Any]] = {
         "node_shape": "dot",
         "emoji": "🧊"
     },
+    "NIÑO_WOWO": {
+        "threshold": 45000,
+        "desc": "🤪 Euforia Maníaca – Todo brilla, el dolor es un juguete. Risas sin contexto.",
+        "color": "#ff00ff",
+        "blink": True,
+        "physics": {"gravity": -10000, "spring_length": 80, "spring_strength": 0.05},
+        "node_shape": "star",
+        "emoji": "🤪"
+    },
+    "LOL_GAMER": {
+        "threshold": 10000,
+        "desc": "🎮 Disociación Competitiva – El trauma es solo un debuff. Farmeando XP en el vacío.",
+        "color": "#00ff00",
+        "blink": False,
+        "physics": {"gravity": -3000, "spring_length": 250, "spring_strength": 0.01},
+        "node_shape": "square",
+        "emoji": "🎮"
+    },
     "MAPUCHE_COSMICO": {
         "threshold": 1000,
         "desc": "🌌 Observador ancestral – Patrones milenarios, el abismo te mira y tú sonríes.",
@@ -239,10 +257,72 @@ def propagar_horror(G: nx.DiGraph, steps: int = 1, decay: float = 0.05):
                 G.nodes[node]['horror'] = current + contagio + mutacion
 
 
+def update_from_sensors(G: nx.DiGraph, sensor_data: Dict[str, float]) -> nx.DiGraph:
+    """
+    Canales iónicos digitales: convierte bioseñales en horror dinámico.
+    Mapeo directo: Iones -> Spike -> Propagación Viral.
+    """
+    # 1. Canal Na+ (Entrada rápida de horror por EEG Beta)
+    # Beta > 0.7 indica ansiedad/actividad mental intensa
+    eeg_val = sensor_data.get('eeg_beta_right', 0.0)
+    if eeg_val > 0.7:
+        # print(f"⚡ EEG Beta Spike ({eeg_val:.2f}): Inyección de iones Na+ (Horror)")
+        for node in G.nodes():
+            desc = str(G.nodes[node].get('desc', '')).lower()
+            # Nodos emocionales (traición, soledad) son más permeables a la ansiedad
+            if 'traición' in desc or 'aislamiento' in desc or 'humillación' in desc:
+                 G.nodes[node]['horror'] += 150 * eeg_val
+    
+    # 2. Canal K+ Leak (Estrés basal por baja HRV)
+    # Baja HRV (RMSSD) = Alto estrés. Inverso proporcional.
+    hrv_val = sensor_data.get('hrv_rmssd', 1.0) 
+    # RMSSD típico 0.02 - 0.10. Si es < 0.03 es estrés medio.
+    stress = 1.0 / (hrv_val + 0.001) 
+    
+    if stress > 20.0: # Umbral alto estrés
+        # print(f"💧 Leak K+ (Stress {stress:.1f}): Aumentando conducción viral")
+        for u, v in G.edges():
+             # Facilitar la transmisión sináptica del horror
+             # Si HRV es muy bajo, el contagio es más rápido
+             G.edges[u, v]['weight'] *= (1.0 + (stress * 0.005))
+
+    # 3. Potencial de Acción Global (GSR Extremas)
+    gsr_val = sensor_data.get('gsr', 0.0)
+    if gsr_val > 8.0:
+        # print(f"🔥 GSR Surge ({gsr_val}): POTENCIAL DE ACCIÓN GLOBAL")
+        propagar_horror(G, steps=3, decay=0.1)
+    
+    return G
+
+
 def analizar_horror(G: nx.DiGraph, top_n: int = 10) -> Dict:
     """Análisis completo del horror acumulado"""
     nodos_horror = [(n, d.get('horror', 0)) for n, d in G.nodes(data=True)]
     total_horror = sum(h for _, h in nodos_horror)
+
+    # Agrupamiento por dimensiones (Clusters para Mini-Singularidades)
+    clusters = {}
+    for n, d in G.nodes(data=True):
+        dim = d.get('dim', 'DESCONOCIDO')
+        if dim not in clusters:
+            clusters[dim] = {"horror_sum": 0, "nodos": [], "center_approx": [0,0,0]}
+        
+        horror = d.get('horror', 0)
+        clusters[dim]["horror_sum"] += horror
+        clusters[dim]["nodos"].append(n)
+
+    processed_clusters = []
+    for dim, cdata in clusters.items():
+        h_sum = cdata["horror_sum"]
+        processed_clusters.append({
+            "dim": dim,
+            "horror_total": h_sum,
+            "node_count": len(cdata["nodos"]),
+            "mini_singularity": {
+                "size": max(2, (h_sum / 5000) ** 0.5), # Radio ~ sqrt(chaos)
+                "mass": h_sum / 200 # Masa afecta gravitación
+            }
+        })
 
     return {
         "horror_total": total_horror,
@@ -256,6 +336,7 @@ def analizar_horror(G: nx.DiGraph, top_n: int = 10) -> Dict:
             }
             for n, h in sorted(nodos_horror, key=lambda x: x[1], reverse=True)[:top_n]
         ],
+        "clusters": processed_clusters,
         "total_nodos": len(G.nodes()),
         "total_edges": len(G.edges()),
         "timestamp": datetime.now().isoformat()

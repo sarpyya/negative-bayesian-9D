@@ -3,744 +3,1626 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔥 Bayesian Negative 9D - Abismo Dashboard</title>
-    <meta name="description" content="Motor de resiliencia cognitiva desde el Cero Absoluto. Horror como combustible.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+    <title>⚡ COSMIC OS v3.2 - THE SINGULARITY ⚡</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
     <style>
         :root {
-            --bg-black: #050505;
-            --glass-bg: rgba(10, 10, 10, 0.72);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --text-green: #00ff41;
+            --bg-black: #000000;
+            --glass-bg: rgba(0, 0, 0, 0.75);
+            --glass-border: rgba(0, 242, 255, 0.3);
             --text-cyan: #00f2ff;
-            --text-red: #ff3c3c;
-            --text-yellow: #f4ff4d;
-            --text-magenta: #ff00aa;
-            --accent-glow: 0 0 16px rgba(0, 255, 65, 0.25);
-            --sidebar-width: 200px;
-            --transition: all 0.28s cubic-bezier(0.165, 0.84, 0.44, 1);
+            --text-magenta: #ff00ff;
+            --text-yellow: #ffffff;
+            --text-red: #ff3333;
+            --text-green: #00ff41;
         }
 
-        * { margin:0; padding:0; box-sizing:border-box; }
-
-        body {
-            background: var(--bg-black);
-            background-image: 
-                radial-gradient(circle at 50% 10%, rgba(0,255,65,0.04) 0%, transparent 50%),
-                url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-            color: #e0e0e0;
-            font-family: 'Inter', system-ui, sans-serif;
-            line-height: 1.6;
-            height: 100vh;
-            overflow: hidden;
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background: var(--bg-black);
+            font-family: 'Inter', sans-serif; color: white; transition: background 0.5s;
         }
 
-        /* LIGHT NINO MODE */
-        body.light-nino {
-            --bg-black: #f8fbff;
-            --glass-bg: rgba(255,255,255,0.78);
-            --glass-border: rgba(0,0,0,0.12);
-            --text-green: #006600;
-            --text-cyan: #0055cc;
-            --text-red: #cc0000;
-            --text-yellow: #cc9900;
-            --text-magenta: #990066;
-            color: #111 !important;
-        }
+        #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
-        body.light-nino .glass-card,
-        body.light-nino .sidebar,
-        body.light-nino .top-header {
-            background: var(--glass-bg) !important;
-            border-color: var(--glass-border) !important;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.12) !important;
-        }
-
-        body.light-nino * { color: #111 !important; }
-        body.light-nino .btn-gen { background: linear-gradient(135deg, #00cc66, #009933) !important; color:#fff !important; }
-        body.light-nino .hud-btn { background:#fff !important; color:#000 !important; border-color:#000 !important; }
-
-        /* GRID LAYOUT */
-        .dashboard-container {
-            display: grid;
-            grid-template-columns: var(--sidebar-width) 1fr;
-            grid-template-rows: auto 1fr;
-            grid-template-areas: 
-                "sidebar header"
-                "sidebar main";
-            height: 100vh;
-            padding: 16px;
-            gap: 16px;
-        }
-
-        /* HEADER */
-        .top-header {
-            grid-area: header;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--glass-bg);
-            backdrop-filter: blur(14px);
-            padding: 12px 20px;
-            border-radius: 12px;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        }
-
-        .top-header h1 {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, var(--text-red), var(--text-yellow));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 1.5px;
-        }
-
-        .modo-selector {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        /* SIDEBAR */
-        .sidebar {
-            grid-area: sidebar;
-            background: var(--glass-bg);
-            backdrop-filter: blur(14px);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            overflow: hidden;
-        }
-
-        .sidebar h2 {
-            font-size: 0.9rem;
-            color: var(--text-cyan);
-            text-transform: uppercase;
-            letter-spacing: 1.8px;
-            margin-bottom: 12px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(0,242,255,0.18);
-        }
-
-        #historyList {
-            flex: 1;
-            overflow-y: auto;
-            list-style: none;
-            scrollbar-width: thin;
-            scrollbar-color: var(--text-cyan) transparent;
-        }
-
-        .history-item {
-            background: rgba(255,255,255,0.04);
-            border-radius: 8px;
-            padding: 12px 14px;
-            margin-bottom: 10px;
-            border: 1px solid transparent;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .history-item:hover {
-            background: rgba(0,242,255,0.12);
-            border-color: var(--text-cyan);
-            transform: translateX(4px);
-        }
-
-        .history-item .seed { color: var(--text-cyan); font-weight: 700; font-size: 0.8rem; }
-        .history-item .horror { color: var(--text-red); font-weight: 800; }
-
-        /* MAIN */
-        main {
-            grid-area: main;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(14px);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 20px;
-        }
-
-        .stats-row {
-            display: none; /* Movido a overlay dentro del visualizador */
-        }
-
-        .stat-widget {
-            text-align: center;
-            padding: 14px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .stat-widget .val {
-            font-size: 1.7rem;
-            font-weight: 800;
-            color: var(--text-green);
-            text-shadow: 0 0 12px rgba(0,255,65,0.4);
-        }
-
-        .stat-widget .label {
-            font-size: 0.68rem;
-            color: #888;
-            text-transform: uppercase;
-            margin-top: 4px;
-        }
-
-        /* CONTROLS - COMPACTO */
-        .control-console {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
-
-        .control-console .input-group {
-            flex: 1;
-            min-width: 180px;
-        }
-
-        .input-group label {
-            font-size: 0.72rem;
-            color: #aaa;
-            text-transform: uppercase;
-            font-weight: 600;
-            margin-bottom: 6px;
-            display: block;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 10px;
-            background: rgba(0,0,0,0.45);
-            border: 1px solid rgba(255,255,255,0.12);
-            color: #fff;
-            border-radius: 8px;
-        }
-
-        .btn-gen {
-            background: linear-gradient(135deg, var(--text-green), #008800);
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            text-transform: uppercase;
-            cursor: pointer;
-            padding: 10px 18px;
-            transition: var(--transition);
-            font-size: 0.85rem;
-        }
-
-        .btn-gen:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 32px rgba(0,255,65,0.5);
-        }
-
-        /* VISUALIZER */
-        .visualizer-window {
-            flex: 1;
-            min-height: 720px; /* Incrementado para mayor área */
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid var(--glass-border);
-            background: #000;
-            position: relative;
-        }
-
-        /* STATS OVERLAY COMPACTO */
-        .stats-overlay {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: rgba(5, 5, 5, 0.92);
-            backdrop-filter: blur(10px);
-            padding: 10px 14px;
-            border-radius: 8px;
-            border: 1px solid var(--text-cyan);
-            z-index: 150;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            min-width: 280px;
-            box-shadow: 0 0 20px rgba(0,242,255,0.2);
-        }
-
-        .stat-mini {
-            text-align: center;
-            padding: 6px;
-        }
-
-        .stat-mini .val {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--text-green);
-            text-shadow: 0 0 8px rgba(0,255,65,0.3);
-        }
-
-        .stat-mini .label {
-            font-size: 0.6rem;
-            color: #888;
-            text-transform: uppercase;
-            margin-top: 2px;
-        }
-
-        /* HUD PANELS v2.0 - Compactos y no intrusivos */
-        .hud-panel {
-            position: absolute;
-            background: rgba(5, 5, 5, 0.75); /* Más transparente */
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--text-cyan);
-            padding: 14px 18px; /* Más compacto */
-            border-radius: 6px;
-            color: #fff;
-            z-index: 100; /* Reducido para no tapar stats overlay */
-            display: none;
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
-            max-width: 380px; /* Más estrecho */
-            max-height: 60%;
-            overflow-y: auto;
-            font-size: 0.85rem; /* Texto más pequeño */
-            transition: opacity 0.3s, transform 0.3s;
-        }
-
-        .hud-panel:hover {
-            background: rgba(5, 5, 5, 0.92); /* Más opaco al hover */
-        }
-
-        #statsPanel { 
-            bottom: 80px;  /* Movido abajo izquierda */
-            left: 20px; 
-            max-width: 320px;
-        }
-        #storyPanel { 
-            bottom: 20px; 
-            right: 20px; 
-            width: 350px; /* Más estrecho */
-            border-color: var(--text-magenta); 
+        .hud-module {
+            position: absolute; z-index: 10;
+            background: var(--glass-bg); backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border); border-radius: 8px;
+            padding: 15px; box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
+            pointer-events: auto;
         }
 
         .hud-title {
-            color: var(--text-cyan);
-            font-family: 'VT323', monospace;
-            font-size: 1.2rem; /* Más pequeño */
-            margin-bottom: 8px;
-            border-bottom: 1px solid rgba(0,242,255,0.3);
-            padding-bottom: 6px;
-            cursor: pointer; /* Indicar que es clickeable */
+            font-weight: 700; font-size: 0.9rem; letter-spacing: 2px;
+            margin-bottom: 15px; color: var(--text-cyan); text-transform: uppercase;
+            border-bottom: 1px solid var(--glass-border); padding-bottom: 5px;
         }
 
-        .hud-title:hover {
-            color: var(--text-yellow);
+        #config-module { bottom: 20px; left: 20px; width: 300px; }
+        #archetypes-module { bottom: 20px; left: 340px; width: 300px; max-height: 250px; overflow-y: auto; }
+        #log-module { bottom: 20px; right: 340px; width: 300px; height: 250px; overflow-y: auto; }
+        #node-info-mini { bottom: 20px; right: 20px; width: 300px; display: none; }
+        
+        .vitality-bar { height: 10px; background: #222; border-radius: 5px; margin-top: 5px; overflow: hidden; }
+        .vitality-fill { height: 100%; height: 100%; transition: width 0.5s; }
+        
+        /* Panel de donaciones centralizado y grande */
+        #donate-center {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.85); border: 2px solid #ffffff;
+            border-radius: 15px; padding: 25px; z-index: 1000;
+            backdrop-filter: blur(10px); display: flex; flex-direction: column;
+            align-items: center; gap: 15px; width: 750px;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.3);
         }
 
-        .blink { animation: blink-anim 1s infinite alternate; }
-        @keyframes blink-anim {
-            from { opacity: 1; box-shadow: 0 0 10px var(--text-magenta); }
-            to { opacity: 0.5; box-shadow: 0 0 20px var(--text-magenta); }
-        }
+        .qr-group { display: flex; gap: 30px; justify-content: center; }
+        .qr-box { text-align: center; }
+        .qr-img { width: 150px; height: 150px; background: white; border-radius: 8px; padding: 5px; }
+        .qr-label { color: #ffd700; font-weight: bold; margin-top: 8px; font-size: 1rem; }
+        .qr-address { font-size: 0.7rem; color: #888; margin-top: 4px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
 
-        .btn-fusion {
-            background: linear-gradient(135deg, var(--text-magenta), #aa00ff);
-            margin-top: 10px;
+        .input-group { margin-bottom: 12px; }
+        .input-group label { display: block; font-size: 0.75rem; color: #888; margin-bottom: 5px; }
+        .input-group input, .input-group select {
+            width: 100%; background: rgba(0,242,255,0.05); border: 1px solid var(--glass-border);
+            color: var(--text-cyan); padding: 8px; border-radius: 4px; font-size: 0.85rem;
+            backdrop-filter: blur(5px); outline: none; transition: 0.3s;
         }
+        .input-group select option { background: #0a0a0a; color: var(--text-cyan); }
+        .input-group input:focus, .input-group select:focus { border-color: var(--text-magenta); box-shadow: 0 0 10px rgba(255,0,255,0.2); }
 
-        .resource-bar {
-            height: 4px;
-            background: #222;
-            margin-top: 5px;
-            border-radius: 2px;
+        button {
+            width: 100%; padding: 10px; border: none; border-radius: 4px;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+            text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem;
         }
-        .resource-fill { height: 100%; background: var(--text-green); width: 0%; transition: width 0.5s; }
+        button:hover { filter: brightness(1.2); transform: scale(1.02); }
 
-        .visualizer-window.fullscreen {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            border-radius: 0;
-            border: none;
+        /* Unified HUD Layout */
+        .hud-module, .floating-panel {
+            position: absolute; background: var(--glass-bg); backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border); border-radius: 12px; padding: 0;
+            z-index: 100; transition: opacity 0.3s, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5); overflow: hidden;
+            pointer-events: auto;
         }
-
-        #graphFrame {
-            width: 100%;
-            height: 100%;
-            border: none;
+        .dragging { transition: none !important; cursor: grabbing !important; box-shadow: 0 15px 45px rgba(0,242,255,0.2) !important; scale: 1.02; }
+        .hud-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 12px; background: rgba(0,242,255,0.05);
+            border-bottom: 1px solid var(--glass-border); cursor: pointer;
+            user-select: none;
         }
+        .hud-header:hover { background: rgba(0,242,255,0.1); }
+        .hud-title { margin: 0; font-size: 0.75rem; color: var(--text-cyan); font-weight: bold; letter-spacing: 1.5px; }
+        .hud-content { padding: 12px; transition: max-height 0.4s ease, opacity 0.3s ease; }
+        .hud-module { opacity: 0.2; transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); transform: scale(0.95); filter: blur(2px); }
+        .hud-module:hover, .hud-module.active { opacity: 1; transform: scale(1); filter: blur(0); box-shadow: 0 0 30px rgba(0, 242, 255, 0.3); z-index: 2000; }
+        
+        /* Synchronized Focus: Dim others when one is hovered */
+        body:has(.hud-module:hover) .hud-module:not(:hover) { opacity: 0.1; filter: blur(5px); transform: scale(0.9); }
+        body:has(.hud-module:hover) #canvas-container { filter: brightness(0.4) saturate(0.5); transition: 0.5s; }
+        #canvas-container { transition: 0.8s; }
 
-        #loadingMsg {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-cyan);
-            font-size: 1.3rem;
-            background: rgba(0,0,0,0.8);
-            z-index: 10;
+        .collapsed .toggle-btn { transform: rotate(-90deg); }
+        .resizer {
+            width: 12px; height: 12px; background: var(--text-cyan);
+            position: absolute; right: 0; bottom: 0; cursor: nwse-resize;
+            clip-path: polygon(100% 0, 100% 100%, 0 100%); opacity: 0.2; transition: 0.3s;
         }
+        .resizer:hover { opacity: 1; filter: drop-shadow(0 0 5px var(--text-cyan)); }
 
-        /* CONTROLES FLOTANTES DEL VISUALIZADOR */
-        .viz-controls {
-            position: absolute;
-            bottom: 15px;
-            right: 15px;
-            z-index: 120;
-            display: flex;
-            gap: 8px;
+        #config-module { bottom: 0; left: 50%; transform: translateX(-50%) translateY(92%); width: 600px; z-index: 1000; transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s; opacity: 0.3; }
+        #config-module:hover, #config-module.active { transform: translateX(-50%) translateY(0); opacity: 1; }
+        #archetypes-module { bottom: 20px; left: 20px; width: 280px; height: auto; z-index: 102; transform: translateY(0); }
+        #log-module { bottom: 20px; right: 20px; width: 320px; height: auto; min-height: 200px; z-index: 100; transform: translateY(0); }
+        #history-list { height: 200px !important; overflow-y: auto; }
+        
+        #node-info-mini { bottom: 280px; right: 20px; transform: none; left: auto; width: 300px; z-index: 101; display: none; }
+        #neural-panel { top: 20px; left: 50%; width: 320px; transform: translateX(-105%); border-color: var(--text-cyan); }
+        #dna-panel { top: 20px; left: 50%; width: 260px; transform: translateX(5%); border-color: #ff4500; }
+        #code-terminal { bottom: 20px; left: 320px; width: 300px; border-color: #00ff41; }
+        #body-scan { bottom: 20px; right: 360px; width: 280px; border-color: #ff00ff; text-align: center; }
+        
+        #waveform { width: 100%; height: 50px; border-bottom: 1px solid rgba(0,242,255,0.1); }
+        .dna-helix-ui { 
+            width: 80px; height: 100px; margin: 0 auto; 
+            background: linear-gradient(to bottom, transparent, rgba(255, 69, 0, 0.05)); 
+            position: relative; overflow: hidden;
         }
-
-        .viz-btn {
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid var(--text-cyan);
-            color: var(--text-cyan);
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 600;
-            transition: all 0.25s;
-            backdrop-filter: blur(10px);
+        .dna-dot {
+            position: absolute; width: 4px; height: 4px; border-radius: 50%;
+            background: #ff4500; filter: blur(1px);
         }
-
-        .viz-btn:hover {
-            background: var(--text-cyan);
-            color: #000;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 242, 255, 0.4);
+        
+        .code-feed { color: #00ff41; font-size: 0.65rem; height: 120px; overflow: hidden; opacity: 0.8; font-family: monospace; }
+        #cockpit-frame {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            pointer-events: none; z-index: 5;
+            box-shadow: inset 0 0 150px rgba(0,0,0,0.9), inset 0 0 50px rgba(0,242,255,0.05);
+            border: 15px solid transparent; border-image: linear-gradient(45deg, #050505, #111) 1;
         }
-
-
-        /* RESPONSIVE */
-        @media (max-width: 900px) {
-            .dashboard-container {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto auto 1fr;
-                grid-template-areas: 
-                    "header"
-                    "sidebar"
-                    "main";
-                padding: 12px;
-            }
-            .sidebar { height: auto; }
+        #intro-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 10000; display: flex;
+            align-items: center; justify-content: center; cursor: pointer;
         }
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 9000; display: none;
+            align-items: center; justify-content: center; font-weight: bold;
+            color: var(--text-cyan); text-transform: uppercase; letter-spacing: 3px;
+        }
+        #donate-center { 
+            bottom: 0; left: 50%; transform: translateX(-50%) translateY(92%); 
+            width: 750px; transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); z-index: 50;
+            opacity: 0.3;
+        }
+        #donate-center:hover { transform: translateX(-50%) translateY(0); opacity: 1; }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- SIDEBAR -->
-        <aside class="sidebar">
-            <h2>📜 HISTORIAL DEL ABISMO</h2>
-            <ul id="historyList">
-                <li style="color:#666; text-align:center; padding:30px 0;">Sincronizando dimensiones...</li>
-            </ul>
 
-            <div class="stat-widget" style="margin-top:auto;">
-                <div class="val" id="totalRuns">0</div>
-                <div class="label">EJECUCIONES ETERNAS</div>
-            </div>
-        </aside>
-
-        <!-- HEADER -->
-        <header class="top-header">
-            <div>
-                <h1>🔥 BAYESIAN NEGATIVE 9D 🔥</h1>
-                <div class="header-meta">
-                    <span class="subtitle">Motor de Resiliencia desde el Cero Absoluto</span>
-                </div>
-            </div>
-
-            <div class="modo-selector">
-                <select id="modoSelect" onchange="cambiarModo()">
-                    <option value="normal">9D OSCURO 💀</option>
-                    <option value="onepiece">ONE PIECE 🏴‍☠️</option>
-                    <option value="nino">BLOQUE NIÑO 🌈</option>
-                    <option value="minecraft">MINECRAFT 🧊</option>
-                </select>
-                <button onclick="toggleLightNino()" class="hud-btn">☀️ LIGHT</button>
-            </div>
-        </header>
-
-        <!-- MAIN -->
-        <main>
-            <!-- CONTROLS COMPACTOS -->
-            <div class="glass-card control-console">
-                <div class="input-group">
-                    <label>Dimensión Personal</label>
-                    <input type="text" id="customDimInput" placeholder="Tu pesadilla favorita...">
-                </div>
-
-                <div class="input-group">
-                    <label>Nodos: <span id="nodeDisplay">600</span></label>
-                    <input type="range" id="nodeSlider" min="100" max="1500" value="600" step="50">
-                </div>
-
-                <button id="generateBtn" class="btn-gen" onclick="generateGraph()">
-                    ⚡ INVOCAR CAOS
-                </button>
-                <button id="fusionBtn" class="btn-gen btn-fusion" onclick="runFusion()">
-                    🌀 FUSIÓN
-                </button>
-                <button id="multiSeedBtn" class="btn-gen" style="background: linear-gradient(135deg, #00ffff, #0088cc);" onclick="runMultiSeed()">
-                    🌌 MULTI-SEED
-                </button>
-            </div>
-
-            <!-- VISUALIZER -->
-            <div class="visualizer-window">
-                <div id="loadingMsg">PROYECTANDO EL ABISMO...</div>
-                
-                <!-- STATS OVERLAY COMPACTO -->
-                <div class="stats-overlay">
-                    <div class="stat-mini">
-                        <div class="val" id="horrorTotal">0</div>
-                        <div class="label">HORROR</div>
-                    </div>
-                    <div class="stat-mini">
-                        <div class="val" id="horrorPromedio">0</div>
-                        <div class="label">PROMEDIO</div>
-                    </div>
-                    <div class="stat-mini">
-                        <div class="val" id="totalNodos">0</div>
-                        <div class="label">NODOS</div>
-                    </div>
-                    <div class="stat-mini">
-                        <div class="val" id="seed">—</div>
-                        <div class="label">SEED</div>
-                    </div>
-                </div>
-                
-                <!-- CONTROLES FLOTANTES -->
-                <div class="viz-controls">
-                    <button class="viz-btn" onclick="toggleVisualizerFullscreen()" title="Fullscreen">
-                        <span id="fullscreenIcon">⛶</span>
-                    </button>
-                    <button class="viz-btn" onclick="resetIframeCamera()" title="Reset Camera">
-                        🎯
-                    </button>
-                    <button class="viz-btn" onclick="toggleStatsPanel()" title="Toggle Stats">
-                        📊
-                    </button>
-                </div>
-                
-                <!-- HUD PANELS -->
-                <div id="statsPanel" class="hud-panel">
-                    <div class="hud-title" onclick="this.parentElement.style.display='none'">
-                        ANÁLISIS DE TELEMETRÍA <span style="float:right; font-size:0.8rem;">✕</span>
-                    </div>
-                    <div id="statsContent">Sincronizando...</div>
-                </div>
-
-                <div id="storyPanel" class="hud-panel">
-                    <div class="hud-title" onclick="this.parentElement.style.display='none'">
-                        RELATO DEL HORROR <span style="float:right; font-size:0.8rem;">✕</span>
-                    </div>
-                    <div id="storyContent">El abismo espera...</div>
-                </div>
-
-                <iframe id="graphFrame" src="/brain_3d"></iframe>
-            </div>
-        </main>
+    <div id="intro-overlay" onclick="enterCosmicOS()">
+        <div style="text-align:center;">
+            <h1 style="color:var(--text-cyan); font-size: 3rem; margin-bottom: 0;">COSMIC OS</h1>
+            <p style="color:var(--text-magenta); letter-spacing: 5px;">v3.2 THE SINGULARITY</p>
+            <div style="margin-top: 40px; color: #555;">[ CLICK TO INITIATE ]</div>
+        </div>
     </div>
 
+    <div id="loading-overlay">SYNCHRONIZING IONIC CHANNELS...</div>
+
+    <div id="canvas-container"></div>
+
+    <div id="config-module" class="hud-module">
+        <div class="hud-header" onclick="toggleModule(this)">
+            <span class="hud-title">🧠 NEURAL CONFIG</span>
+            <span class="toggle-btn">▾</span>
+        </div>
+        <div class="hud-content">
+            <div class="input-group">
+                <label>Nodos: <span id="nodeDisplay">1500</span></label>
+                <input type="range" id="nodeSlider" min="50" max="20000" value="1500" step="50">
+            </div>
+            <div class="input-group">
+                <label>Multi-Seed: <span id="seedDisplay">3</span></label>
+                <input type="range" id="seedSlider" min="1" max="10" value="3" step="1">
+            </div>
+            <div class="input-group">
+                <label>Visualización</label>
+                <select id="vizMode">
+                    <option value="ORBITAL" selected>ÓRBITA MULTI-SEED 🌌</option>
+                    <option value="ENTITY">ENTE VIAJERO (VIVO) 👾</option>
+                    <option value="BICAMERAL">CEREBRO BICAMERAL 🧠</option>
+                    <option value="CHEMICAL">COMPOSICIÓN QUÍMICA 🧪</option>
+                    <option value="FUSION">FUSIÓN MULTIVERSAL 🧬</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Meta-Tema</label>
+                <select id="uxTheme" onchange="applyTheme()">
+                    <option value="COSMIC" selected>ABISMO CÓSMICO 🌌</option>
+                    <option value="LUZ">LUZ CELESTIAL ⚪</option>
+                    <option value="RAINBOW">NIÑO ARCOIRIS FELIZ 🌈</option>
+                    <option value="MAPUCHE">MAPUCHNE-CÓSMICO 🏔️</option>
+                    <option value="MINECRAFT">MINECRAFT 🧱</option>
+                    <option value="GAMER">GAMER RGB 🕹️</option>
+                    <option value="ABUELITO">ABUELITO 🕰️</option>
+                </select>
+            </div>
+
+            <div class="hud-title" style="margin-top: 15px; font-size:0.6rem;">⚡ IONIC SYNC</div>
+            <div class="input-group">
+                <label>Velocidad Temporal: <span id="ionicDisplay">1.0</span>x</label>
+                <input type="range" id="ionicSlider" min="-10.0" max="10.0" value="1.0" step="0.1" oninput="updateIonicSpeed(this.value)">
+            </div>
+            <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+                <label style="font-size:0.65rem; color:#888;"><input type="checkbox" id="linesToggle" checked onchange="toggleFeature('lines', this.checked)"> Líneas</label>
+                <label style="font-size:0.65rem; color:#888;"><input type="checkbox" id="auraToggle" checked onchange="toggleFeature('aura', this.checked)"> Aura</label>
+                <label style="font-size:0.65rem; color:var(--text-green);"><input type="checkbox" id="photonsToggle" onchange="toggleFeature('photons', this.checked)"> Fotones</label>
+                <label style="font-size:0.65rem; color:var(--text-yellow);"><input type="checkbox" id="donateToggle" checked onchange="toggleFeature('donate', this.checked)"> Donaciones</label>
+                <label style="font-size:0.65rem; color:#ff4400; font-weight:bold;"><input type="checkbox" id="interstellarToggle"> INTERSTELLAR 🪐</label>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                <button onclick="invokeCaos()" style="background: var(--text-magenta); color:white;">CAOS</button>
+                <button onclick="invokeFusion()" style="background: var(--text-cyan); color:black;">FUSIÓN</button>
+                <button onclick="resetCamera()" style="background: #333; border: 1px solid #555; font-size: 0.65rem;">RESET CAM 🎥</button>
+                <button onclick="invokeCoreView()" style="background:#ffd700; color:black; font-weight:bold; font-size: 0.65rem;">CORE VIEW 🧿</button>
+            </div>
+
+            <div class="hud-title" style="margin-top: 15px; font-size:0.6rem;">🚀 KINETIC CONFIG</div>
+            <div class="input-group">
+                <label>Max Speed: <span id="speedDisplay">45</span></label>
+                <input type="range" id="speedSlider" min="5" max="200" value="45" step="5" oninput="updateMovementConfig()">
+            </div>
+            <div class="input-group">
+                <label>Acceleration: <span id="accelDisplay">4.5</span></label>
+                <input type="range" id="accelSlider" min="0.5" max="20" value="4.5" step="0.5" oninput="updateMovementConfig()">
+            </div>
+
+            <div class="hud-title" style="font-size:0.6rem;">📊 SYSTEM</div>
+            <div style="font-size:0.6rem; color:#888; margin-top:5px;">
+                FPS: <span id="fps-val" style="color:var(--text-green)">60</span> | 
+                CPU: <span id="cpu-val" style="color:var(--text-cyan)">--</span>% |
+                RAM: <span id="ram-val" style="color:var(--text-magenta)">--</span>GB
+            </div>
+            <div class="vitality-bar"><div id="cpu-fill" class="vitality-fill" style="background:var(--text-cyan); width:0%;"></div></div>
+        </div>
+    </div>
+
+    <div id="archetypes-module" class="hud-module">
+        <div class="hud-header" onclick="toggleModule(this)">
+            <span class="hud-title">🔱 ELDER ENTITIES</span>
+            <span class="toggle-btn">▾</span>
+        </div>
+        <div class="hud-content">
+            <div id="archetype-list">
+                <div style="color:#666; font-size:0.7rem;">Synchronizing Ancient Seeds...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="log-module" class="hud-module">
+        <div class="hud-header" onclick="toggleModule(this)">
+            <span class="hud-title">📜 AKASHIC HISTORY</span>
+            <span class="toggle-btn">▾</span>
+        </div>
+        <div class="hud-content">
+            <div id="history-list"></div>
+        </div>
+    </div>
+
+    <div id="node-info-mini" class="hud-module">
+        <div class="hud-header">
+            <span class="hud-title">📡 NODE DATA</span>
+            <button onclick="this.closest('.hud-module').style.display='none'" style="width:20px; height:20px; padding:0; background:none; color:#888;">×</button>
+        </div>
+        <div class="hud-content">
+            <div id="mini-label" style="font-weight:bold; font-size:1rem; color:var(--text-cyan);"></div>
+            <div id="mini-desc" style="font-size:0.75rem; color:#aaa; margin-top:5px;"></div>
+            <div id="mini-horror" style="color:var(--text-red); font-size:0.8rem; margin-top:5px;"></div>
+            <div style="margin-top:10px; display:flex; gap:5px;">
+                <input type="number" id="branchCount" value="5" style="width:40px; background:#111; border:1px solid #333; color:white; font-size:0.8rem;">
+                <button id="branchBtn" style="background:none; border:1px solid var(--text-cyan); color:var(--text-cyan); font-size:0.7rem;">RAMIFICAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="neural-panel" class="hud-module">
+        <div class="hud-header" onclick="toggleModule(this)">
+            <span class="hud-title">🧠 NEURAL EEG SYNC</span>
+            <span class="toggle-btn">▾</span>
+        </div>
+        <div class="hud-content">
+            <canvas id="waveform"></canvas>
+            <div style="font-size:0.6rem; color:#555; text-align:center;">Resonance: 1.565.9 Hz</div>
+        </div>
+    </div>
+
+    <div id="dna-panel" class="hud-module">
+        <div class="hud-header" onclick="toggleModule(this)">
+            <span class="hud-title">🧬 DNA HORROR</span>
+            <span class="toggle-btn">▾</span>
+        </div>
+        <div class="hud-content">
+            <div class="dna-helix-ui" id="mini-helix"></div>
+            <div style="font-size:0.6rem; color:#555; text-align:center;">Mapping [REDACTED]</div>
+        </div>
+    </div>
+
+    <div id="code-terminal" class="hud-module">
+        <div class="hud-header" onclick="toggleModule(this)">
+            <span class="hud-title">💻 GARGANTUA.LOG</span>
+            <span class="toggle-btn">▾</span>
+        </div>
+        <div class="hud-content">
+            <div class="code-feed" id="terminal-feed"></div>
+        </div>
+    </div>
+
+    <div id="body-scan" class="hud-module">
+        <div class="hud-header" onclick="toggleModule(this)">
+            <span class="hud-title">👤 BODY SCAN</span>
+            <span class="toggle-btn">▾</span>
+        </div>
+        <div class="hud-content">
+            <div style="width:100px; height:130px; background:rgba(255,0,255,0.05); border:1px solid rgba(255,0,255,0.2); margin:0 auto; position:relative;">
+                <div id="scan-line" style="position:absolute; top:0; left:0; width:100%; height:2px; background:#ff00ff; box-shadow:0 0 8px #ff00ff;"></div>
+                <div style="color:#ff00ff; font-size:2rem; width:100%; height:100%; display:flex; align-items:center; justify-content:center; opacity:0.3;">👤</div>
+            </div>
+            <div style="font-size:0.6rem; color:#ff00ff; margin-top:5px;">Imprint: MODO BESTIA</div>
+        </div>
+    </div>
+
+    <div id="donate-center" class="hud-module">
+        <div class="hud-header" onclick="toggleModule(this)">
+            <span class="hud-title" style="color:#ffd700; font-size: 1.1rem;">⚡ FUND THE SINGULARITY (DONATE)</span>
+            <span class="toggle-btn">▾</span>
+        </div>
+        <div class="hud-content">
+            <div class="qr-group" style="display:flex; justify-content:space-around; gap:20px;">
+                <div class="qr-box" style="text-align:center;">
+                    <img style="width:140px; filter:invert(1); border-radius: 8px;" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=156Cw5LjZoZhYYZLgVNFHLhm2yq2i2ZkMD">
+                    <div style="font-size:0.9rem; color:#ffd700; font-weight: bold; margin-top:8px;">BTC</div>
+                </div>
+                <div class="qr-box" style="text-align:center;">
+                    <img style="width:140px; filter:invert(1); border-radius: 8px;" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=0xf4484b146c877269033d53874e3cba1375baecad">
+                    <div style="font-size:0.9rem; color:#ffd700; font-weight: bold; margin-top:8px;">ETH</div>
+                </div>
+                <div class="qr-box" style="text-align:center;">
+                    <img style="width:140px; filter:invert(1); border-radius: 8px;" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=binancepay://822411544">
+                    <div style="font-size:0.9rem; color:#ffd700; font-weight: bold; margin-top:8px;">BINANCE</div>
+                </div>
+            </div>
+            <div style="color:#aaa; font-size:0.8rem; margin-top:15px; text-align:center; font-style: italic;">Eternal gratitude. Every drop fuels the Absolute Zero.</div>
+        </div>
+    </div>
+
+    <div id="cockpit-frame"></div>
+
     <script>
-        // Global variables
-        let isGenerating = false;
+        let scene, camera, renderer, controls;
+        let centralSingularity, singularityHalo;
+        let accretionDisk, spiralParticles, particleVelocities;
+        let accretionRings = [];
+        let composer, distortionPass;
+        let seedGroups = [];
+        let isTransitioning = false;
+        let currentTheme = "COSMIC";
+        let lastHighlight = null;
+        let photonPoints; 
+        let miniSingularities = []; // Store hierarchical clusters
 
-        // Slider update
-        document.getElementById('nodeSlider')?.addEventListener('input', e => {
-            document.getElementById('nodeDisplay').textContent = e.target.value;
-        });
+        // Temporal State
+        let globalTimeScale = 1.0;
+        let virtualTime = 0;
+        let lastRealTime = performance.now() * 0.001;
 
-        // UI Helpers
-        function showLoading(show) {
-            document.getElementById('loadingMsg').style.display = show ? 'flex' : 'none';
-            document.getElementById('generateBtn').disabled = show;
+        // Dolphin Movement State
+        const moveState = {
+            forward: 0, back: 0, left: 0, right: 0, up: 0, down: 0,
+            velocity: new THREE.Vector3(),
+            acceleration: 4.5,
+            deceleration: 0.92,
+            maxSpeed: 45
+        };
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        async function enterCosmicOS() {
+            console.log("🚀 [COSMIC OS] INITIATING SINGULARITY SEQUENCE...");
+            try {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(() => {});
+                }
+            } catch(e) {}
+            
+            gsap.to("#intro-overlay", { opacity: 0, duration: 1.2, onComplete: () => {
+                document.getElementById('intro-overlay').style.display = 'none';
+                console.log("⚙️ [COSMIC OS] ENGINE CORE BOOTING...");
+                initEngine();
+                invokeCaos();
+            }});
         }
 
-        // Logic Restoration
-        async function loadHistory() {
+        function initEngine() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000000);
+            scene.fog = new THREE.FogExp2(0x000000, 0.001);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+            camera.position.set(0, 500, 1500);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+
+            // Singularity V3: Gargantua Core (Black Hole)
+            const coreGeo = new THREE.SphereGeometry(30, 64, 64);
+            const coreMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            centralSingularity = new THREE.Mesh(coreGeo, coreMat);
+
+            // Photon Sphere / Photon Ring (Glow)
+            const glowGeo = new THREE.SphereGeometry(30.5, 64, 64);
+            const glowMat = new THREE.ShaderMaterial({
+                uniforms: {
+                    glowColor: { value: new THREE.Color(0xffffff) },
+                    viewVector: { value: camera.position }
+                },
+                vertexShader: `
+                    uniform vec3 viewVector;
+                    varying float intensity;
+                    void main() {
+                        vec3 vNormal = normalize( normalMatrix * normal );
+                        vec3 vNormel = normalize( normalMatrix * viewVector );
+                        intensity = pow( 0.6 - dot(vNormal, vNormel), 4.0 );
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                    }
+                `,
+                fragmentShader: `
+                    uniform vec3 glowColor;
+                    varying float intensity;
+                    void main() {
+                        vec3 glow = glowColor * intensity;
+                        gl_FragColor = vec4( glow, 1.0 );
+                    }
+                `,
+                side: THREE.BackSide,
+                blending: THREE.AdditiveBlending,
+                transparent: true
+            });
+            const photonSphere = new THREE.Mesh(glowGeo, glowMat);
+            centralSingularity.add(photonSphere);
+            scene.add(centralSingularity);
+
+            // Spiral Particles (Gravitational Collapse)
+            const pCount = 1200;
+            const pGeo = new THREE.BufferGeometry();
+            const pPos = new Float32Array(pCount * 3);
+            particleVelocities = new Float32Array(pCount * 3);
+
+            for (let i = 0; i < pCount; i++) {
+                const theta = Math.random() * Math.PI * 2;
+                const r = 300 + Math.random() * 600;
+                pPos[i*3] = r * Math.cos(theta);
+                pPos[i*3 + 1] = (Math.random() - 0.5) * 80;
+                pPos[i*3 + 2] = r * Math.sin(theta);
+                
+                particleVelocities[i*3] = -Math.cos(theta) * 1.5;
+                particleVelocities[i*3 + 1] = (Math.random() - 0.5) * 0.4;
+                particleVelocities[i*3 + 2] = -Math.sin(theta) * 1.5;
+            }
+            pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+            const pMat = new THREE.PointsMaterial({ size: 1.4, color: 0xffffff, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending });
+            spiralParticles = new THREE.Points(pGeo, pMat);
+            if (spiralParticles) scene.add(spiralParticles);
+
+            const nodes = document.getElementById('nodeSlider').value;
+            const seeds = document.getElementById('seedSlider').value;
+            renderAccretionDisk(nodes, seeds);
+
+            // Add point lights for illumination from the disk
+            const diskLight = new THREE.PointLight(0xffaa00, 2, 500);
+            diskLight.position.set(0, 50, 0);
+            scene.add(diskLight);
+
+            // POST-PROCESSING: Gravitational Distortion
+            composer = new THREE.EffectComposer(renderer);
+            composer.addPass(new THREE.RenderPass(scene, camera));
+
+            const distortionShader = {
+                uniforms: {
+                    tDiffuse: { value: null },
+                    center: { value: new THREE.Vector2(0.5, 0.5) },
+                    strength: { value: 0.15 }
+                },
+                vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+                fragmentShader: `
+                    uniform sampler2D tDiffuse; uniform vec2 center; uniform float strength; varying vec2 vUv;
+                    void main() {
+                        vec2 uv = vUv;
+                        vec2 dir = uv - center;
+                        float dist = length(dir);
+                        vec2 offset = dir * (sin(dist * 12.0 - 1.0) / 15.0) * strength;
+                        gl_FragColor = texture2D(tDiffuse, uv + offset);
+                    }`
+            };
+            distortionPass = new THREE.ShaderPass(distortionShader);
+            composer.addPass(distortionPass);
+
+            initPanelDynamics();
+            updateHistory(); // Initial call
+            animate();
+            window.addEventListener('click', onMouseClick);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const realTime = performance.now() * 0.001;
+            const deltaTime = realTime - lastRealTime;
+            lastRealTime = realTime;
+            
+            // Accumulate Virtual Time (supports reversal & pause)
+            virtualTime += deltaTime * globalTimeScale;
+            const time = virtualTime; // Alias for compatibility with existing logic
+
+            // Dolphin Kinetic Logic
+            updateDolphinMovement();
+
+            if (centralSingularity) {
+                centralSingularity.rotation.y += 0.005;
+                centralSingularity.rotation.x += 0.003;
+                // Photon spheres are children, they animate themselves or we can pulse the whole group
+                centralSingularity.scale.setScalar(1 + Math.sin(time * 2) * 0.02);
+            }
+
+            if (accretionDisk) {
+                accretionDisk.rotation.z += 0.002;
+                accretionDisk.scale.setScalar(1 + Math.sin(time * 0.5) * 0.02);
+            }
+
+            if (spiralParticles) {
+                const posAttr = spiralParticles.geometry.attributes.position;
+                for (let i = 0; i < 1200; i++) {
+                    posAttr.array[i*3] += particleVelocities[i*3];
+                    posAttr.array[i*3 + 1] += particleVelocities[i*3 + 1];
+                    posAttr.array[i*3 + 2] += particleVelocities[i*3 + 2];
+
+                    const dist = Math.hypot(posAttr.array[i*3], posAttr.array[i*3 + 2]);
+                    if (dist < 40) {
+                        const theta = Math.random() * Math.PI * 2;
+                        const r = 600 + Math.random() * 400;
+                        posAttr.array[i*3] = r * Math.cos(theta);
+                        posAttr.array[i*3 + 1] = (Math.random() - 0.5) * 80;
+                        posAttr.array[i*3 + 2] = r * Math.sin(theta);
+                    }
+                }
+                posAttr.needsUpdate = true;
+            }
+
+            // Flujo de Información (Photons) entre redes
+            updatePhotons(time);
+
+            seedGroups.forEach((group, idx) => {
+                const speed = group.userData.orbitSpeed || 0.0005;
+                group.rotation.y += speed;
+                group.rotation.z += speed * 0.3;
+
+                // Gravitational Pull from local mini-singularities (if Interstellar Mode is on)
+                if (document.getElementById('interstellarToggle')?.checked && miniSingularities[idx]) {
+                    const sing = miniSingularities[idx];
+                    const mass = sing.userData.mass || 100;
+                    const dir = sing.position.clone().sub(group.position);
+                    const dist = dir.length();
+                    if (dist > 50) {
+                        const force = (mass / (dist * dist)) * 0.5;
+                        group.position.add(dir.normalize().multiplyScalar(force));
+                    }
+                }
+
+                // MOVIMIENTO DE ENTE (ENTITY VOYAGER)
+                if (document.getElementById('vizMode').value === "ENTITY") {
+                    const offset = idx * 1000;
+                    const p = group.userData.personality || { driftSpeed: 1, jitter: 0.1 };
+                    
+                    const timeScale = time * (p.driftSpeed || 1);
+                    group.position.x += Math.sin(timeScale * 0.5 + offset) * (2 + p.jitter);
+                    group.position.y += Math.cos(timeScale * 0.3 + offset) * (1.5 + p.jitter);
+                    group.position.z += Math.sin(timeScale * 0.4 + offset) * (2 + p.jitter);
+                    
+                    // Vibración por horror (Jitter)
+                    if (p.jitter > 0.2) {
+                        group.position.x += (Math.random() - 0.5) * p.jitter;
+                        group.position.y += (Math.random() - 0.5) * p.jitter;
+                    }
+
+                    // Rotación errática de ente
+                    group.rotation.x += Math.sin(time * 0.2) * 0.01;
+                }
+            });
+
+            // Update mini-singularities
+            miniSingularities.forEach(s => {
+                s.rotation.y += 0.01;
+                if(s.children[0]) s.children[0].scale.setScalar(1 + Math.sin(time*3)*0.1);
+            });
+
+            if (document.getElementById('interstellarToggle')?.checked) {
+                if (distortionPass) {
+                    distortionPass.enabled = true;
+                    distortionPass.uniforms.strength.value = 0.5 + Math.sin(time) * 0.2;
+                }
+                if (accretionDisk && accretionDisk.geometry && accretionDisk.geometry.attributes.position) {
+                    const pos = accretionDisk.geometry.attributes.position;
+                    const count = pos.count;
+                    for (let i = 0; i < count; i++) {
+                        const x = pos.getX(i);
+                        const y = pos.getY(i);
+                        const z = pos.getZ(i);
+                        
+                        const dist = Math.hypot(x, z);
+                        // Gravitational Lensing Visual Warp: Vertical displacement based on angle
+                        const angle = Math.atan2(z, x);
+                        const warp = Math.sin(angle + time) * (3000 / (dist + 50));
+                        pos.setY(i, warp * 0.5); 
+                    }
+                    pos.needsUpdate = true;
+                    accretionDisk.rotation.z += 0.005 * globalTimeScale; // Faster orbit
+                }
+            } else {
+                if(distortionPass) distortionPass.enabled = false;
+            }
+
+            controls.update();
+            if (composer) {
+                // Centrar distorsión en pantalla
+                composer.render();
+            } else {
+                renderer.render(scene, camera);
+            }
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        // NEURAL HUD DYNAMICS
+        // ──────────────────────────────────────────────────────────────
+        // ──────────────────────────────────────────────────────────────
+        // UI HELPERS
+        // ──────────────────────────────────────────────────────────────
+        function toggleModule(header) {
+            const module = header.parentElement;
+            module.classList.toggle('collapsed');
+        }
+
+        function makeResizable(el) {
+            const resizer = document.createElement('div');
+            resizer.className = 'resizer';
+            el.appendChild(resizer);
+            
+            resizer.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                const startWidth = el.offsetWidth;
+                const startHeight = el.offsetHeight;
+                const startX = e.clientX;
+                const startY = e.clientY;
+                
+                function doResize(re) {
+                    el.style.width = (startWidth + re.clientX - startX) + 'px';
+                    // Optional: Height resize if needed, usually width is more critical for HUD
+                    const newH = (startHeight + re.clientY - startY);
+                    if (newH > 100) el.style.height = newH + 'px';
+                    
+                    const list = el.querySelector('#history-list');
+                    if(list) list.style.height = (newH - 50) + 'px';
+                }
+                
+                function stopResize() {
+                    window.removeEventListener('mousemove', doResize);
+                    window.removeEventListener('mouseup', stopResize);
+                }
+                
+                window.addEventListener('mousemove', doResize);
+                window.addEventListener('mouseup', stopResize);
+            });
+        }
+
+        function makeDraggable(el) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            const header = el.querySelector('.hud-header') || el;
+            
+            header.onmousedown = (e) => {
+                if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || 
+                    e.target.tagName === 'SELECT' || e.target.classList.contains('toggle-btn')) return;
+                
+                e = e || window.event;
+                e.preventDefault();
+                
+                el.classList.add('dragging');
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                
+                document.onmouseup = () => {
+                    el.classList.remove('dragging');
+                    document.onmouseup = null;
+                    document.onmousemove = null;
+                };
+                
+                document.onmousemove = (e) => {
+                    e = e || window.event;
+                    pos1 = pos3 - e.clientX;
+                    pos2 = pos4 - e.clientY;
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    
+                    // Direct style updates for maximum "Delphi-mode" smoothness
+                    el.style.top = (el.offsetTop - pos2) + "px";
+                    el.style.left = (el.offsetLeft - pos1) + "px";
+                    el.style.bottom = "auto";
+                    el.style.right = "auto";
+                    el.style.transform = "none";
+                };
+            };
+        }
+
+        function initPanelDynamics() {
+            // Activar Draggable en todos los módulos
+            document.querySelectorAll('.hud-module').forEach(m => {
+                makeDraggable(m);
+                makeResizable(m);
+            });
+
+            const canvas = document.getElementById('waveform');
+            const ctx = canvas.getContext('2d');
+            let offset = 0;
+
+            function drawWave() {
+                ctx.clearRect(0,0, canvas.width, canvas.height);
+                ctx.strokeStyle = '#00f2ff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                for(let x=0; x<canvas.width; x++) {
+                    const y = 25 + Math.sin(x*0.05 + offset) * 15 + (Math.random()-0.5)*5;
+                    if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+                }
+                ctx.stroke();
+                offset += 0.2;
+                requestAnimationFrame(drawWave);
+            }
+            drawWave();
+
+            // DNA Helix UI - Globally accessible for resonance
+            window.dnaDots = [];
+            const helix = document.getElementById('mini-helix');
+            for(let i=0; i<20; i++) {
+                const dot1 = document.createElement('div');
+                dot1.className = 'dna-dot';
+                const dot2 = document.createElement('div');
+                dot2.className = 'dna-dot';
+                helix.appendChild(dot1);
+                helix.appendChild(dot2);
+                
+                const anim1 = gsap.to(dot1, {
+                    left: "20%", x: 40, top: i*6, duration: 2, repeat: -1, yoyo: true, ease: "sine.inOut", delay: i*0.1
+                });
+                const anim2 = gsap.to(dot2, {
+                    left: "70%", x: -40, top: i*6, duration: 2, repeat: -1, yoyo: true, ease: "sine.inOut", delay: i*0.1
+                });
+                window.dnaDots.push({ dot1, dot2, anim1, anim2 });
+            }
+
+            // Scan line logic
+            gsap.to("#scan-line", { top: "100%", duration: 2, repeat: -1, yoyo: true, ease: "linear" });
+
+            // Terminal feed - Fake logging
+            const feed = document.getElementById('terminal-feed');
+            setInterval(() => {
+                const logs = [
+                    "[WRN] Gravitational Shear detected",
+                    "[INF] Seed Archetype synchronization",
+                    "[ERR] Dimensional leak in sector 7G",
+                    "[SYS] Recalculating Absolute Zero",
+                    "[ION] Ionic Channels: STABLE"
+                ];
+                feed.innerHTML += logs[Math.floor(Math.random()*logs.length)] + "<br>";
+                if(feed.innerHTML.split('<br>').length > 10) feed.innerHTML = feed.innerHTML.split('<br>').slice(1).join('<br>');
+                feed.scrollTop = feed.scrollHeight;
+            }, 3000);
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        // DATA PHOTONS (EPIC STREAM)
+        // ──────────────────────────────────────────────────────────────
+        // Flujo de Información (Photons) entre redes
+        let photonPaths = []; // Cache de trayectorias
+        function updatePhotons(time) {
+            const show = document.getElementById('photonsToggle').checked;
+            if (!show) { if(photonPoints) { scene.remove(photonPoints); photonPoints = null; photonPaths = []; } return; }
+            
+            const count = 5000;
+            if(!photonPoints) {
+                const geo = new THREE.BufferGeometry();
+                geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(count*3), 3));
+                geo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(count*3), 3));
+                const mat = new THREE.PointsMaterial({ 
+                    size: 2.8, 
+                    vertexColors: true, 
+                    transparent: true, 
+                    opacity: 1.0, 
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
+                });
+                photonPoints = new THREE.Points(geo, mat);
+                scene.add(photonPoints);
+                
+                // Inicializar orígenes y destinos aleatorios para cada fotón
+                photonPaths = [];
+                for(let i=0; i<count; i++) {
+                    photonPaths.push({
+                        startNodeIdx: -1,
+                        endNodeIdx: -1,
+                        fromGroup: -1,
+                        toGroup: -1
+                    });
+                }
+            }
+
+            const pos = photonPoints.geometry.attributes.position;
+            const col = photonPoints.geometry.attributes.color;
+            const seedGroupsCount = seedGroups.length;
+
+            for(let i=0; i<count; i++) {
+                const idx = i*3;
+                const seedRandom = (i * 0.9876) % 1;
+                const speedMult = 0.4 + (Math.sin(i * 0.5) * 0.2);
+                const t = (time * speedMult + seedRandom) % 1; 
+                
+                // Recalcular ruta si el t se reinicia (nuevo ciclo de fotón)
+                const pInfo = photonPaths[i];
+                if (t < 0.05 || pInfo.fromGroup === -1) {
+                    if (seedGroupsCount > 1) {
+                        pInfo.fromGroup = Math.floor(Math.random() * seedGroupsCount);
+                        pInfo.toGroup = (pInfo.fromGroup + 1 + Math.floor(Math.random() * (seedGroupsCount - 1))) % seedGroupsCount;
+                        
+                        const gFrom = seedGroups[pInfo.fromGroup];
+                        const gTo = seedGroups[pInfo.toGroup];
+                        
+                        const imeshFrom = gFrom.children.find(c => c.isInstancedMesh);
+                        const imeshTo = gTo.children.find(c => c.isInstancedMesh);
+                        
+                        if (imeshFrom && imeshTo) {
+                            pInfo.startNodeIdx = Math.floor(Math.random() * imeshFrom.count);
+                            pInfo.endNodeIdx = Math.floor(Math.random() * imeshTo.count);
+                        }
+                    } else if (seedGroupsCount === 1) {
+                        pInfo.fromGroup = 0;
+                        pInfo.toGroup = -1; // Al centro
+                        const gFrom = seedGroups[0];
+                        const imeshFrom = gFrom.children.find(c => c.isInstancedMesh);
+                        if (imeshFrom) pInfo.startNodeIdx = Math.floor(Math.random() * imeshFrom.count);
+                    }
+                }
+
+                let currentPos = new THREE.Vector3();
+                let photonVisibility = 1.0;
+
+                const gFrom = seedGroups[pInfo.fromGroup];
+                if (!gFrom) continue;
+                
+                const imeshFrom = gFrom.children.find(c => c.isInstancedMesh);
+                const startPosLocal = new THREE.Vector3();
+                if (imeshFrom && pInfo.startNodeIdx !== -1) {
+                    const matrix = new THREE.Matrix4();
+                    imeshFrom.getMatrixAt(pInfo.startNodeIdx, matrix);
+                    startPosLocal.setFromMatrixPosition(matrix);
+                }
+                const startPosWorld = startPosLocal.applyMatrix4(gFrom.matrixWorld);
+                const fromCenterWorld = gFrom.position.clone();
+
+                if (pInfo.toGroup !== -1 && seedGroups[pInfo.toGroup]) {
+                    const gTo = seedGroups[pInfo.toGroup];
+                    const imeshTo = gTo.children.find(c => c.isInstancedMesh);
+                    const endPosLocal = new THREE.Vector3();
+                    if (imeshTo && pInfo.endNodeIdx !== -1) {
+                        const matrix = new THREE.Matrix4();
+                        imeshTo.getMatrixAt(pInfo.endNodeIdx, matrix);
+                        endPosLocal.setFromMatrixPosition(matrix);
+                    }
+                    const endPosWorld = endPosLocal.applyMatrix4(gTo.matrixWorld);
+                    const toCenterWorld = gTo.position.clone();
+
+                    if (t < 0.2) {
+                        const subt = t / 0.2;
+                        currentPos.lerpVectors(startPosWorld, fromCenterWorld, subt);
+                    } else if (t < 0.8) {
+                        const subt = (t - 0.2) / 0.6;
+                        currentPos.lerpVectors(fromCenterWorld, toCenterWorld, subt);
+                    } else {
+                        const subt = (t - 0.8) / 0.2;
+                        currentPos.lerpVectors(toCenterWorld, endPosWorld, subt);
+                    }
+                } else {
+                    if (t < 0.5) {
+                        const subt = t / 0.5;
+                        currentPos.lerpVectors(startPosWorld, fromCenterWorld, subt);
+                    } else {
+                        const subt = (t - 0.5) / 0.5;
+                        currentPos.lerpVectors(fromCenterWorld, new THREE.Vector3(0,0,0), subt);
+                    }
+                }
+
+                pos.array[idx] = currentPos.x;
+                pos.array[idx+1] = currentPos.y;
+                pos.array[idx+2] = currentPos.z;
+
+                const pulse = 0.8 + Math.sin(time * 5 + i) * 0.2;
+                const brightness = photonVisibility * pulse;
+                
+                const color = new THREE.Color();
+                if (t < 0.5) color.setHSL(0.5, 1.0, 0.5); // Cyan
+                else color.setHSL(0.85, 1.0, 0.5); // Magenta/Pink
+
+                col.array[idx] = color.r * brightness;
+                col.array[idx+1] = color.g * brightness;
+                col.array[idx+2] = color.b * brightness;
+            }
+            pos.needsUpdate = true;
+            col.needsUpdate = true;
+        }
+
+        function clearGroups() {
+            seedGroups.forEach(g => {
+                g.traverse(child => {
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) {
+                        if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+                        else child.material.dispose();
+                    }
+                });
+                scene.remove(g);
+            });
+            seedGroups = [];
+            lastHighlight = null;
+        }
+
+        async function invokeCaos() {
+            const nodes = parseInt(document.getElementById('nodeSlider').value);
+            const seeds = parseInt(document.getElementById('seedSlider').value);
+            gsap.to("#loading-overlay", { opacity: 1, display: 'flex', duration: 0.3 });
+            clearGroups();
+            renderAccretionDisk(nodes, seeds);
+            startTime = performance.now() * 0.001;
+            isChaosMode = true;
+            try {
+                const res = await fetch(`/api/fusion?nodes=${nodes}&seeds=${seeds}`);
+                const data = await res.json(); 
+                if (data.status === 'ok') {
+                    if (data.analisis && data.analisis.clusters) {
+                        renderMiniSingularities(data.analisis.clusters);
+                    }
+                    data.graphs.forEach((g, i) => {
+                        addGraphToScene(g, i, data.graphs.length, null, false);
+                    });
+                }
+            } catch(e) { console.error(e); }
+            gsap.to("#loading-overlay", { opacity: 0, display: 'none', duration: 0.5 });
+        }
+
+        async function invokeFusion() {
+            const nodes = parseInt(document.getElementById('nodeSlider').value);
+            const seeds = parseInt(document.getElementById('seedSlider').value);
+            gsap.to("#loading-overlay", { opacity: 1, display: 'flex', duration: 0.3 });
+            clearGroups();
+            renderAccretionDisk(nodes, seeds);
+            startTime = performance.now() * 0.001;
+            isChaosMode = false;
+            try {
+                const res = await fetch(`/api/fusion?nodes=${nodes}&seeds=${seeds}`);
+                const data = await res.json(); 
+                if (data.status === 'ok') {
+                    if (data.analisis && data.analisis.clusters) {
+                        renderMiniSingularities(data.analisis.clusters);
+                    }
+                    data.graphs.forEach((g, i) => {
+                        const hue = i / data.graphs.length; 
+                        addGraphToScene(g, i, data.graphs.length, hue, true);
+                    });
+                }
+            } catch(e) { console.error(e); }
+            gsap.to("#loading-overlay", { opacity: 0, display: 'none', duration: 0.5 });
+        }
+
+        async function ramificar(id) {
+            const count = document.getElementById('branchCount').value || 5;
+            gsap.to("#loading-overlay", { opacity: 1, display: 'flex', duration: 0.3 });
+            try {
+                const res = await fetch(`/api/graph?nodes=${count}&branch=true&root_id=${id}`);
+                const data = await res.json();
+                addGraphToScene(data, seedGroups.length, seedGroups.length + 1);
+            } catch(e) { console.error(e); }
+            gsap.to("#loading-overlay", { opacity: 0, display: 'none', duration: 0.5 });
+        }
+
+        async function branchFromNode(id) {
+            const count = document.getElementById('branchCount').value || 5;
+            gsap.to("#loading-overlay", { opacity: 1, display: 'flex', duration: 0.3 });
+            try {
+                const res = await fetch(`/api/graph?nodes=${count}&branch=true&root_id=${id}`);
+                const data = await res.json();
+                addGraphToScene(data, seedGroups.length, seedGroups.length + 1);
+            } catch(e) { console.error(e); }
+            gsap.to("#loading-overlay", { opacity: 0, display: 'none', duration: 0.5 });
+        }
+
+        function addGraphToScene(data, index, total, hue = null, isFusion = false) {
+            if (!data || !data.nodes) { console.error("Invalid graph data:", data); return; }
+            const group = createGraphGroup(data, index, total, hue, isFusion);
+            if (group) {
+                applyEntityPersonality(group, data);
+                scene.add(group);
+                seedGroups.push(group);
+            }
+        }
+
+        function createGraphGroup(data, index, total, hue = null, isFusion = false) {
+            const group = new THREE.Group();
+            const nodes = data.nodes || [];
+            const edges = data.edges || [];
+            
+            // Color de la semilla: Si es fusión, usamos spectral, si no, aleatorio o temático
+            const seedCol = hue !== null ? new THREE.Color().setHSL(hue, 0.8, 0.5) : new THREE.Color().setHSL(Math.random(), 0.7, 0.5);
+            
+            group.userData.graphData = data;
+            group.userData.orbitSpeed = 0.0002 + Math.random() * 0.0005;
+
+            // CAOS: Separación radial. FUSION: Más agrupados.
+            if (total > 1) {
+                const r = isFusion ? 300 : 1200; // CAOS = 1200 (lejos), FUSION = 300 (cerca)
+                const phi = Math.acos(1 - 2 * (index / total));
+                const theta = Math.sqrt(total * Math.PI) * phi;
+                group.position.set(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi));
+            }
+
+            let geo;
+            if (currentTheme === "MINECRAFT") geo = new THREE.BoxGeometry(1, 1, 1);
+            else if (currentTheme === "MAPUCHE") geo = new THREE.IcosahedronGeometry(1.2, 0);
+            else geo = new THREE.SphereGeometry(1, 6, 6);
+
+            const mat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.85 });
+            const imesh = new THREE.InstancedMesh(geo, mat, nodes.length);
+            imesh.userData.nodes = nodes;
+            imesh.userData.originalColors = [];
+
+            const dummy = new THREE.Object3D();
+            nodes.forEach((n, i) => {
+                const pos = n.pos_3d ? new THREE.Vector3().fromArray(n.pos_3d) : randomSpherical(400);
+                dummy.position.copy(pos);
+                // ESCALADO SUB-ATÓMICO PROPORCIONAL
+                let base = 0.04; 
+                if (currentTheme === "ABUELITO") base = 0.8;
+                if (currentTheme === "RAINBOW") base = 0.15;
+                
+                // Dimensión como factor de escala (horror/100)
+                const dimFactor = (n.horror || 0) / 100;
+                const size = base + (dimFactor * 0.25);
+                dummy.scale.setScalar(size);
+                dummy.updateMatrix();
+                imesh.setMatrixAt(i, dummy.matrix);
+
+                let nCol = seedCol.clone();
+                if (currentTheme === "RAINBOW") nCol.setHSL(Math.random(), 1, 0.5);
+                else if (currentTheme === "MAPUCHE") { nCol.lerp(new THREE.Color(0x8b4513), 0.6); if(Math.random()>0.8) nCol.setHex(0x00ffff); }
+                else if (currentTheme === "MINECRAFT") nCol.setHex(Math.random()>0.5 ? 0x228b22 : 0x8b4513);
+                
+                imesh.setColorAt(i, nCol);
+                imesh.userData.originalColors.push(nCol.clone());
+            });
+
+            group.add(imesh);
+
+            const lMat = new THREE.LineBasicMaterial({ color: seedCol, transparent: true, opacity: 0.1 });
+            const lGeo = new THREE.BufferGeometry();
+            const points = [];
+            edges.forEach(e => {
+                const s = nodes.find(n => n.id === e.source);
+                const t = nodes.find(n => n.id === e.target);
+                if (s && t && s.pos_3d && t.pos_3d) {
+                    points.push(...s.pos_3d, ...t.pos_3d);
+                }
+            });
+
+            if (points.length > 0 && points.every(p => p !== undefined)) {
+                lGeo.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+                const lines = new THREE.LineSegments(lGeo, lMat);
+                lines.name = "graphLines";
+                lines.visible = document.getElementById('linesToggle').checked;
+                group.add(lines);
+            }
+
+            return group;
+        }
+
+        function onMouseClick(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+
+            for (const group of seedGroups) {
+                const imesh = group.children.find(c => c.isInstancedMesh);
+                if (imesh && imesh.userData && imesh.userData.nodes) {
+                    const i = raycaster.intersectObject(imesh);
+                    if (i.length > 0 && i[0].instanceId !== undefined) {
+                        const node = imesh.userData.nodes[i[0].instanceId];
+                        if (node) selectNode(node, i[0].point, group);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function selectNode(node, worldPos, group) {
+            if (!group || !group.userData.graphData) return;
+            resetHighlights();
+            const mini = document.getElementById('node-info-mini');
+            document.getElementById('mini-label').innerText = node.label;
+            document.getElementById('mini-desc').innerText = node.desc || "Resonancia profunda.";
+            document.getElementById('mini-horror').innerText = `Horror: ${Math.round(node.horror)}💀`;
+            document.getElementById('branchBtn').onclick = () => branchFromNode(node.id);
+            mini.style.display = 'block';
+            gsap.fromTo(mini, { x: -30, opacity: 0 }, { x: 0, opacity: 1 });
+
+            // DNA RESONANCE: React to horror
+            const horror = node.horror || 0;
+            const resonance = 0.5 + (horror / 50); // Speed multiplier
+            if (window.dnaDots) {
+                window.dnaDots.forEach(d => {
+                    gsap.to(d.anim1, { timeScale: resonance, duration: 0.5 });
+                    gsap.to(d.anim2, { timeScale: resonance, duration: 0.5 });
+                    gsap.to([d.dot1, d.dot2], { backgroundColor: horror > 70 ? "#ff00ff" : "#ff4500", duration: 0.5 });
+                });
+            }
+
+            // Highlight neighbors and sector
+            const imesh = group.children.find(c => c.isInstancedMesh);
+            const edges = group.userData.graphData.edges || [];
+            const neighborIds = new Set(edges.filter(e => e.source === node.id).map(e => e.target).concat(edges.filter(e => e.target === node.id).map(e => e.source)));
+            
+            imesh.userData.nodes.forEach((n, idx) => {
+                if (!n.pos_3d || !node.pos_3d) return;
+                const nPos = new THREE.Vector3().fromArray(n.pos_3d);
+                const sPos = new THREE.Vector3().fromArray(node.pos_3d);
+                const dist = nPos.distanceTo(sPos);
+                if (n.id === node.id || neighborIds.has(n.id) || dist < 45) {
+                    imesh.setColorAt(idx, new THREE.Color(0xffffff));
+                }
+            });
+            if (imesh.instanceColor) imesh.instanceColor.needsUpdate = true;
+            lastHighlight = imesh;
+
+            gsap.to(camera.position, { x: worldPos.x, y: worldPos.y, z: worldPos.z + 100, duration: 1.5, ease: "power3.out" });
+            gsap.to(controls.target, { x: worldPos.x, y: worldPos.y, z: worldPos.z, duration: 1.5, ease: "power3.out" });
+        }
+
+        function resetHighlights() {
+            if (lastHighlight) {
+                lastHighlight.userData.originalColors.forEach((c, idx) => lastHighlight.setColorAt(idx, c));
+                lastHighlight.instanceColor.needsUpdate = true;
+                lastHighlight = null;
+            }
+        }
+
+        async function branchFromNode(nodeId) {
+            gsap.to("#loading-overlay", { opacity: 0.5, display: 'flex', duration: 0.3 });
+            try {
+                const res = await fetch('/api/graph', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ node_count: 50, ramificaciones: 3 })
+                });
+                const data = await res.json();
+                const g = createGraphGroup(data, 0, 1);
+                g.position.copy(controls.target).add(new THREE.Vector3(50, 50, 50));
+                scene.add(g);
+                seedGroups.push(g);
+            } catch(e) { console.error(e); }
+            gsap.to("#loading-overlay", { opacity: 0, display: 'none', duration: 0.3 });
+        }
+
+        let startTime = 0;
+        let isChaosMode = false;
+
+        function applyTheme() {
+            currentTheme = document.getElementById('uxTheme').value;
+            const root = document.documentElement;
+            const selects = document.querySelectorAll('.input-group select option');
+            
+            if (currentTheme === "LUZ") {
+                root.style.setProperty('--bg-black', '#f0f0f0');
+                root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.8)');
+                root.style.setProperty('--glass-border', 'rgba(0, 0, 0, 0.2)');
+                root.style.setProperty('--text-cyan', '#0077ff');
+                root.style.setProperty('--text-magenta', '#aa00aa');
+                scene.background.set(0xf0f0f0);
+                scene.fog.color.set(0xf0f0f0);
+                selects.forEach(o => { o.style.background = "#fff"; o.style.color = "#000"; });
+            } else if (currentTheme === "RAINBOW") {
+                root.style.setProperty('--bg-black', '#ffffff');
+                scene.background.set(0xffffff);
+                scene.fog.color.set(0xffffff);
+                selects.forEach(o => { o.style.background = "#fff"; o.style.color = "#000"; });
+            } else if (currentTheme === "MAPUCHE") {
+                root.style.setProperty('--bg-black', '#1a120a');
+                scene.background.set(0x1a120a);
+                scene.fog.color.set(0x1a120a);
+                selects.forEach(o => { o.style.background = "#1a120a"; o.style.color = "var(--text-cyan)"; });
+            } else {
+                root.style.setProperty('--bg-black', '#000000');
+                root.style.setProperty('--glass-bg', 'rgba(0, 0, 0, 0.75)');
+                root.style.setProperty('--glass-border', 'rgba(0, 242, 255, 0.3)');
+                root.style.setProperty('--text-cyan', '#00f2ff');
+                scene.background.set(0x000000);
+                scene.fog.color.set(0x000000);
+                selects.forEach(o => { o.style.background = "#0a0a0a"; o.style.color = "var(--text-cyan)"; });
+            }
+            invokeCaos();
+        }
+
+        function updateIonicSpeed(val) {
+            globalTimeScale = parseFloat(val);
+            document.getElementById('ionicDisplay').innerText = globalTimeScale.toFixed(1);
+            seedGroups.forEach(g => {
+                if(g.userData.baseOrbitSpeed === undefined) g.userData.baseOrbitSpeed = g.userData.orbitSpeed || 0.0005;
+                g.userData.orbitSpeed = g.userData.baseOrbitSpeed * globalTimeScale;
+            });
+        }
+
+        function updateMovementConfig() {
+            const speed = parseFloat(document.getElementById('speedSlider').value);
+            const accel = parseFloat(document.getElementById('accelSlider').value);
+            document.getElementById('speedDisplay').innerText = speed;
+            document.getElementById('accelDisplay').innerText = accel;
+            
+            moveState.maxSpeed = speed;
+            moveState.acceleration = accel;
+        }
+
+        function toggleFeature(f, v) {
+            if (f === 'lines') {
+                seedGroups.forEach(g => {
+                    const l = g.children.find(c => c.name === "graphLines");
+                    if (l) l.visible = v;
+                });
+            }
+            if (f === 'aura' && singularityHalo) singularityHalo.visible = v;
+            if (f === 'donate') {
+                document.getElementById('donate-center').style.display = v ? 'flex' : 'none';
+            }
+        }
+
+        async function updateHistory() {
             try {
                 const res = await fetch('/api/history');
-                const data = await res.json();
-                const list = document.getElementById('historyList');
-                list.innerHTML = '';
-                
-                data.forEach(run => {
-                    const li = document.createElement('li');
-                    li.className = 'history-item';
-                    li.onclick = () => loadSeed(run.seed);
-                    li.innerHTML = `
-                        <div style="display:flex; justify-content:space-between;">
-                            <span class="seed">#${run.seed}</span>
-                            <span class="horror">${run.horror}</span>
+                const list = await res.json();
+                document.getElementById('history-list').innerHTML = list.map(r => `
+                    <div class="history-item" onclick="loadRun(${r.id})">
+                        <div style="color:var(--text-cyan); font-size:0.7rem;">[${r.timestamp}]</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:bold; color:var(--text-yellow);">SEED:${r.seed}</span>
+                            <span style="color:var(--text-magenta); font-size:0.75rem;">${r.modo}</span>
                         </div>
-                        <div style="font-size:0.7rem; color:#888;">${run.modo} | ${run.timestamp}</div>
-                    `;
-                    list.appendChild(li);
-                });
-                document.getElementById('totalRuns').innerText = data.length;
-            } catch (e) { console.error("History load failed", e); }
+                        <div style="color:#666; font-size:0.65rem;">Horror Total: ${r.horror}</div>
+                    </div>
+                `).join('');
+                
+                // Actualizar Elder Entities (Top Seeds)
+                updateElderEntities(list);
+            } catch(e) { console.error(e); }
         }
 
-        async function generateGraph() {
-            if (isGenerating) return;
-            isGenerating = true;
-            showLoading(true);
+        function updateElderEntities(list) {
+            const archetypes = {};
+            list.forEach(r => {
+                if (!archetypes[r.modo] || r.horror > archetypes[r.modo].horror) {
+                    archetypes[r.modo] = r;
+                }
+            });
 
-            const payload = {
-                seed: null,
-                custom_dim: document.getElementById('customDimInput').value,
-                node_count: document.getElementById('nodeSlider').value
+            document.getElementById('archetype-list').innerHTML = Object.keys(archetypes).map(m => `
+                <div class="history-item" style="border-left: 3px solid var(--text-magenta);" onclick="loadRun(${archetypes[m].id})">
+                    <div style="font-weight:bold; color:var(--text-cyan);">${m}</div>
+                    <div style="font-size:0.7rem; color:var(--text-yellow);">Elder Seed: ${archetypes[m].seed}</div>
+                    <div style="font-size:0.6rem; color:#888;">Power: ${archetypes[m].horror}💀</div>
+                </div>
+            `).join('');
+        }
+
+        async function loadRun(id) {
+            gsap.to("#loading-overlay", { opacity: 1, display: 'flex', duration: 0.3 });
+            clearGroups();
+            try {
+                const res = await fetch(`/api/graph?run_id=${id}`);
+                const data = await res.json();
+                
+                const group = createGraphGroup(data, 0, 1);
+                applyEntityPersonality(group, data);
+                
+                scene.add(group);
+                seedGroups.push(group);
+                
+                // Focus camera on new entity
+                const targetPos = group.position.clone();
+                gsap.to(controls.target, { x: targetPos.x, y: targetPos.y, z: targetPos.z, duration: 1.5 });
+                gsap.to(camera.position, { x: targetPos.x, y: targetPos.y, z: targetPos.z + 500, duration: 1.5 });
+
+            } catch(e) { console.error(e); }
+            gsap.to("#loading-overlay", { opacity: 0, display: 'none', duration: 0.5 });
+        }
+
+        function applyEntityPersonality(group, runData) {
+            const horror = runData.horror_total || 0;
+            const modo = runData.modo || "NEUTRAL";
+            
+            // Atributos de personalidad dinámicos
+            group.userData.personality = {
+                horror: horror,
+                modo: modo,
+                pulseSpeed: 1 + (horror / 50),
+                jitter: horror > 60 ? 0.5 : 0.1,
+                driftSpeed: 0.5 + (horror / 100)
             };
 
-            try {
-                const res = await fetch('/api/generate', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                updateDashboard(data);
-                document.getElementById('graphFrame').src = '/brain_3d?t=' + Date.now();
-            } finally {
-                isGenerating = false;
-                showLoading(false);
-                loadHistory();
+            // Color de aura según modo
+            const lines = group.children.find(c => c.name === "graphLines");
+            if (lines) {
+                if (modo.includes("JUSTICE")) lines.material.color.setHex(0xffffff);
+                if (modo.includes("HELL") || modo.includes("BESTIA")) lines.material.color.setHex(0xff0000);
+                lines.material.opacity = 0.2 + (horror / 200);
             }
-        }
-
-        async function runFusion() {
-            if (isGenerating) return;
-            isGenerating = true;
-            showLoading(true);
-
-            try {
-                const res = await fetch('/api/fusion', { method: 'POST' });
-                const data = await res.json();
-                updateDashboard(data);
-                document.getElementById('graphFrame').src = '/brain_3d?fusion=1&t=' + Date.now();
-            } finally {
-                isGenerating = false;
-                showLoading(false);
-                loadHistory();
-            }
-        }
-
-        async function runMultiSeed() {
-            if (isGenerating) return;
-            isGenerating = true;
-            showLoading(true);
-
-            try {
-                // Generar 3 semillas aleatorias
-                const seeds = [
-                    Math.floor(Math.random() * 999999),
-                    Math.floor(Math.random() * 999999),
-                    Math.floor(Math.random() * 999999)
-                ];
-                
-                document.getElementById('graphFrame').src = `/brain_3d_multiseed?seeds=${seeds.join(',')}&t=${Date.now()}`;
-                document.getElementById('seed').innerText = `${seeds.length} SEEDS`;
-            } finally {
-                isGenerating = false;
-                showLoading(false);
-            }
-        }
-
-        // Controles del visualizador
-        function toggleVisualizerFullscreen() {
-            const viz = document.querySelector('.visualizer-window');
-            const icon = document.getElementById('fullscreenIcon');
             
-            if (!document.fullscreenElement) {
-                viz.requestFullscreen().then(() => {
-                    icon.textContent = '⛶'; // Icono salir fullscreen
-                }).catch(err => {
-                    console.error('Error al activar fullscreen:', err);
-                });
-            } else {
-                document.exitFullscreen();
-                icon.textContent = '⛶'; // Icono entrar fullscreen
-            }
+            // Velocidad de órbita base
+            group.userData.orbitSpeed = 0.001 + (horror / 10000);
         }
 
-        function resetIframeCamera() {
-            // Enviar mensaje al iframe para reset camera
-            const iframe = document.getElementById('graphFrame');
-            if (iframe && iframe.contentWindow) {
-                iframe.contentWindow.postMessage({ action: 'resetCamera' }, '*');
-            }
+        function randomSpherical(r) {
+            const u = Math.random(), v = Math.random(), theta = 2 * Math.PI * u, phi = Math.acos(2 * v - 1);
+            return new THREE.Vector3(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi));
         }
 
-        function toggleStatsPanel() {
-            const panel = document.getElementById('statsPanel');
-            if (panel.style.display === 'none') {
-                panel.style.display = 'block';
-            } else {
-                panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-            }
+        function resetCamera() {
+            if (!camera || !controls) return;
+            gsap.to(camera.position, { x: 0, y: 500, z: 1500, duration: 2, ease: "power3.inOut" });
+            gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 2, ease: "power3.inOut" });
         }
 
+        function invokeCoreView() {
+            if (!camera || !controls) return;
+            // Mirar desde el centro hacia afuera (o hacia la primera semilla)
+            const target = seedGroups.length > 0 ? seedGroups[0].position.clone() : new THREE.Vector3(1000, 0, 0);
+            gsap.to(camera.position, { x: 0, y: 0, z: 10, duration: 2, ease: "power3.inOut" }); // Casi en el centro
+            gsap.to(controls.target, { x: target.x, y: target.y, z: target.z, duration: 2, ease: "power3.inOut" });
+        }
 
-        function updateDashboard(data) {
-            if (data.status !== 'ok') return;
-            const a = data.analisis;
-            document.getElementById('horrorTotal').innerText = a.horror_total.toLocaleString(undefined, {maximumFractionDigits:1});
-            document.getElementById('horrorPromedio').innerText = a.horror_promedio.toFixed(1);
-            document.getElementById('totalNodos').innerText = a.total_nodos;
-            document.getElementById('seed').innerText = data.seed || 'FUSIÓN';
+        function updateDolphinMovement() {
+            if (!camera || !controls) return;
+
+            const dir = new THREE.Vector3();
+            camera.getWorldDirection(dir);
+            const side = new THREE.Vector3().crossVectors(camera.up, dir).normalize();
+            const up = new THREE.Vector3(0, 1, 0);
+
+            const accel = new THREE.Vector3();
+            if (moveState.forward) accel.addScaledVector(dir, moveState.acceleration);
+            if (moveState.back) accel.addScaledVector(dir, -moveState.acceleration);
+            if (moveState.left) accel.addScaledVector(side, moveState.acceleration);
+            if (moveState.right) accel.addScaledVector(side, -moveState.acceleration);
+            if (moveState.up) accel.addScaledVector(up, moveState.acceleration);
+            if (moveState.down) accel.addScaledVector(up, -moveState.acceleration);
+
+            moveState.velocity.add(accel);
+            moveState.velocity.multiplyScalar(moveState.deceleration);
             
-            // Stats Panel
-            let html = `<div style="margin-bottom:15px; color:var(--text-green);">MODO: ${data.modo.nombre}</div>`;
-            a.nodos_mas_horribles.slice(0, 5).forEach(n => {
-                html += `<div style="font-size:0.8rem; margin-bottom:5px;">
-                    <span style="color:var(--text-red)">[${n.horror.toFixed(1)}]</span> ${n.label}
-                </div>`;
-            });
-            document.getElementById('statsContent').innerHTML = html;
-            document.getElementById('statsPanel').style.display = 'block';
-        }
-
-        function loadSeed(seed) {
-            document.getElementById('graphFrame').src = `/brain_3d?seed=${seed}&t=${Date.now()}`;
-        }
-
-        // Modo toggle
-        function cambiarModo() {
-            const modo = document.getElementById('modoSelect').value;
-            document.body.className = modo === 'normal' ? '' : `modo-${modo}`;
-            localStorage.setItem('modoActivo', modo);
-        }
-
-        function toggleLightNino() {
-            document.body.classList.toggle('light-nino');
-            localStorage.setItem('lightNino', document.body.classList.contains('light-nino'));
-        }
-
-        // Initial Load
-        window.addEventListener('load', () => {
-            const modo = localStorage.getItem('modoActivo') || 'normal';
-            document.getElementById('modoSelect').value = modo;
-            cambiarModo();
-            loadHistory();
-
-            if (localStorage.getItem('lightNino') === 'true') {
-                document.body.classList.add('light-nino');
+            if (moveState.velocity.length() > moveState.maxSpeed) {
+                moveState.velocity.setLength(moveState.maxSpeed);
             }
+
+            if (moveState.velocity.length() > 0.01) {
+                camera.position.add(moveState.velocity);
+                controls.target.add(moveState.velocity);
+                controls.update();
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            const k = e.key.toLowerCase();
+            if (k === 'w' || k === 'arrowup') moveState.forward = 1;
+            if (k === 's' || k === 'arrowdown') moveState.back = 1;
+            if (k === 'a' || k === 'arrowleft') moveState.left = 1;
+            if (k === 'd' || k === 'arrowright') moveState.right = 1;
+            if (k === ' ' || e.code === 'Space') { moveState.up = 1; e.preventDefault(); }
+            if (k === 'shift') moveState.down = 1;
+            if (k === 'r') resetCamera();
         });
+
+        window.addEventListener('keyup', (e) => {
+            const k = e.key.toLowerCase();
+            if (k === 'w' || k === 'arrowup') moveState.forward = 0;
+            if (k === 's' || k === 'arrowdown') moveState.back = 0;
+            if (k === 'a' || k === 'arrowleft') moveState.left = 0;
+            if (k === 'd' || k === 'arrowright') moveState.right = 0;
+            if (k === ' ' || e.code === 'Space') moveState.up = 0;
+            if (k === 'shift') moveState.down = 0;
+        });
+
+        window.addEventListener('resize', () => {
+            if (!camera || !renderer) return;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // ──────────────────────────────────────────────────────────────
+        // VITALITY MONITORING (FPS & POLL)
+        // ──────────────────────────────────────────────────────────────
+        let lastFrameTime = performance.now();
+        let frameCount = 0;
+        
+        function updateFPS() {
+            const now = performance.now();
+            frameCount++;
+            if (now - lastFrameTime >= 1000) {
+                const fpsEl = document.getElementById('fps-val');
+                if(fpsEl) {
+                    fpsEl.innerText = frameCount;
+                    fpsEl.style.color = frameCount < 30 ? '#ff3333' : (frameCount < 50 ? '#ffd700' : '#00ff41');
+                }
+                frameCount = 0;
+                lastFrameTime = now;
+            }
+            requestAnimationFrame(updateFPS);
+        }
+        updateFPS();
+
+        setInterval(async () => {
+            try {
+                const res = await fetch('/api/resources');
+                const data = await res.json();
+                const cpuEl = document.getElementById('cpu-val');
+                const ramEl = document.getElementById('ram-val');
+                const fill = document.getElementById('cpu-fill');
+                
+                if (cpuEl) cpuEl.innerText = data.cpu;
+                if (ramEl) ramEl.innerText = data.ram_used;
+                if (fill) fill.style.width = data.cpu + '%';
+            } catch(e) {}
+        }, 2000);
+
+        // Update History every 30 seconds
+        setInterval(updateHistory, 30000);
+
+        document.getElementById('nodeSlider').oninput = (e) => document.getElementById('nodeDisplay').innerText = e.target.value;
+        document.getElementById('seedSlider').oninput = (e) => document.getElementById('seedDisplay').innerText = e.target.value;
+
+        function createGlowTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64; canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+            gradient.addColorStop(0, 'rgba(255,255,255,1)');
+            gradient.addColorStop(0.2, 'rgba(255,255,255,0.8)');
+            gradient.addColorStop(0.5, 'rgba(255,255,255,0.2)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 64, 64);
+            const tex = new THREE.CanvasTexture(canvas);
+            return tex;
+        }
+
+        function renderAccretionDisk(nodes, seeds) {
+            if (accretionDisk) {
+                scene.remove(accretionDisk);
+                if(accretionDisk.geometry) accretionDisk.geometry.dispose();
+                if(accretionDisk.material) accretionDisk.material.dispose();
+            }
+
+            // Scaling: More nodes = more density, More seeds = larger disk
+            const accCount = Math.min(15000, 2000 + (nodes / 2) + (seeds * 1000));
+            const baseRadius = 80 + (seeds * 10);
+            const diskWidth = 50 + (nodes / 200);
+
+            const accGeo = new THREE.BufferGeometry();
+            const accPos = new Float32Array(accCount * 3);
+            const accCol = new Float32Array(accCount * 3);
+            const accSizes = new Float32Array(accCount);
+            
+            for (let i = 0; i < accCount; i++) {
+                const r = baseRadius + Math.random() * diskWidth;
+                const theta = Math.random() * Math.PI * 2;
+                accPos[i*3] = r * Math.cos(theta);
+                accPos[i*3+1] = (Math.random() - 0.5) * (5 + seeds); 
+                accPos[i*3+2] = r * Math.sin(theta);
+                
+                const t = (r - baseRadius) / diskWidth;
+                const color = new THREE.Color(0xffffff).lerp(new THREE.Color(0xffaa00), Math.pow(t, 1.5));
+                accCol[i*3] = color.r;
+                accCol[i*3+1] = color.g;
+                accCol[i*3+2] = color.b;
+                accSizes[i] = Math.random() * 2.5 + 0.5;
+            }
+            accGeo.setAttribute('position', new THREE.BufferAttribute(accPos, 3));
+            accGeo.setAttribute('color', new THREE.BufferAttribute(accCol, 3));
+            accGeo.setAttribute('size', new THREE.BufferAttribute(accSizes, 1));
+            
+            const accMat = new THREE.PointsMaterial({ 
+                size: 4.5, // Increased size for glow
+                vertexColors: true, 
+                transparent: true, 
+                opacity: 0.9, 
+                map: createGlowTexture(),
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            accretionDisk = new THREE.Points(accGeo, accMat);
+            accretionDisk.rotation.x = Math.PI / 1.9; 
+            scene.add(accretionDisk);
+        }
+
+        function renderMiniSingularities(clusters) {
+            // Limpiar anteriores
+            miniSingularities.forEach(s => scene.remove(s));
+            miniSingularities = [];
+
+            if(!clusters) return;
+
+            clusters.forEach((cluster, idx) => {
+                if (cluster.dim === 0 || cluster.dim === "DESCONOCIDO") return;
+                
+                const size = (cluster.mini_singularity?.size || 1) * 5;
+                const miniGeo = new THREE.SphereGeometry(size, 32, 32);
+                const miniMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+                const miniSing = new THREE.Mesh(miniGeo, miniMat);
+                
+                // Glow para mini-sing
+                const glowGeo = new THREE.SphereGeometry(size * 1.1, 32, 32);
+                const glowMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3, side: THREE.BackSide });
+                miniSing.add(new THREE.Mesh(glowGeo, glowMat));
+
+                const angle = (idx / clusters.length) * Math.PI * 2;
+                const radius = 600 + Math.random() * 400;
+                miniSing.setRotationFromEuler(new THREE.Euler(Math.random(), Math.random(), Math.random()));
+                miniSing.position.set(Math.cos(angle) * radius, (Math.random()-0.5)*400, Math.sin(angle) * radius);
+                
+                miniSing.userData = { mass: cluster.mini_singularity?.mass || 100 };
+                miniSingularities.push(miniSing);
+                scene.add(miniSing);
+            });
+        }
+
+        window.addEventListener('dblclick', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+
+            // Check central black hole
+            if (centralSingularity) {
+                const intersects = raycaster.intersectObject(centralSingularity.children[0]);
+                if (intersects.length > 0) {
+                    enterCockpit(new THREE.Vector3(0,0,0));
+                    return;
+                }
+            }
+
+            // Check mini singularities
+            miniSingularities.forEach(s => {
+                const intersects = raycaster.intersectObject(s);
+                if (intersects.length > 0) {
+                    enterCockpit(s.position.clone());
+                    return;
+                }
+            });
+        });
+
+        function enterCockpit(targetPos) {
+            console.log("Entering Cockpit at", targetPos);
+            gsap.to(camera.position, {
+                x: targetPos.x,
+                y: targetPos.y,
+                z: targetPos.z + 5, // Just slightly outside the singularity center
+                duration: 2,
+                ease: "power2.inOut",
+                onComplete: () => {
+                    controls.target.set(targetPos.x, targetPos.y, targetPos.z);
+                    controls.update();
+                }
+            });
+            gsap.to(controls.target, {
+                x: targetPos.x,
+                y: targetPos.y,
+                z: targetPos.z - 100, // Look forward into the abyss
+                duration: 2,
+                ease: "power2.inOut"
+            });
+            
+            // UI visual feedback
+            const cockpit = document.getElementById('cockpit-frame');
+            if (cockpit) {
+                gsap.fromTo(cockpit, { boxShadow: "inset 0 0 150px rgba(0,242,255,0.5)" }, { boxShadow: "inset 0 0 150px rgba(0,0,0,0.9)", duration: 2 });
+            }
+        }
     </script>
 </body>
 </html>
