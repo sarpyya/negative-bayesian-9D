@@ -127,11 +127,21 @@
     <div id="controls-panel">
         <button class="hud-btn" onclick="toggleFullscreen()">Fullscreen</button>
         <button class="hud-btn" onclick="resetCamera()">Reset Cam</button>
-        <!-- Eliminados controles redundantes que confunden, se usan los del parent -->
+        <button class="hud-btn" onclick="flyTo(centralSingularity)" style="border-color:#ff0000; color:#ffcccc;">WARP SINGULARITY</button>
     </div>
 
+    <!-- THREE.JS & POST-PROCESSING -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/shaders/DigitalGlitch.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/postprocessing/GlitchPass.js"></script>
+
 
     <script>
         const nodesData = {{ nodes | tojson }};
@@ -177,34 +187,85 @@
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
         camera.position.set(0, 100, 800); // Inicio lejos para anim
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        document.body.appendChild(renderer.domElement);
+        // ──────────────────────────────────────────────────────────────
+        // POST-PROCESSING: BLOOM & GLOW
+        // ──────────────────────────────────────────────────────────────
+        const renderScene = new THREE.RenderPass(scene, camera);
 
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 0.5;
+        const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        bloomPass.threshold = 0; // Brillante en oscuridad
+        bloomPass.strength = 1.0; // Intensidad del brillo
+        bloomPass.radius = 0.5;
 
-        // Luz central (Cero Absoluto)
-        const pointLight = new THREE.PointLight(0xffffff, 2, 2000);
-        scene.add(pointLight);
-        scene.add(new THREE.AmbientLight(0x404040));
+        const composer = new THREE.EffectComposer(renderer);
+        composer.addPass(renderScene);
+        composer.addPass(bloomPass);
 
-        // SINGULARIDAD CENTRAL: Gargantua Refined
+        // ──────────────────────────────────────────────────────────────
+        // THEME MANAGER
+        // ──────────────────────────────────────────────────────────────
+        const currentTheme = {
+            name: modeData ? modeData.nombre : "ABISMO DEFAULT",
+            color: modeData && modeData.info ? new THREE.Color(modeData.info.color) : new THREE.Color(0xffffff),
+            emoji: modeData && modeData.info ? modeData.info.emoji : "🌌",
+            isMapuche: modeData && modeData.nombre && modeData.nombre.includes("MAPUCHE"),
+        };
+        console.log("THEME ACTIVE:", currentTheme);
+
+        // ──────────────────────────────────────────────────────────────
+        // GRAVITY WATER EFFECT (SPACETIME FABRIC)
+        // ──────────────────────────────────────────────────────────────
+        // SINGULARIDAD CENTRAL: Gargantua Refined & Bayesian Crystal
         const centralSingularity = new THREE.Group();
         centralSingularity.position.set(0, 0, 0);
 
-        // Agujero negro central (Negro Absoluto)
+        // 1. CÁLCULO BAYESIANO NEGATIVO DE LA ESTRUCTURA DE CRISTAL
+        // "Promediar todo y encontrar la mejor opción por ángulos de intersección"
+        // Simulamos este cálculo analizando la densidad de conexiones entrantes
+        const connectionDensity = edgesData.filter(e => e.target === "CERO_ABSOLUTO" || e.source === "CERO_ABSOLUTO").length;
+        const crystalComplexity = Math.min(5, Math.max(1, Math.floor(connectionDensity / 50))); 
+        console.log(`Bayesian Crystal Calculated: Complexity Level ${crystalComplexity} based on ${connectionDensity} matrix crossings.`);
+
+        // 2. NÚCLEO DE CRISTAL (LA ESTRUCTURA DE LA MATRIX PROMEDIADA)
+        const crystalGeo = new THREE.IcosahedronGeometry(20, 1); // Base geométrica pura
+        const crystalMat = new THREE.MeshPhysicalMaterial({ 
+            color: currentTheme.color, // Color del tema (ej. Mapuche Purple)
+            emissive: currentTheme.color,
+            emissiveIntensity: 0.5,
+            metalness: 0.9,
+            roughness: 0.1,
+            wireframe: true, // "Red de cristal"
+            transparent: true,
+            opacity: 0.8,
+            side: THREE.DoubleSide
+        });
+        const crystalCore = new THREE.Mesh(crystalGeo, crystalMat);
+        
+        // Estructura interna densa (La masa rellena)
+        const innerCoreGeo = new THREE.OctahedronGeometry(12, 2);
+        const innerCoreMat = new THREE.MeshBasicMaterial({ 
+            color: 0xffffff, 
+            wireframe: true, 
+            transparent: true, 
+            opacity: 0.5 
+        });
+        crystalCore.add(new THREE.Mesh(innerCoreGeo, innerCoreMat));
+
+        centralSingularity.add(crystalCore);
+
+        // 3. EVENT HORIZON (EL VELO DEL ABISMO)
+        // Ahora es semitransparente para dejar ver la estructura interna
         const blackHoleGeo = new THREE.SphereGeometry(28, 64, 64);
-        const blackHoleMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const blackHoleMat = new THREE.MeshBasicMaterial({ 
+            color: 0x000000, 
+            transparent: true, 
+            opacity: 0.85 // Deja ver el cristal interior
+        });
         const blackHole = new THREE.Mesh(blackHoleGeo, blackHoleMat);
         centralSingularity.add(blackHole);
 
-        // Photon Sphere / Glow (Shader)
-        const glowGeo = new THREE.SphereGeometry(28.5, 64, 64);
+        // 4. PHOTON SPHERE / GLOW (Shader)
+        const glowGeo = new THREE.SphereGeometry(29, 64, 64); // Levemente más grande
         const glowMat = new THREE.ShaderMaterial({
             uniforms: {
                 glowColor: { value: new THREE.Color(0xffffff) },
@@ -216,7 +277,7 @@
                 void main() {
                     vec3 vNormal = normalize( normalMatrix * normal );
                     vec3 vNormel = normalize( normalMatrix * viewVector );
-                    intensity = pow( 0.6 - dot(vNormal, vNormel), 4.0 );
+                    intensity = pow( 0.55 - dot(vNormal, vNormel), 4.5 );
                     gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
                 }
             `,
@@ -238,10 +299,50 @@
 
         // Pulso del agujero negro (variable para animate)
         const singularityMesh = centralSingularity;
+        // Referencia para rotar el cristal independientemente
+        const crystalMesh = crystalCore;
+        const warpGeo = new THREE.IcosahedronGeometry(750, 4);
+        const warpMat = new THREE.ShaderMaterial({
+            uniforms: {
+                time: { value: 0 },
+                baseColor: { value: new THREE.Color(0x0a0a0a) }, 
+                accentColor: { value: currentTheme.color }
+            },
+            vertexShader: `
+                uniform float time;
+                varying vec2 vUv;
+                varying float vWave;
+                void main() {
+                    vUv = uv;
+                    vec3 pos = position;
+                    // Efecto de agua/gravedad
+                    float wave = sin(pos.x * 0.01 + time) * cos(pos.y * 0.01 + time) * 10.0;
+                    wave += sin(pos.x * 0.03 - time * 0.5) * 5.0;
+                    pos += normal * wave;
+                    vWave = wave;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 baseColor;
+                uniform vec3 accentColor;
+                varying float vWave;
+                void main() {
+                    // Mezcla negro con color del tema según la onda
+                    float intensity = smoothstep(-10.0, 10.0, vWave);
+                    vec3 col = mix(baseColor, accentColor * 0.2, intensity); // Muy sutil
+                    float alpha = 0.1 + intensity * 0.2;
+                    gl_FragColor = vec4(col, alpha);
+                }
+            `,
+            side: THREE.BackSide,
+            transparent: true,
+            depthWrite: false, 
+            blending: THREE.AdditiveBlending // Para que brille
+        });
+        const warpField = new THREE.Mesh(warpGeo, warpMat);
+        scene.add(warpField);
 
-        const nodeMeshes = {};
-        const edgeMeshes = [];
-        const maxHorror = Math.max(...nodesData.map(n => n.horror || 1));
 
         // ──────────────────────────────────────────────────────────────
         // FUNCIÓN: DISTRIBUCIÓN ESFÉRICA (NO RECTANGULAR)
@@ -363,7 +464,7 @@
         particlesGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
         
         const particlesMat = new THREE.PointsMaterial({
-            color: 0xffffff, // Blanco absoluto
+            color: currentTheme.color, // Particulas del color del tema
             size: 2.5,
             transparent: true,
             opacity: 0.6,
@@ -372,6 +473,67 @@
         const orbitalParticles = new THREE.Points(particlesGeo, particlesMat);
         scene.add(orbitalParticles);
 
+
+        // ──────────────────────────────────────────────────────────────
+        // CAMERA TRAVEL LOGIC
+        // ──────────────────────────────────────────────────────────────
+        let isTraveling = false;
+        let flightStartPos = new THREE.Vector3();
+        let flightTargetPos = new THREE.Vector3();
+        let flightStartLook = new THREE.Vector3();
+        let flightTargetLook = new THREE.Vector3();
+        let flightStartTime = 0;
+        const flightDuration = 1500; // ms
+
+        function flyTo(targetObj, zoomDist = 60) {
+            isTraveling = true;
+            flightStartTime = Date.now();
+            flightStartPos.copy(camera.position);
+            flightStartLook.copy(controls.target);
+
+            // Determinar destino
+            const targetCenter = targetObj.position.clone();
+            
+            // Si es un grupo (Singularity), asegurar posición absoluta 0,0,0 si es estático, 
+            // o calcular bounding box si fuera movil. Aquí asumimos 0,0,0 para la singularidad.
+            if (targetObj === centralSingularity) {
+                targetCenter.set(0,0,0);
+                zoomDist = 150; // Más lejos para el agujero negro
+            }
+
+            flightTargetLook.copy(targetCenter);
+
+            // Calcular posición de cámara final:
+            // Mantener ángulo actual pero acercarse
+            const offset = new THREE.Vector3().subVectors(camera.position, targetCenter).normalize().multiplyScalar(zoomDist);
+            flightTargetPos.addVectors(targetCenter, offset);
+
+            // Desactivar auto-rotación durante el viaje
+            controls.autoRotate = false;
+        }
+
+        function updateTravel() {
+            if (!isTraveling) return;
+
+            const now = Date.now();
+            const progress = (now - flightStartTime) / flightDuration;
+
+            if (progress >= 1) {
+                // Fin del viaje
+                camera.position.copy(flightTargetPos);
+                controls.target.copy(flightTargetLook);
+                isTraveling = false;
+                // Reactivar rotación suave si se desea
+                controls.autoRotate = true; 
+                return;
+            }
+
+            // Easing: Quadratic Ease In-Out
+            const ease = progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress;
+
+            camera.position.lerpVectors(flightStartPos, flightTargetPos, ease);
+            controls.target.lerpVectors(flightStartLook, flightTargetLook, ease);
+        }
 
         // ──────────────────────────────────────────────────────────────
         // ANIMACIÓN & INTERACCIÓN
@@ -391,6 +553,13 @@
             // Tooltip sigue al mouse
             tooltip.style.left = (event.clientX + 20) + 'px';
             tooltip.style.top = (event.clientY + 20) + 'px';
+            
+            // Cursor pointer si hover sobre interactuable
+            if (hoveredNode) {
+                document.body.style.cursor = 'pointer';
+            } else {
+                document.body.style.cursor = 'default';
+            }
         });
 
         let hoveredNode = null;
@@ -400,15 +569,44 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            controls.update();
+            
+            if (isTraveling) {
+                updateTravel();
+                controls.update(); // Importante para actualizar los vectores internos
+            } else {
+                controls.update();
+            }
 
             const now = Date.now();
+            const timeInfo = now * 0.001;
+
+            // UPDATE SHADER UNIFORMS
+            if (warpMat) {
+                warpMat.uniforms.time.value = timeInfo;
+                
+                // EFECTOS ESPECIALES POR MODO
+                if (currentTheme.name === "MODO MAPUCHE_COSMICO") {
+                     // Efecto especial latido lento para Mapuche
+                     warpMat.uniforms.accentColor.value.setHSL(0.8, 1.0, 0.5 + Math.sin(timeInfo) * 0.2); 
+                } 
+                else if (currentTheme.name === "MODO NAVE_ESPACIAL") {
+                    // 🚀 EFECTO INTERSTELLAR: ONDAS ESPACIALES INTENSAS
+                    // Aumentamos velocidad simulada multiplicando el tiempo en el seno ? 
+                    // No podemos cambiar el vertex shader al vuelo facil, pero si los uniformes.
+                    // Vamos a hacer que el color pulse rapidísimo y brillante, simulando viaje.
+                    const warpSpeed = timeInfo * 5.0; // Velocidad Warp
+                    warpMat.uniforms.accentColor.value.setHSL(0.3, 1.0, 0.5 + Math.sin(warpSpeed) * 0.4);
+                    // Nota: para cambiar la geometría/onda real requeriría otro shader, 
+                    // pero visualmente esto + el movimiento de cámara da el efecto.
+                }
+            }
+
             const progress = Math.min(1, (now - startTime) / collapseDuration);
             
             // Easing cubic out
             const ease = 1 - Math.pow(1 - progress, 3);
             
-            // 0. PULSO SINGULARIDAD (Diseño Unificado)
+            // 0. PULSO SINGULARIDAD
             if (typeof singularityMesh !== 'undefined') {
                  const pulseScale = 1.0 + Math.sin(now * 0.001) * 0.05;
                  singularityMesh.scale.set(pulseScale, pulseScale, pulseScale);
@@ -416,17 +614,14 @@
 
             // 1. ANIMACIÓN DE COLAPSO (Intro)
             if (progress < 1) {
-                // Mover nodos desde "lejos" hacia su posición final
                 for (let id in nodeMeshes) {
                     const mesh = nodeMeshes[id];
-                    // StartPos implícito (calculado al vuelo para ahorrar memoria)
-                    // Asumimos que startPos era targetPos * 3
                     const currentPos = new THREE.Vector3().copy(mesh.userData.targetPos).normalize().multiplyScalar(2000).lerp(mesh.userData.targetPos, ease);
                     mesh.position.copy(currentPos);
                 }
             }
 
-            // 2. ACTUALIZAR ARISTAS (Siempre, por si hay movimiento)
+            // 2. ACTUALIZAR ARISTAS
             if (progress < 1) {
                 edgeMeshes.forEach(line => {
                     const pos = line.geometry.attributes.position;
@@ -435,12 +630,16 @@
                     pos.needsUpdate = true;
                 });
             } else {
-                // Animación post-colapso (Pulso de Dimensional Bridges)
                 const pulse = 0.5 + Math.sin(now * 0.005) * 0.5;
                 if (lineMaterialFusion) {
                     lineMaterialFusion.opacity = 0.4 + pulse * 0.6;
-                    // También podría pulsar el grosor si fuera Line2, pero en WebGL normal line width es 1
                 }
+            }
+
+            // 2.5 ROTACIÓN DEL CRYSTAL CORE (NUEVO)
+            if (typeof crystalMesh !== 'undefined') {
+                crystalMesh.rotation.y = now * 0.0002;
+                crystalMesh.rotation.z = now * 0.0001;
             }
 
             // 3. ROTACIÓN DE PARTÍCULAS
@@ -449,34 +648,56 @@
             // 4. INTERACCIÓN (RAYCAST)
             raycaster.setFromCamera(mouse, camera);
             
-            // Solo intersectar si el mouse está en canvas (opcional)
-            const intersects = raycaster.intersectObjects(Object.values(nodeMeshes));
+            // Intersectar nodos Y singularidad (Black Hole)
+            const raycastTargets = [...Object.values(nodeMeshes), ...centralSingularity.children]; // children[0] es blackHole mesh
+            const intersects = raycaster.intersectObjects(raycastTargets);
 
             if (intersects.length > 0) {
-                const mesh = intersects[0].object;
-                if (hoveredNode !== mesh) {
-                    // Restaurar previo
-                    if (hoveredNode) hoveredNode.material.color.copy(hoveredNode.userData.originalColor);
-                    
-                    hoveredNode = mesh;
-                    // Highlight blanco brillante
-                    hoveredNode.material.color.set(0xffffff);
-                    
-                    // Mostrar Tooltip
-                    const d = mesh.userData;
-                    let seedLabel = d.seed_index === 1 ? '<span style="color:#00ffff">Cyan</span>' : 
-                                  d.seed_index === 2 ? '<span style="color:#ff00ff">Magenta</span>' : 'Root';
-                    
-                    tooltip.innerHTML = `
-                        <div class="tooltip-header">Seed #${d.seed_index||0} (${seedLabel})</div>
-                        <div style="font-size:0.8rem; margin-bottom:6px; color:#ddd;">${d.label}</div>
-                        <div class="tooltip-row"><span>Horror:</span> <span class="tooltip-val">${(d.horror||0).toFixed(1)}</span></div>
-                    `;
-                    tooltip.style.display = 'block';
+                const obj = intersects[0].object;
+                
+                // Si es el agujero negro
+                if (obj.parent === centralSingularity) {
+                    if (hoveredNode !== centralSingularity) {
+                        hoveredNode = centralSingularity;
+                        tooltip.innerHTML = `
+                            <div class="tooltip-header" style="color:#ff0000">SINGULARIDAD</div>
+                            <div style="font-size:0.8rem; color:#ddd;">Gargantua Refined</div>
+                            <div class="tooltip-row"><span>Event Horizon:</span> <span class="tooltip-val" style="color:#ff0000">CRITICAL</span></div>
+                            <div style="font-size:0.7rem; color:#888; margin-top:4px;">Click para viajar al vacío</div>
+                        `;
+                        tooltip.style.display = 'block';
+                    }
+                } 
+                // Si es un nodo
+                else { 
+                     if (hoveredNode !== obj) {
+                        // Restaurar previo
+                        if (hoveredNode && hoveredNode !== centralSingularity) {
+                            hoveredNode.material.color.copy(hoveredNode.userData.originalColor);
+                        }
+                        
+                        hoveredNode = obj;
+                        hoveredNode.material.color.set(0xffffff);
+                        
+                        const d = obj.userData;
+                        
+                        // Modificar tooltip para mostrar tema si aplica
+                        let themeBadge = currentTheme.name !== "ABISMO DEFAULT" ? `<span style="color:${currentTheme.color.getHexString()}">[${currentTheme.emoji}]</span>` : "";
+                        
+                        tooltip.innerHTML = `
+                            <div class="tooltip-header">${currentTheme.emoji} ${d.label}</div>
+                            <div style="font-size:0.8rem; margin-bottom:6px; color:#ddd;">${d.desc || 'Unknown Dimension'}</div>
+                            <div class="tooltip-row"><span>Horror:</span> <span class="tooltip-val">${(d.horror||0).toFixed(1)}</span></div>
+                             <div style="font-size:0.7rem; color:#888; margin-top:4px;">Click para viajar</div>
+                        `;
+                        tooltip.style.display = 'block';
+                    }
                 }
             } else {
                 if (hoveredNode) {
-                    hoveredNode.material.color.copy(hoveredNode.userData.originalColor);
+                    if (hoveredNode !== centralSingularity) {
+                        hoveredNode.material.color.copy(hoveredNode.userData.originalColor);
+                    }
                     hoveredNode = null;
                     tooltip.style.display = 'none';
                 }
@@ -484,7 +705,7 @@
 
             // 5. MOTION HUD
             const delta = camera.position.distanceTo(prevPos);
-            if (delta > 0.3) { // umbral más estable
+            if (delta > 0.3) {
                 const dz = camera.position.z - prevPos.z;
                 const dx = camera.position.x - prevPos.x;
                 const dy = camera.position.y - prevPos.y;
@@ -503,41 +724,57 @@
             }
             prevPos.copy(camera.position);
 
-            renderer.render(scene, camera);
+            // RENDER CON COMPOSER (BLOOM)
+            composer.render();
         }
 
         animate();
 
-        // 6. INTERACCIÓN CLICK (Highlight Dorado)
-        // 6. INTERACCIÓN CLICK (Highlight Blanco + Conexiones)
-        // Definir materiales globales para swap (Evitar modificar material compartido)
+        // 6. INTERACCIÓN CLICK (Viajar & Highlight)
+        // Definir materiales globales
         const matHighlight = new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 1.0, transparent: true, linewidth: 2 });
         const matDim = new THREE.LineBasicMaterial({ color: 0x333333, opacity: 0.05, transparent: true });
 
         window.addEventListener('click', (event) => {
             if (!raycaster || !mouse) return;
             
+            // Recalcular mouse por si acaso (aunque se actualiza en move)
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
             
-            const intersects = raycaster.intersectObjects(Object.values(nodeMeshes));
+            const raycastTargets = [...Object.values(nodeMeshes), ...centralSingularity.children];
+            const intersects = raycaster.intersectObjects(raycastTargets);
             
-            // Función Helper para restaurar materiales originales
             const resetLines = () => {
                 edgeMeshes.forEach(line => {
-                    // Restaurar material basado en si es dimensional o normal
                     line.material = line.userData.isDimensional ? lineMaterialFusion : lineMaterialNormal;
                 });
             };
 
             if (intersects.length > 0) {
-                const mesh = intersects[0].object;
+                const obj = intersects[0].object;
+
+                // CLICK EN BLACK HOLE
+                if (obj.parent === centralSingularity) {
+                    console.log("Viajando a la Singularidad...");
+                    flyTo(centralSingularity);
+                    // Reset selecciones de nodos
+                    if (selectedNodeId && nodeMeshes[selectedNodeId]) {
+                        nodeMeshes[selectedNodeId].material.color.copy(nodeMeshes[selectedNodeId].userData.originalColor);
+                        selectedNodeId = null;
+                    }
+                    resetLines();
+                    return;
+                }
+
+                // CLICK EN NODO
+                // ...existing interaction logic + flyTo...
                 
                 // Toggle Highlight
-                if (selectedNodeId === mesh.userData.id) {
+                if (selectedNodeId === obj.userData.id) {
                     // Deselect
-                    mesh.material.color.copy(mesh.userData.originalColor);
+                    obj.material.color.copy(obj.userData.originalColor);
                     selectedNodeId = null;
                     resetLines(); 
                 } else {
@@ -546,27 +783,29 @@
                         nodeMeshes[selectedNodeId].material.color.copy(nodeMeshes[selectedNodeId].userData.originalColor);
                     }
                     
-                    selectedNodeId = mesh.userData.id;
-                    mesh.material.color.set(0xffffff); // Blanco eterno para el nodo
+                    selectedNodeId = obj.userData.id;
+                    obj.material.color.set(0xffffff); 
                     
-                    // HIGHLIGHT CONEXIONES (SWAP MATERIAL)
-                    resetLines(); // Primero asegurar base limpia (aunque ineficiente, seguro)
+                    // VIAJAR AL NODO
+                    flyTo(obj);
+
+                    // HIGHLIGHT CONEXIONES
+                    resetLines(); 
                     
                     let connectedCount = 0;
                     edgeMeshes.forEach(line => {
-                        // Comprobar si esta línea conecta con el nodo seleccionado
-                        if (line.userData.source === mesh || line.userData.target === mesh) {
-                            line.material = matHighlight; // Swap a material blanco brillante
+                        if (line.userData.source === obj || line.userData.target === obj) {
+                            line.material = matHighlight;
                             connectedCount++;
                         } else {
-                             line.material = matDim; // Swap a material atenuado
+                             line.material = matDim;
                         }
                     });
                     
-                    console.log(`Nodo seleccionado: ${mesh.userData.label} | Conexiones: ${connectedCount}`);
+                    console.log(`Nodo seleccionado: ${obj.userData.label} | Conexiones: ${connectedCount}`);
                 }
             } else {
-                // Click en el vacío -> Deseleccionar todo
+                // Click en vacio -> Deseleccionar
                 if (selectedNodeId && nodeMeshes[selectedNodeId]) {
                     nodeMeshes[selectedNodeId].material.color.copy(nodeMeshes[selectedNodeId].userData.originalColor);
                     selectedNodeId = null;
@@ -574,7 +813,6 @@
                 resetLines();
             }
         });
-
 
         // ──────────────────────────────────────────────────────────────
         // UTILS & LISTENERS

@@ -40,30 +40,29 @@ Desarrollada en el abismo, refinada en aislamiento, probada bajo fuego.
 
 El sistema ha evolucionado de un script de consola a una **Plataforma de Simulación Visual 3D Consciente**.
 
-### 🧊 1. Visualización WebGL 3D (Nueva)
-No más gráficos planos. Entra en el abismo:
-*   **Motor 3D Real**: Esferas de horror flotando en gravedad calculada.
-*   **Cámara Absoluta**: "Soft Lock" que orbita perpetuamente alrededor del **CERO ABSOLUTO** (Sol Amarillo), tu ancla en la locura.
-*   **Atmósfera Abisal**: Fondo de "Glucosa Negra/Materia Oscura" animado en CSS que respira con el grafo.
-*   **Gravedad de Neón**: Enlaces de fuerza color **Cyan Eléctrico** que conectan las neuronas del caos.
+### 🧊 1. Quantum Singularity: El Poneglyph Cósmico (V3.3) 🗿
+El núcleo del abismo ha evolucionado hacia una reliquia ancestral:
+*   **Poneglyph Core**: Un cubo procedimental con grabados Mapuche-Cósmicos y glifos rúnicos que late con luz interna.
+*   **Quantum Bloom**: Post-procesamiento mediante `UnrealBloomPass` para un cosmos vibrante y brillante.
+*   **Luminosidad por Gravedad**: Los nodos emiten fotones con intensidad proporcional a su cercanía al abismo.
+*   **Aesthetics High-End**: Materiales físicos con profundidad, reflejos metálicos y relieve visual.
 
-### 🧠 2. Modos de Consciencia (Nueva)
-El grafo ahora "siente" y reacciona. No es estático.
-*   **👹 MODO BESTIA**: Caos total. Gravedad violenta. Colores rojos y naranjas ardientes. Ramificación máxima.
-*   **⚖️ MODO JUSTICE**: Orden implacable. Nodos dorados. Estructura rígida. Se activa al detectar injusticia (keywords).
-*   **🐬 MODO DOLPHIN**: Un milagro estadístico. Calma azul, baja entropía, ramificación mínima. Difícil de lograr, hermoso de ver.
-*   **🧊 CHILL / MAPUCHE CÓSMICO**: Estados intermedios de vibración.
+### 🎤 2. Sincronización Sensorial: FIESTA MODE (Microphone) 🌈
+El abismo ahora tiene oídos y responde a la vibración real:
+*   **Audio Real-Time (FFT)**: Captura de entrada de **micrófono** para alimentar la física cuántica del grafo.
+*   **Chromatic Rainbow Flow**: Las líneas y canales iónicos ciclan por el espectro HSL completo al ritmo del sonido.
+*   **Impacto Visual**: La opacidad, el tamaño y el jitter de los elementos pulsan sincrónicamente con el Bass kick.
+*   **Modo Simulado**: Si el sensor falla, se activa una simulación analógica basada en el Seed del universo.
 
-### 🎛️ 3. Control Total de Realidad
-*   **Monitor de Vitalidad (HUD)**: FPS integrado, CPU/RAM del servidor y Ping en tiempo real dentro del visualizador.
-*   **Slider de Densidad Extrema**: Controla hasta **6,000 nodos** en tiempo real.
-*   **Sincronización Iónica (Temporal Reversal)**: Control de tiempo absoluto que permite pausar (`0x`) o inclusive revertir el flujo causal (`-10x`), invirtiendo rotaciones y dinámicas gravitatorias en tiempo real.
+### ⚔️ 3. Interfaz de Acción RPG & Viaje Instantáneo
+*   **Action Bar [Q, W, E, R, F]**: Consola de habilidades rápidas para control total del multiverso.
+*   **Click-to-Warp**: Vuelo automático de cámara hacia cualquier nodo y expansión visual de datos.
+*   **Joystick/Gamepad Native**: Mapeo completo para mandos, permitiendo explorar el abismo con sticks analógicos.
 
-### 🌌 4. Arquitectura de Singularidad Gargantúa (v9.4.0)
-*   **Black Hole Physics**: Núcleo de "Negro Absoluto" con esfera de fotones (photon sphere) reactiva.
-*   **Accretion Disk**: Disco de acreción dinámico con distorsión de geometría orbital.
-*   **Lensing Gravitacional**: Simulación de curvatura de luz mediante post-procesamiento.
-*   **Hacia el Multiverso (Roblox & Beyond)**: El código está siendo desacoplado para ser integrado como motor de físicas de horror en **Roblox Engine**, permitiendo que nuevas generaciones exploren el abismo desde una perspectiva interactiva y lúdica.
+### 🧪 4. Universos Especializados (Nuevos)
+*   **LASER / BUBBLE / LANIAKEA**: Formaciones fractales y mallas iónicas de alta densidad.
+*   **NEGATIVE RGB (-255 a 0)**: Un loop matemático que genera luz desde el vacío negativo absoluto.
+*   **Safe Matrix Engine**: Optimización para manejar hasta **26,000 nodos** sin comprometer la estabilidad.
 
 ---
 
@@ -115,23 +114,24 @@ Abre **http://localhost:5000** en tu navegador.
 | Feature | Estado | Descripción |
 | :--- | :---: | :--- |
 | **Generación Fractal** | ✅ | Algoritmo recursivo 9-dimensional |
-| **Visualizador 3D** | ✅ | Three.js / WebGL Force Graph |
+| **Visualizador 3D** | ✅ | Three.js / Quantum Bloom / Poneglyph |
+| **Audio Reactivo** | ✅ | **Entrada de Micrófono (FFT)** / Fiesta Mode |
 | **Monte Carlo** | ✅ | Simular 10,000 futuros y hallar el peor |
 | **Replay Seed** | ✅ | Volver a vivir un trauma específico (Seed) |
-| **Hall of Shame** | ✅ | Ranking de las peores simulaciones históricas |
-| **Modos Conscientes** | ✅ | El grafo cambia su física según su "emoción" (NIÑO WOWO, LOL GAMER...) |
-| **Monitor Hardware** | ✅ | HUD en tiempo real con FPS, CPU, RAM y Ping |
-| **Biometría (Sinc)** | ✅ | Inyectar Na+/K+ (sensores) para gatillar potenciales de acción |
+| **Acción RPG** | ✅ | Action Bar [Q,W,E,R,F] / Click-to-Warp |
+| **Modos Conscientes** | ✅ | El grafo cambia su física según su "emoción" |
+| **Monitor Hardware** | ✅ | HUD en tiempo real (FPS, CPU, RAM, Ping) |
+| **Sinc. Temporal** | ✅ | Control de flujo causal (-10x a 10x) |
 
 ---
 
 ## 🔮 Futuro (Roadmap)
 
 La carrera mundial recién comienza.
-*   [ ] **VR Integration**: Caminar dentro del grafo con Oculus/Vision Pro.
-*   [ ] **Audio Reactivo**: Sonificación del horror (bajos sub-graves según densidad de nodos).
-*   [ ] **Multiplayer**: Dos usuarios colapsando sus grafos en tiempo real.
+*   [ ] **VR Integration**: Caminar dentro del grafo con Oculus/Apple Vision Pro.
+*   [ ] **Multiplayer (Entropy Wars)**: Dos usuarios colapsando grafos en tiempo real.
 *   [ ] **LLM Narrator**: Una voz IA que te explique por qué perdiste.
+*   [x] **Audio Reactivo (Mic)**: Implementado en V3.3.
 
 ---
 
