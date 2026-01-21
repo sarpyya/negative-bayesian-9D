@@ -1,1628 +1,1736 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ COSMIC OS v3.2 - THE SINGULARITY ⚡</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
-    <style>
-        :root {
-            --bg-black: #000000;
-            --glass-bg: rgba(0, 0, 0, 0.75);
-            --glass-border: rgba(0, 242, 255, 0.3);
-            --text-cyan: #00f2ff;
-            --text-magenta: #ff00ff;
-            --text-yellow: #ffffff;
-            --text-red: #ff3333;
-            --text-green: #00ff41;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚡ COSMIC OS v3.3 - CONTROL TOTAL ⚡</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            overflow: hidden; background: var(--bg-black);
-            font-family: 'Inter', sans-serif; color: white; transition: background 0.5s;
-        }
+  <style>
+    :root {
+      --bg-black: #000000;
+      --glass-bg: rgba(0, 0, 0, 0.75);
+      --glass-border: rgba(0, 242, 255, 0.3);
+      --text-cyan: #00f2ff;
+      --text-magenta: #ff00ff;
+      --text-yellow: #ffff00;
+      --text-red: #ff0033;
+      --text-green: #00ff41;
+    }
+    
+    /* Dark Glucose / Dark Matter Background */
+    body::before {
+      content:'';
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(circle at 20% 50%, rgba(138, 43, 226, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(0, 242, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(255, 0, 255, 0.12) 0%, transparent 50%);
+      animation: breathe 8s ease-in-out infinite, drift 20s linear infinite;
+      pointer-events:none;
+      z-index:0;
+    }
+    
+    @keyframes breathe {
+      0%, 100% { opacity:0.3; transform:scale(1); }
+      50% { opacity:0.6; transform:scale(1.1); }
+    }
+    
+    @keyframes drift {
+      0% { background-position: 0% 0%, 100% 100%, 50% 50%; }
+      100% { background-position: 100% 100%, 0% 0%, 150% 150%; }
+    }
+    
+    body, html { margin:0; padding:0; overflow:hidden; background:var(--bg-black); font-family:'Inter',sans-serif; color:white; }
+    #canvas-container { position:absolute; inset:0; z-index:1; }
+    #intro-overlay {
+      position:fixed; inset:0; background:black; z-index:10000; display:flex;
+      align-items:center; justify-content:center; cursor:pointer;
+    }
+    #loading-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9000; display:none;
+      align-items:center; justify-content:center; color:var(--text-cyan); font-size:2rem;
+    }
+    .hud-module {
+      position:absolute; background:var(--glass-bg); backdrop-filter:blur(15px);
+      border:1px solid var(--glass-border); border-radius:8px; padding:15px;
+      box-shadow:0 0 20px rgba(0,242,255,0.1); pointer-events:auto; z-index:10;
+      transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    }
+    .hud-title { font-weight:700; font-size:0.9rem; letter-spacing:2px; color:var(--text-cyan); text-transform:uppercase; border-bottom:1px solid var(--glass-border); padding-bottom:5px; }
+    
+    /* Config Module - Collapsible from left */
+    #config-module {
+      bottom:20px; left:-280px; width:300px;
+      transform:translateX(0);
+      opacity:0.3;
+    }
+    #config-module:hover,
+    #config-module:focus-within {
+      transform:translateX(280px);
+      opacity:1;
+    }
+    #config-module::before {
+      content:'☰';
+      position:absolute;
+      right:-30px;
+      top:50%;
+      transform:translateY(-50%);
+      background:var(--glass-bg);
+      border:1px solid var(--glass-border);
+      border-left:none;
+      border-radius:0 8px 8px 0;
+      padding:10px 8px;
+      color:var(--text-cyan);
+      font-size:1.2rem;
+      cursor:pointer;
+      pointer-events:auto;
+    }
+    .input-group { margin-bottom:12px; }
+    .input-group label { display:block; font-size:0.75rem; color:#888; margin-bottom:5px; }
+    .input-group input, .input-group select { width:100%; background:rgba(0,242,255,0.05); border:1px solid var(--glass-border); color:var(--text-cyan); padding:8px; border-radius:4px; }
+    button { width:100%; padding:10px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; text-transform:uppercase; }
+    button:hover { filter:brightness(1.2); transform:scale(1.02); }
+    .immersion-toggle { 
+      position:fixed; top:20px; right:20px; z-index:2000; 
+      background:rgba(0,255,136,0.2); border:1px solid var(--text-cyan); 
+      color:var(--text-cyan); padding:8px 12px; cursor:pointer;
+      transition: opacity 0.3s ease;
+    }
+    .immersion-toggle:hover {
+      background:rgba(0,255,136,0.4);
+      opacity:1 !important;
+    }
+    
+    /* Temporal Controls */
+    #temporal-controls {
+      position:fixed; bottom:20px; right:20px; z-index:10;
+      background:var(--glass-bg); backdrop-filter:blur(15px);
+      border:1px solid var(--glass-border); border-radius:8px; padding:15px;
+      box-shadow:0 0 20px rgba(0,242,255,0.1); pointer-events:auto;
+      min-width:350px;
+      display:none; /* Oculto por defecto, solo en immersive mode */
+    }
+    .temporal-btn {
+      width:auto; padding:8px 15px; margin:0 3px;
+      background:rgba(0,242,255,0.1); border:1px solid var(--glass-border);
+      color:var(--text-cyan); font-size:0.9rem;
+    }
+    .temporal-btn.active { background:var(--text-cyan); color:black; }
+    #speed-display {
+      font-size:1.5rem; font-weight:bold; color:var(--text-cyan);
+      text-align:center; margin:10px 0;
+    }
+    
+    /* Titan Panel - Stats Bar */
+    #titan-panel {
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      height:40px;
+      background:var(--glass-bg);
+      backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--glass-border);
+      box-shadow:0 2px 20px rgba(0,242,255,0.2);
+      z-index:10000;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 20px;
+      font-size:0.85rem;
+      pointer-events:auto;
+    }
+    
+    .titan-stat {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      color:#888;
+    }
+    
+    .titan-stat-label {
+      color:#666;
+      font-size:0.75rem;
+      text-transform:uppercase;
+      letter-spacing:1px;
+    }
+    
+    .titan-stat-value {
+      color:var(--text-cyan);
+      font-weight:bold;
+      font-size:0.9rem;
+    }
+    
+    .titan-stat-value.warning {
+      color:var(--text-yellow);
+    }
+    
+    .titan-stat-value.danger {
+      color:var(--text-red);
+    }
+    
+    .titan-divider {
+      width:1px;
+      height:20px;
+      background:var(--glass-border);
+    }
+    
+    /* Toast Animations */
+    @keyframes slideIn {
+      from { transform:translateX(400px); opacity:0; }
+      to { transform:translateX(0); opacity:1; }
+    }
+    @keyframes slideOut {
+      from { transform:translateX(0); opacity:1; }
+      to { transform:translateX(400px); opacity:0; }
+    }
+  </style>
 
-        #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+  <script>
+    // ═══════════════════════════════════════════════════════════════
+    // 🔥 DEFINIR FUNCIONES ANTES DEL HTML (FIX enterCosmicOS)
+    // ═══════════════════════════════════════════════════════════════
+    
+    // Variables globales
+    let scene, camera, renderer, controls;
+    let centralSingularity, pointsCloud;
+    let matrixLines = null; // Líneas Matrix
+    let currentUniverseSeed = -10;
+    let isImmersionMode = false;
+    let matrixModeActive = false;
+    let matrixColor = 0x00ff41; // Verde Matrix por defecto
+    let matrixOpacity = 0.3;
+    let timeSpeed = 1.0; // Velocidad de simulación
+    let isPaused = false;
 
-        .hud-module {
-            position: absolute; z-index: 10;
-            background: var(--glass-bg); backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border); border-radius: 8px;
-            padding: 15px; box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
-            pointer-events: auto;
-        }
+    // AUDIO REACTIVITY (FIESTA MODE)
+    let audioContext, analyser, dataArray;
+    let isFiestaMode = false;
+    let audioInitialized = false;
 
-        .hud-title {
-            font-weight: 700; font-size: 0.9rem; letter-spacing: 2px;
-            margin-bottom: 15px; color: var(--text-cyan); text-transform: uppercase;
-            border-bottom: 1px solid var(--glass-border); padding-bottom: 5px;
-        }
+    function initAudio() {
+      if (audioInitialized) return;
+      try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
 
-        #config-module { bottom: 20px; left: 20px; width: 300px; }
-        #archetypes-module { bottom: 20px; left: 340px; width: 300px; max-height: 250px; overflow-y: auto; }
-        #log-module { bottom: 20px; right: 340px; width: 300px; height: 250px; overflow-y: auto; }
-        #node-info-mini { bottom: 20px; right: 20px; width: 300px; display: none; }
+        navigator.mediaDevices.getUserMedia({ audio: true })
+          .then(stream => {
+            const source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
+            audioInitialized = true;
+            showToast('🎤 Micrófono conectado - FIESTA MODE READY');
+          })
+          .catch(err => {
+            console.error('Error acceso microfono:', err);
+            showToast('❌ Error micrófono: ' + err.message);
+            document.getElementById('fiestaMode').checked = false;
+            isFiestaMode = false;
+          });
+      } catch (e) {
+        console.error('Audio API no soportada', e);
+      }
+    }
+
+    function createGargantuaSingularity() {
+      const group = new THREE.Group();
+      
+      // 1. Event Horizon (Black Hole)
+      const coreGeo = new THREE.SphereGeometry(30, 64, 64);
+      const coreMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+      const core = new THREE.Mesh(coreGeo, coreMat);
+      group.add(core);
+
+      // 2. Photon Sphere (Glowing ring)
+      const glowGeo = new THREE.SphereGeometry(32, 64, 64);
+      const glowMat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.15,
+        side: THREE.BackSide,
+        blending: THREE.AdditiveBlending
+      });
+      const glow = new THREE.Mesh(glowGeo, glowMat);
+      group.add(glow);
+      group.userData.photonSphere = glow;
+
+      // 3. Accretion Disk
+      const diskGeo = new THREE.RingGeometry(40, 120, 64);
+      const pos = diskGeo.attributes.position;
+      const v3 = new THREE.Vector3();
+      for (let i = 0; i < pos.count; i++){
+        v3.fromBufferAttribute(pos, i);
+        diskGeo.attributes.uv.setXY(i, v3.length() < 60 ? 0 : 1, 1);
+      }
+      
+      const diskMat = new THREE.PointsMaterial({
+        color: 0xffaa00,
+        size: 2,
+        transparent: true,
+        opacity: 0.8,
+        vertexColors: false,
+        blending: THREE.AdditiveBlending
+      });
+      
+      // Convert ring to points for particle effect
+      const diskPointsGeo = new THREE.BufferGeometry();
+      const diskPointsCount = 5000;
+      const diskPositions = new Float32Array(diskPointsCount * 3);
+      const diskColors = new Float32Array(diskPointsCount * 3);
+      
+      for(let i=0; i<diskPointsCount; i++) {
+        const radius = 40 + Math.random() * 80;
+        const theta = Math.random() * Math.PI * 2;
+        diskPositions[i*3] = Math.cos(theta) * radius;
+        diskPositions[i*3+1] = (Math.random() - 0.5) * 5; // Flat disk
+        diskPositions[i*3+2] = Math.sin(theta) * radius;
         
-        .vitality-bar { height: 10px; background: #222; border-radius: 5px; margin-top: 5px; overflow: hidden; }
-        .vitality-fill { height: 100%; height: 100%; transition: width 0.5s; }
+        // Color gradient: Inner hot (white/yellow) -> Outer cool (orange/red)
+        const t = (radius - 40) / 80;
+        const color = new THREE.Color();
+        color.setHSL(0.1 - t * 0.1, 1.0, 0.8 - t * 0.4);
+        diskColors[i*3] = color.r;
+        diskColors[i*3+1] = color.g;
+        diskColors[i*3+2] = color.b;
+      }
+      
+      diskPointsGeo.setAttribute('position', new THREE.BufferAttribute(diskPositions, 3));
+      diskPointsGeo.setAttribute('color', new THREE.BufferAttribute(diskColors, 3));
+      
+      const disk = new THREE.Points(diskPointsGeo, new THREE.PointsMaterial({
+        size: 3,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending
+      }));
+      
+      group.add(disk);
+      group.userData.disk = disk;
+
+      return group;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // ⚙️ SISTEMA DE CONTROLES CONFIGURABLES
+    // ═══════════════════════════════════════════════════════════════
+
+    // Configuración por defecto
+    const defaultKeyBindings = {
+      forward: 'w',
+      back: 's',
+      left: 'a',
+      right: 'd',
+      up: ' ',
+      down: 'shift',
+      speedBoost: 'control',
+      immersion: 'h',
+      resetCamera: 'r'
+    };
+
+    // Cargar configuración guardada o usar defaults
+    let keyBindings = JSON.parse(localStorage.getItem('cosmicOS_keyBindings')) || {...defaultKeyBindings};
+
+    // Guardar configuración
+    function saveKeyBindings() {
+      localStorage.setItem('cosmicOS_keyBindings', JSON.stringify(keyBindings));
+      showToast('⚙️ Controles guardados');
+    }
+
+    // Resetear a defaults
+    function resetKeyBindings() {
+      keyBindings = {...defaultKeyBindings};
+      saveKeyBindings();
+      updateKeyBindingsUI();
+      showToast('⚙️ Controles reseteados a defaults');
+    }
+
+    // Movimiento
+    const moveState = { forward:0, back:0, left:0, right:0, up:0, down:0, rotateUp:0, rotateDown:0, rotateLeft:0, rotateRight:0 };
+    const velocity = new THREE.Vector3();
+    let acceleration = 4.5;
+    const deceleration = 0.92;
+    let maxSpeed = 45;
+    let speedBoost = 1.0; // Multiplicador de velocidad con Ctrl
+    let rotationSpeed = 0.02; // Velocidad de rotación de cámara
+
+    const availableSeeds = Array.from({length:200}, (_,i) => -10 + i);
+
+    async function loadUniverse(seed) {
+      document.getElementById('loading-overlay').style.display = 'flex';
+      const seedDisplay = document.getElementById('current-seed');
+      const modeDisplay = document.getElementById('current-mode');
+      const seedDisplayTop = document.getElementById('current-seed-display');
+      const modeDisplayTop = document.getElementById('current-mode-display');
+      
+      if (seedDisplay) seedDisplay.textContent = seed;
+      if (seedDisplayTop) seedDisplayTop.textContent = seed;
+
+      try {
+        const res = await fetch(`web/data_seed_${seed}.json`);
+        if (!res.ok) throw new Error("404");
+        const data = await res.json();
+
+        // Limpiar escena
+        if (pointsCloud) scene.remove(pointsCloud);
+        if (centralSingularity) scene.remove(centralSingularity);
+
+        // 🌌 GARGANTUA SINGULARITY v9.4.0
+        centralSingularity = createGargantuaSingularity();
+        scene.add(centralSingularity);
+
+        // Nodos
+        if (data.nodes) {
+          const pos = new Float32Array(data.nodes.length * 3);
+          data.nodes.forEach((n,i) => {
+            const p = n.position || [Math.random()*2000-1000, Math.random()*1000-500, Math.random()*2000-1000];
+            pos[i*3] = p[0]; pos[i*3+1] = p[1]; pos[i*3+2] = p[2];
+          });
+          const g = new THREE.BufferGeometry();
+          g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+          pointsCloud = new THREE.Points(g, new THREE.PointsMaterial({color:0x00ffff, size:8}));
+          scene.add(pointsCloud);
+        }
+
+        const modoText = data.modo || "DOLPHIN";
+        if (modeDisplay) modeDisplay.textContent = modoText;
+        if (modeDisplayTop) modeDisplayTop.textContent = modoText;
         
-        /* Panel de donaciones centralizado y grande */
-        #donate-center {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,0.85); border: 2px solid #ffffff;
-            border-radius: 15px; padding: 25px; z-index: 1000;
-            backdrop-filter: blur(10px); display: flex; flex-direction: column;
-            align-items: center; gap: 15px; width: 750px;
-            box-shadow: 0 0 40px rgba(255, 255, 255, 0.3);
+        // Update Titan Panel
+        const titanMode = document.getElementById('titan-mode');
+        const titanSeed = document.getElementById('titan-seed');
+        const titanHorror = document.getElementById('titan-horror');
+        if (titanMode) titanMode.textContent = modoText;
+        if (titanSeed) titanSeed.textContent = seed;
+        if (titanHorror && data.horror_total) {
+          titanHorror.textContent = Math.round(data.horror_total).toLocaleString();
         }
+      } catch (e) {
+        console.error("Error:", e);
+        if (modeDisplay) modeDisplay.textContent = "ERROR";
+        if (modeDisplayTop) modeDisplayTop.textContent = "ERROR";
+      }
 
-        .qr-group { display: flex; gap: 30px; justify-content: center; }
-        .qr-box { text-align: center; }
-        .qr-img { width: 150px; height: 150px; background: white; border-radius: 8px; padding: 5px; }
-        .qr-label { color: #ffd700; font-weight: bold; margin-top: 8px; font-size: 1rem; }
-        .qr-address { font-size: 0.7rem; color: #888; margin-top: 4px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
+      document.getElementById('loading-overlay').style.display = 'none';
+    }
 
-        .input-group { margin-bottom: 12px; }
-        .input-group label { display: block; font-size: 0.75rem; color: #888; margin-bottom: 5px; }
-        .input-group input, .input-group select {
-            width: 100%; background: rgba(0,242,255,0.05); border: 1px solid var(--glass-border);
-            color: var(--text-cyan); padding: 8px; border-radius: 4px; font-size: 0.85rem;
-            backdrop-filter: blur(5px); outline: none; transition: 0.3s;
-        }
-        .input-group select option { background: #0a0a0a; color: var(--text-cyan); }
-        .input-group input:focus, .input-group select:focus { border-color: var(--text-magenta); box-shadow: 0 0 10px rgba(255,0,255,0.2); }
+    function initEngine() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
 
-        button {
-            width: 100%; padding: 10px; border: none; border-radius: 4px;
-            font-weight: bold; cursor: pointer; transition: 0.3s;
-            text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem;
-        }
-        button:hover { filter: brightness(1.2); transform: scale(1.02); }
+      camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 10000);
+      camera.position.set(0, 500, 1500);
 
-        /* Unified HUD Layout */
-        .hud-module, .floating-panel {
-            position: absolute; background: var(--glass-bg); backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border); border-radius: 12px; padding: 0;
-            z-index: 100; transition: opacity 0.3s, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5); overflow: hidden;
-            pointer-events: auto;
+      renderer = new THREE.WebGLRenderer({antialias:true});
+      renderer.setSize(innerWidth, innerHeight);
+      document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+
+      // MOVED: Double click listener added here to ensure renderer exists
+      renderer.domElement.addEventListener('dblclick', (event) => {
+        const mouse = new THREE.Vector2(
+          (event.clientX / window.innerWidth) * 2 - 1,
+          -(event.clientY / window.innerHeight) * 2 + 1
+        );
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, camera);
+
+        const intersectables = [];
+        if (centralSingularity) intersectables.push(centralSingularity);
+        if (pointsCloud) intersectables.push(pointsCloud);
+
+        const intersects = raycaster.intersectObjects(intersectables, true);
+        if (intersects.length > 0) {
+          const target = intersects[0].point;
+          const startPos = camera.position.clone();
+          const distance = 200;
+          const direction = new THREE.Vector3().subVectors(camera.position, target).normalize();
+          const endPos = target.clone().add(direction.multiplyScalar(distance));
+
+          gsap.to(camera.position, {
+            x: endPos.x, y: endPos.y, z: endPos.z, duration: 1.5, ease: 'power2.inOut',
+            onUpdate: () => { controls.target.copy(target); controls.update(); },
+            onComplete: () => { console.log('🚀 Viaje completado a:', target); }
+          });
+          console.log('🚀 Viajando a nodo/agujero negro...');
         }
-        .dragging { transition: none !important; cursor: grabbing !important; box-shadow: 0 15px 45px rgba(0,242,255,0.2) !important; scale: 1.02; }
-        .hud-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 12px; background: rgba(0,242,255,0.05);
-            border-bottom: 1px solid var(--glass-border); cursor: pointer;
-            user-select: none;
+      });
+
+      loadUniverse(currentUniverseSeed);
+      animate();
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // Control temporal
+      if (isPaused) {
+        renderer.render(scene, camera);
+        return;
+      }
+
+      const speedMultiplier = timeSpeed;
+
+      const dir = new THREE.Vector3();
+      camera.getWorldDirection(dir);
+      const side = new THREE.Vector3().crossVectors(camera.up, dir).normalize();
+
+      const accel = new THREE.Vector3();
+      if (moveState.forward) accel.addScaledVector(dir, acceleration * speedMultiplier);
+      if (moveState.back) accel.addScaledVector(dir, -acceleration * speedMultiplier);
+      // FIXED: Swapped signs for correct Left/Right strafing
+      if (moveState.left) accel.addScaledVector(side, acceleration * speedMultiplier);
+      if (moveState.right) accel.addScaledVector(side, -acceleration * speedMultiplier);
+      if (moveState.up) accel.y += acceleration * speedMultiplier;
+      if (moveState.down) accel.y -= acceleration * speedMultiplier;
+
+      velocity.add(accel);
+      velocity.multiplyScalar(deceleration);
+      if (velocity.length() > maxSpeed) velocity.setLength(maxSpeed);
+
+      camera.position.add(velocity);
+      controls.target.add(velocity);
+      
+      // Rotación de cámara con flechas (360°)
+      if (moveState.rotateLeft) {
+        camera.rotation.y += rotationSpeed * speedMultiplier;
+      }
+      if (moveState.rotateRight) {
+        camera.rotation.y -= rotationSpeed * speedMultiplier;
+      }
+      if (moveState.rotateUp) {
+        camera.rotation.x += rotationSpeed * speedMultiplier;
+      }
+      if (moveState.rotateDown) {
+        camera.rotation.x -= rotationSpeed * speedMultiplier;
+      }
+      
+      // SOLO actualizar OrbitControls si NO estamos en modo inmersivo
+      // Esto permite rotación libre de 360° sin que OrbitControls la sobrescriba
+      if (!isImmersionMode) {
+        controls.update();
+      }
+
+      if (centralSingularity) {
+        // Rotate accretion disk
+        if (centralSingularity.userData.disk) {
+          centralSingularity.userData.disk.rotation.y += 0.005 * speedMultiplier;
         }
-        .hud-header:hover { background: rgba(0,242,255,0.1); }
-        .hud-title { margin: 0; font-size: 0.75rem; color: var(--text-cyan); font-weight: bold; letter-spacing: 1.5px; }
-        .hud-content { padding: 12px; transition: max-height 0.4s ease, opacity 0.3s ease; }
-        .hud-module { opacity: 0.2; transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); transform: scale(0.95); filter: blur(2px); }
-        .hud-module:hover, .hud-module.active { opacity: 1; transform: scale(1); filter: blur(0); box-shadow: 0 0 30px rgba(0, 242, 255, 0.3); z-index: 2000; }
+        // Pulse photon sphere
+        if (centralSingularity.userData.photonSphere) {
+          const pulse = Math.sin(Date.now() * 0.001) * 0.05 + 0.15;
+          centralSingularity.userData.photonSphere.material.opacity = pulse;
+        }
+      }
+
+      // Animar líneas Matrix si están activas
+      if (matrixLines && matrixModeActive) {
+        matrixLines.rotation.y += 0.001 * speedMultiplier;
         
-        /* Synchronized Focus: Dim others when one is hovered */
-        body:has(.hud-module:hover) .hud-module:not(:hover) { opacity: 0.1; filter: blur(5px); transform: scale(0.9); }
-        body:has(.hud-module:hover) #canvas-container { filter: brightness(0.4) saturate(0.5); transition: 0.5s; }
-        #canvas-container { transition: 0.8s; }
+        if (isFiestaMode && audioInitialized && analyser) {
+          // FIESTA MODE: React to audio
+          analyser.getByteFrequencyData(dataArray);
+          
+          // Calculate average volume (bass focused)
+          let sum = 0;
+          const bassRange = 20; // First 20 bins
+          for(let i = 0; i < bassRange; i++) {
+            sum += dataArray[i];
+          }
+          const average = sum / bassRange;
+          const normalizedVol = average / 255; // 0.0 to 1.0
+          
+          // Modulate color and opacity based on volume
+          // Bass kicks -> shift hue drastically
+          // Volume -> Brightness/Opacity
+          
+          const time = Date.now() * 0.002;
+          const hue = (time + normalizedVol * 0.5) % 1; 
+          const saturation = 0.8 + (normalizedVol * 0.2);
+          const lightness = 0.3 + (normalizedVol * 0.7); // Beat flashes brighter
+          
+          matrixLines.material.color.setHSL(hue, saturation, lightness);
+          matrixLines.material.opacity = 0.2 + (normalizedVol * 0.8); // Beat makes it opaque
+          
+        } else {
+          // DMX MODE (Default): Dynamic color cycling based on "ion flow"
+          const time = Date.now() * 0.0005;
+          const hue = (time % 1); // 0.0 to 1.0
+          const saturation = 0.8;
+          const lightness = 0.5;
+          matrixLines.material.color.setHSL(hue, saturation, lightness);
+          matrixLines.material.opacity = matrixOpacity;
+        }
+      }
 
-        .collapsed .toggle-btn { transform: rotate(-90deg); }
-        .resizer {
-            width: 12px; height: 12px; background: var(--text-cyan);
-            position: absolute; right: 0; bottom: 0; cursor: nwse-resize;
-            clip-path: polygon(100% 0, 100% 100%, 0 100%); opacity: 0.2; transition: 0.3s;
-        }
-        .resizer:hover { opacity: 1; filter: drop-shadow(0 0 5px var(--text-cyan)); }
+      // Update Titan Panel stats
+      updateTitanPanel();
 
-        #config-module { bottom: 0; left: 50%; transform: translateX(-50%) translateY(92%); width: 600px; z-index: 1000; transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s; opacity: 0.3; }
-        #config-module:hover, #config-module.active { transform: translateX(-50%) translateY(0); opacity: 1; }
-        #archetypes-module { bottom: 20px; left: 20px; width: 280px; height: auto; z-index: 102; transform: translateY(0); }
-        #log-module { bottom: 20px; right: 20px; width: 320px; height: auto; min-height: 200px; z-index: 100; transform: translateY(0); }
-        #history-list { height: 200px !important; overflow-y: auto; }
+      renderer.render(scene, camera);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🎨 THEME SYSTEM
+    // ═══════════════════════════════════════════════════════════════
+
+    const themeSelect = document.getElementById('uxTheme');
+    if (themeSelect) {
+      themeSelect.addEventListener('change', (e) => {
+        setTheme(e.target.value);
+      });
+    }
+
+    function setTheme(theme) {
+      console.log(`🎨 Theme changed to: ${theme}`);
+      
+      const nodes = pointsCloud ? pointsCloud.geometry : null;
+      
+      switch(theme) {
+        case 'PHOTON':
+          // MODO FOTÓN: Cyan electric, bright, high contrast
+          document.documentElement.style.setProperty('--text-cyan', '#00ffff');
+          document.body.style.background = '#000000';
+          
+          if (pointsCloud) {
+            pointsCloud.material.size = 6;
+            pointsCloud.material.opacity = 0.9;
+            pointsCloud.material.color = new THREE.Color(0x00ffff);
+            pointsCloud.material.vertexColors = false; // Override vertex colors
+          }
+          
+          // Matrix lines bright
+          if (matrixLines) {
+            matrixLines.material.color = new THREE.Color(0xffffff);
+            matrixLines.material.opacity = 0.5;
+          }
+          
+          showToast('⚡ MODO FOTÓN ACTIVADO');
+          break;
+          
+        case 'PARADOX':
+          // MODO 666 PARADOX: Fire, Red/Orange/Yellow, Hellish
+          document.documentElement.style.setProperty('--text-cyan', '#ff4500'); // OrangeRed
+          document.body.style.background = '#1a0500'; // Dark red/brown
+          
+          if (pointsCloud) {
+            pointsCloud.material.size = 10;
+            pointsCloud.material.opacity = 1.0;
+            pointsCloud.material.vertexColors = true;
+            
+            // Recolor nodes to fire gradient
+            const count = nodes.attributes.position.count;
+            const colors = nodes.attributes.color.array;
+            
+            for (let i = 0; i < count; i++) {
+              const r = Math.random() * 0.5 + 0.5; // 0.5-1.0 (Red)
+              const g = Math.random() * 0.5;       // 0-0.5 (Green -> Orange/Yellow)
+              const b = 0;                         // No blue
+              
+              colors[i * 3] = r;
+              colors[i * 3 + 1] = g;
+              colors[i * 3 + 2] = b;
+            }
+            nodes.attributes.color.needsUpdate = true;
+          }
+          
+          // Singularity becomes a burning sun
+          if (centralSingularity) {
+            const children = centralSingularity.children;
+            children.forEach(child => {
+              if (child.isMesh && child.geometry.type === 'SphereGeometry') {
+                 // Core becomes bright yellow/white
+                 if (child.geometry.parameters.radius === 30) {
+                   child.material.color.setHex(0xffff00);
+                 }
+                 // Glow becomes orange
+                 if (child.geometry.parameters.radius === 45) {
+                   child.material.color.setHex(0xff4500);
+                   child.material.opacity = 0.4;
+                 }
+              }
+            });
+          }
+          
+          showToast('🔥 666 PARADOX ACTIVADO');
+          break;
+          
+        case 'COSMIC':
+        default:
+          // Reset to default
+          document.documentElement.style.setProperty('--text-cyan', '#00f2ff');
+          document.body.style.background = 'var(--bg-black)';
+           
+          // Restore functionality would require reloading mechanism or storing original state
+          // For now, we just reset colors if possible or re-enable vertex colors
+          if (pointsCloud) {
+             pointsCloud.material.vertexColors = true;
+             pointsCloud.material.color = new THREE.Color(0xffffff);
+             pointsCloud.material.size = 8;
+          }
+          if (centralSingularity) {
+             // Reset singularity colors
+             centralSingularity.children[0].material.color.setHex(0x000000); // Core
+             centralSingularity.children[1].material.color.setHex(0xffffff); // Glow
+          }
+          showToast('🌌 MODO CÓSMICO RESTAURADO');
+          break;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🧠 NEURAL INTERFACE
+    // ═══════════════════════════════════════════════════════════════
+
+    let lastTime = performance.now();
+    let fps = 60;
+    let frameCount = 0;
+    let lastFpsUpdate = performance.now();
+
+    function updateTitanPanel() {
+      // FPS calculation
+      frameCount++;
+      const now = performance.now();
+      if (now - lastFpsUpdate >= 1000) {
+        fps = Math.round(frameCount * 1000 / (now - lastFpsUpdate));
+        frameCount = 0;
+        lastFpsUpdate = now;
         
-        #node-info-mini { bottom: 280px; right: 20px; transform: none; left: auto; width: 300px; z-index: 101; display: none; }
-        #neural-panel { top: 20px; left: 50%; width: 320px; transform: translateX(-105%); border-color: var(--text-cyan); }
-        #dna-panel { top: 20px; left: 50%; width: 260px; transform: translateX(5%); border-color: #ff4500; }
-        #code-terminal { bottom: 20px; left: 320px; width: 300px; border-color: #00ff41; }
-        #body-scan { bottom: 20px; right: 360px; width: 280px; border-color: #ff00ff; text-align: center; }
+        const fpsEl = document.getElementById('titan-fps');
+        if (fpsEl) {
+          fpsEl.textContent = fps;
+          fpsEl.className = 'titan-stat-value';
+          if (fps < 30) fpsEl.classList.add('danger');
+          else if (fps < 50) fpsEl.classList.add('warning');
+        }
+      }
+
+      // Node count
+      const nodesEl = document.getElementById('titan-nodes');
+      if (nodesEl && pointsCloud) {
+        const count = pointsCloud.geometry.attributes.position.count;
+        nodesEl.textContent = count.toLocaleString();
+      }
+
+      // Memory usage
+      const memEl = document.getElementById('titan-memory');
+      if (memEl && performance.memory) {
+        const mb = (performance.memory.usedJSHeapSize / 1048576).toFixed(1);
+        memEl.textContent = mb + ' MB';
+      }
+
+      // Speed
+      const speedEl = document.getElementById('titan-speed');
+      if (speedEl) {
+        if (isPaused) {
+          speedEl.textContent = 'PAUSED';
+          speedEl.className = 'titan-stat-value warning';
+        } else {
+          speedEl.textContent = 'x' + timeSpeed.toFixed(1);
+          speedEl.className = 'titan-stat-value';
+        }
+      }
+    }
+
+    function enterCosmicOS() {
+      gsap.to("#intro-overlay", {opacity:0, duration:1.2, onComplete:() => {
+        document.getElementById('intro-overlay').style.display = 'none';
+        initEngine();
+      }});
+    }
+
+    function invokeCaos() {
+      const randomSeed = availableSeeds[Math.floor(Math.random() * availableSeeds.length)];
+      currentUniverseSeed = randomSeed;
+      loadUniverse(randomSeed);
+    }
+
+    function invokeFusion() {
+      const seedCount = parseInt(document.getElementById('seedSlider').value);
+      const seeds = [];
+      for (let i = 0; i < seedCount; i++) {
+        seeds.push(availableSeeds[Math.floor(Math.random() * availableSeeds.length)]);
+      }
+      console.log('FUSION MODE:', seeds);
+      loadMultipleSeeds(seeds);
+    }
+
+    async function loadMultipleSeeds(seeds) {
+      document.getElementById('loading-overlay').style.display = 'flex';
+      
+      if (pointsCloud) scene.remove(pointsCloud);
+      
+      const allNodes = [];
+      const offsetDistance = 2000;
+      
+      for (let i = 0; i < seeds.length; i++) {
+        try {
+          const res = await fetch(`web/data_seed_${seeds[i]}.json`);
+          if (!res.ok) continue;
+          const data = await res.json();
+          
+          if (data.nodes) {
+            const angle = (i / seeds.length) * Math.PI * 2;
+            const offsetX = Math.cos(angle) * offsetDistance;
+            const offsetZ = Math.sin(angle) * offsetDistance;
+            
+            const hue = (i / seeds.length) * 360;
+            const color = new THREE.Color();
+            color.setHSL(hue / 360, 0.8, 0.6);
+            
+            data.nodes.forEach(n => {
+              const p = n.position || [Math.random()*2000-1000, Math.random()*1000-500, Math.random()*2000-1000];
+              allNodes.push({
+                x: p[0] + offsetX,
+                y: p[1],
+                z: p[2] + offsetZ,
+                r: color.r,
+                g: color.g,
+                b: color.b
+              });
+            });
+          }
+        } catch (e) {
+          console.error(`Error loading seed ${seeds[i]}:`, e);
+        }
+      }
+      
+      const positions = new Float32Array(allNodes.length * 3);
+      const colors = new Float32Array(allNodes.length * 3);
+      
+      allNodes.forEach((n, i) => {
+        positions[i * 3] = n.x;
+        positions[i * 3 + 1] = n.y;
+        positions[i * 3 + 2] = n.z;
+        colors[i * 3] = n.r;
+        colors[i * 3 + 1] = n.g;
+        colors[i * 3 + 2] = n.b;
+      });
+      
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      
+      pointsCloud = new THREE.Points(
+        geometry,
+        new THREE.PointsMaterial({
+          size: 8,
+          vertexColors: true,
+          transparent: true,
+          opacity: 0.8
+        })
+      );
+      
+      scene.add(pointsCloud);
+      document.getElementById('loading-overlay').style.display = 'none';
+      
+      showToast(`${seeds.length} universos fusionados`);
+    }
+
+    function resetCamera() {
+      if (camera && controls) {
+        camera.position.set(0, 500, 1500);
+        controls.target.set(0, 0, 0);
+        velocity.set(0, 0, 0);
+        controls.update();
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🟢 MATRIX MODE - FULL MESH INTERCONNECTION
+    // ═══════════════════════════════════════════════════════════════
+
+    function createMatrixLines() {
+      if (!pointsCloud || !scene) return;
+      
+      removeMatrixLines(); // Limpiar líneas anteriores
+      
+      const positions = pointsCloud.geometry.attributes.position.array;
+      const nodeCount = positions.length / 3;
+      
+      // Crear todas las conexiones (full mesh)
+      const linePositions = [];
+      for (let i = 0; i < nodeCount; i++) {
+        for (let j = i + 1; j < nodeCount; j++) {
+          // Línea de nodo i a nodo j
+          linePositions.push(
+            positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2],
+            positions[j * 3], positions[j * 3 + 1], positions[j * 3 + 2]
+          );
+        }
+      }
+      
+      const lineGeometry = new THREE.BufferGeometry();
+      lineGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(linePositions), 3));
+      
+      const lineMaterial = new THREE.LineBasicMaterial({
+        color: matrixColor,
+        opacity: matrixOpacity,
+        transparent: true,
+        linewidth: 1
+      });
+      
+      matrixLines = new THREE.LineSegments(lineGeometry, lineMaterial);
+      scene.add(matrixLines);
+      
+      console.log(`🟢 MATRIX MODE: ${nodeCount} nodos, ${linePositions.length / 6} líneas`);
+    }
+
+    function removeMatrixLines() {
+      if (matrixLines && scene) {
+        scene.remove(matrixLines);
+        matrixLines.geometry.dispose();
+        matrixLines.material.dispose();
+        matrixLines = null;
+      }
+    }
+
+    function updateMatrixColor() {
+      if (matrixLines) {
+        matrixLines.material.color.setHex(matrixColor);
+      }
+    }
+
+    function updateMatrixOpacity() {
+      if (matrixLines) {
+        matrixLines.material.opacity = matrixOpacity;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // ⏱️ TEMPORAL SPEED CONTROL
+    // ═══════════════════════════════════════════════════════════════
+
+    function setSpeed(speed) {
+      timeSpeed = speed;
+      isPaused = (speed === 0);
+      
+      // Update displays
+      const display = document.getElementById('speed-display');
+      const sliderDisplay = document.getElementById('speedSliderDisplay');
+      const slider = document.getElementById('speedSlider');
+      
+      if (display) {
+        if (isPaused) {
+          display.textContent = '⏸ PAUSED';
+          display.style.color = 'var(--text-red)';
+        } else if (speed < 0) {
+          display.textContent = `◀ ${speed}x`;
+          display.style.color = 'var(--text-magenta)';
+        } else {
+          display.textContent = `▶ ${speed}x`;
+          display.style.color = 'var(--text-cyan)';
+        }
+      }
+      
+      if (sliderDisplay) sliderDisplay.textContent = speed.toFixed(1);
+      if (slider) slider.value = speed;
+      
+      // Highlight active button
+      document.querySelectorAll('.temporal-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      console.log(`⏱️ Velocidad: ${isPaused ? 'PAUSED' : speed + 'x'}`);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🧭 QUICK NAVIGATION
+    // ═══════════════════════════════════════════════════════════════
+
+    function goToSingularity() {
+      if (!camera) return;
+      
+      gsap.to(camera.position, {
+        x: 200,
+        y: 100,
+        z: 200,
+        duration: 2,
+        ease: 'power2.inOut',
+        onUpdate: () => {
+          controls.target.set(0, 0, 0);
+          controls.update();
+        },
+        onComplete: () => {
+          showToast('🌌 Llegaste a la Singularidad');
+        }
+      });
+    }
+
+    function escapeGravity() {
+      if (!camera) return;
+      
+      gsap.to(camera.position, {
+        x: 5000,
+        y: 3000,
+        z: 5000,
+        duration: 3,
+        ease: 'power2.out',
+        onUpdate: () => {
+          controls.target.set(0, 0, 0);
+          controls.update();
+        },
+        onComplete: () => {
+          showToast('🚀 Escapaste de la gravedad');
+        }
+      });
+    }
+
+    function goToNearestNode() {
+      if (!pointsCloud || !camera) return;
+      
+      const positions = pointsCloud.geometry.attributes.position.array;
+      const camPos = camera.position;
+      
+      let nearestDist = Infinity;
+      let nearestPos = null;
+      
+      for (let i = 0; i < positions.length; i += 3) {
+        const x = positions[i];
+        const y = positions[i + 1];
+        const z = positions[i + 2];
         
-        #waveform { width: 100%; height: 50px; border-bottom: 1px solid rgba(0,242,255,0.1); }
-        .dna-helix-ui { 
-            width: 80px; height: 100px; margin: 0 auto; 
-            background: linear-gradient(to bottom, transparent, rgba(255, 69, 0, 0.05)); 
-            position: relative; overflow: hidden;
+        const dist = Math.sqrt(
+          Math.pow(x - camPos.x, 2) +
+          Math.pow(y - camPos.y, 2) +
+          Math.pow(z - camPos.z, 2)
+        );
+        
+        if (dist < nearestDist) {
+          nearestDist = dist;
+          nearestPos = { x, y, z };
         }
-        .dna-dot {
-            position: absolute; width: 4px; height: 4px; border-radius: 50%;
-            background: #ff4500; filter: blur(1px);
+      }
+      
+      if (nearestPos) {
+        const direction = new THREE.Vector3(
+          camPos.x - nearestPos.x,
+          camPos.y - nearestPos.y,
+          camPos.z - nearestPos.z
+        ).normalize();
+        
+        const targetPos = {
+          x: nearestPos.x + direction.x * 100,
+          y: nearestPos.y + direction.y * 100,
+          z: nearestPos.z + direction.z * 100
+        };
+        
+        gsap.to(camera.position, {
+          x: targetPos.x,
+          y: targetPos.y,
+          z: targetPos.z,
+          duration: 1.5,
+          ease: 'power2.inOut',
+          onUpdate: () => {
+            controls.target.set(nearestPos.x, nearestPos.y, nearestPos.z);
+            controls.update();
+          },
+          onComplete: () => {
+            showToast('🎯 Nodo más cercano alcanzado');
+          }
+        });
+      }
+    }
+
+    function goToRandomPosition() {
+      if (!camera) return;
+      
+      const randomPos = {
+        x: (Math.random() - 0.5) * 4000,
+        y: (Math.random() - 0.5) * 2000,
+        z: (Math.random() - 0.5) * 4000
+      };
+      
+      gsap.to(camera.position, {
+        x: randomPos.x,
+        y: randomPos.y,
+        z: randomPos.z,
+        duration: 2,
+        ease: 'power2.inOut',
+        onUpdate: () => {
+          controls.target.set(0, 0, 0);
+          controls.update();
+        },
+        onComplete: () => {
+          showToast('🎲 Posición aleatoria');
+        }
+      });
+    }
+
+    function toggleImmersionMode() {
+      isImmersionMode = !isImmersionMode;
+      document.body.style.cursor = isImmersionMode ? 'none' : 'default';
+      
+      const hud = document.querySelector('.hud-module');
+      const toggle = document.querySelector('.immersion-toggle');
+      const temporalControls = document.getElementById('temporal-controls');
+      
+      if (hud) hud.style.display = isImmersionMode ? 'none' : 'block';
+      
+      // Toggle siempre visible, solo cambia opacidad
+      if (toggle) {
+        toggle.style.opacity = isImmersionMode ? '0.5' : '1';
+        toggle.textContent = isImmersionMode ? 'Exit Immersion [H]' : 'Immersion [H]';
+      }
+      
+      // CRITICAL: Disable OrbitControls in immersive mode
+      if (controls) {
+        controls.enabled = !isImmersionMode;
+      }
+      
+      // Temporal controls SOLO en modo inmersivo
+      if (temporalControls) {
+        temporalControls.style.display = isImmersionMode ? 'block' : 'none';
+      }
+      
+      // 🌌 ZOOM OUT AL ENTRAR EN MODO INMERSIVO
+      if (isImmersionMode && camera) {
+        // Guardar posición actual
+        const currentPos = camera.position.clone();
+        
+        // Calcular punto más lejano visible (vista panorámica)
+        const farDistance = 3000; // Distancia lejana
+        const direction = new THREE.Vector3(1, 1, 1).normalize(); // Diagonal
+        const farPos = direction.multiplyScalar(farDistance);
+        
+        // Animar cámara hacia posición lejana
+        gsap.to(camera.position, {
+          x: farPos.x,
+          y: farPos.y,
+          z: farPos.z,
+          duration: 2,
+          ease: 'power2.inOut',
+          onUpdate: () => {
+            controls.target.set(0, 0, 0); // Mirar al centro
+            controls.update();
+          },
+          onComplete: () => {
+            console.log('🌌 Vista panorámica activada - Listo para explorar');
+          }
+        });
+      }
+      
+      console.log(isImmersionMode ? '🌌 IMMERSION ON - Temporal controls habilitados' : '🌌 IMMERSION OFF');
+    }
+
+    // Event listeners (se ejecutan después de cargar DOM)
+    document.addEventListener('DOMContentLoaded', () => {
+      // Sliders
+      document.getElementById('nodeSlider')?.addEventListener('input', e => {
+        document.getElementById('nodeDisplay').textContent = e.target.value;
+      });
+      document.getElementById('seedSlider')?.addEventListener('input', e => {
+        document.getElementById('seedDisplay').textContent = e.target.value;
+      });
+
+      // Matrix Mode Toggle
+      document.getElementById('matrixMode')?.addEventListener('change', e => {
+        matrixModeActive = e.target.checked;
+        const controls = document.getElementById('matrixControls');
+        if (controls) controls.style.display = matrixModeActive ? 'block' : 'none';
+        
+        if (matrixModeActive) {
+          createMatrixLines();
+        } else {
+          removeMatrixLines();
+        }
+      });
+
+      // Matrix Color Preset
+      document.getElementById('matrixColorPreset')?.addEventListener('change', e => {
+        const customGroup = document.getElementById('customColorGroup');
+        if (e.target.value === 'custom') {
+          customGroup.style.display = 'block';
+          const picker = document.getElementById('matrixColorPicker');
+          matrixColor = parseInt(picker.value.replace('#', '0x'));
+        } else {
+          customGroup.style.display = 'none';
+          matrixColor = parseInt(e.target.value.replace('#', '0x'));
+        }
+        updateMatrixColor();
+      });
+
+      // Fiesta Mode Toggle
+      document.getElementById('fiestaMode')?.addEventListener('change', e => {
+        isFiestaMode = e.target.checked;
+        if (isFiestaMode) {
+          initAudio();
+          // Ensure Matrix is on
+          if (!matrixModeActive) {
+            document.getElementById('matrixMode').click();
+          }
+        }
+      });
+
+      // Matrix Custom Color Picker
+      document.getElementById('matrixColorPicker')?.addEventListener('input', e => {
+        matrixColor = parseInt(e.target.value.replace('#', '0x'));
+        updateMatrixColor();
+      });
+
+      // Matrix Opacity
+      document.getElementById('matrixOpacity')?.addEventListener('input', e => {
+        matrixOpacity = parseFloat(e.target.value);
+        document.getElementById('matrixOpacityDisplay').textContent = matrixOpacity;
+        updateMatrixOpacity();
+      });
+
+      // ═══════════════════════════════════════════════════════════════
+      // ⏱️ TEMPORAL CONTROLS
+      // ═══════════════════════════════════════════════════════════════
+
+      document.getElementById('speedSlider')?.addEventListener('input', e => {
+        const speed = parseFloat(e.target.value);
+        setSpeed(speed);
+      });
+
+      // Teclado con controles configurables
+      document.addEventListener('keydown', e => {
+        const k = e.key.toLowerCase();
+        
+        // Movimiento direccional (WASD)
+        if (k === keyBindings.forward) moveState.forward = 1;
+        if (k === keyBindings.back) moveState.back = 1;
+        if (k === keyBindings.left) moveState.left = 1;
+        if (k === keyBindings.right) moveState.right = 1;
+        if (k === keyBindings.up) moveState.up = 1;
+        if (k === keyBindings.down) moveState.down = 1;
+        
+        // Rotación de cámara (Flechas)
+        if (k === 'arrowleft') moveState.rotateLeft = 1;
+        if (k === 'arrowright') moveState.rotateRight = 1;
+        if (k === 'arrowup') moveState.rotateUp = 1;
+        if (k === 'arrowdown') moveState.rotateDown = 1;
+        
+        // Speed boost
+        if (k === keyBindings.speedBoost) {
+          speedBoost = 2.0;
+          acceleration = 9.0;
+          maxSpeed = 90;
         }
         
-        .code-feed { color: #00ff41; font-size: 0.65rem; height: 120px; overflow: hidden; opacity: 0.8; font-family: monospace; }
-        #cockpit-frame {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            pointer-events: none; z-index: 5;
-            box-shadow: inset 0 0 150px rgba(0,0,0,0.9), inset 0 0 50px rgba(0,242,255,0.05);
-            border: 15px solid transparent; border-image: linear-gradient(45deg, #050505, #111) 1;
+        // Acciones
+        if (k === keyBindings.immersion || k === 'l') toggleImmersionMode();
+        if (k === keyBindings.resetCamera) resetCamera();
+        if (k === '?' || k === '/') openTutorial();
+      });
+
+      document.addEventListener('keyup', e => {
+        const k = e.key.toLowerCase();
+        
+        // Movimiento direccional
+        if (k === keyBindings.forward) moveState.forward = 0;
+        if (k === keyBindings.back) moveState.back = 0;
+        if (k === keyBindings.left) moveState.left = 0;
+        if (k === keyBindings.right) moveState.right = 0;
+        if (k === keyBindings.up) moveState.up = 0;
+        if (k === keyBindings.down) moveState.down = 0;
+        
+        // Rotación de cámara
+        if (k === 'arrowleft') moveState.rotateLeft = 0;
+        if (k === 'arrowright') moveState.rotateRight = 0;
+        if (k === 'arrowup') moveState.rotateUp = 0;
+        if (k === 'arrowdown') moveState.rotateDown = 0;
+        
+        // Speed boost
+        if (k === keyBindings.speedBoost) {
+          speedBoost = 1.0;
+          acceleration = 4.5;
+          maxSpeed = 45;
         }
-        #intro-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: black; z-index: 10000; display: flex;
-            align-items: center; justify-content: center; cursor: pointer;
+      });
+
+      });
+
+      // ═══════════════════════════════════════════════════════════════
+      // 🎮 GAMEPAD / JOYSTICK SUPPORT
+      // ═══════════════════════════════════════════════════════════════
+
+      let gamepadConnected = false;
+      let gamepadIndex = null;
+
+      window.addEventListener('gamepadconnected', (e) => {
+        gamepadConnected = true;
+        gamepadIndex = e.gamepad.index;
+        console.log(`🎮 Gamepad conectado: ${e.gamepad.id}`);
+        showToast(`🎮 Gamepad conectado: ${e.gamepad.id}`);
+      });
+
+      window.addEventListener('gamepaddisconnected', (e) => {
+        gamepadConnected = false;
+        gamepadIndex = null;
+        console.log('🎮 Gamepad desconectado');
+      });
+
+      function updateGamepad() {
+        if (!gamepadConnected || gamepadIndex === null) return;
+
+        const gamepads = navigator.getGamepads();
+        const gamepad = gamepads[gamepadIndex];
+        if (!gamepad) return;
+
+        // Stick izquierdo: Movimiento horizontal/vertical
+        const leftX = gamepad.axes[0]; // -1 (izq) a +1 (der)
+        const leftY = gamepad.axes[1]; // -1 (arriba) a +1 (abajo)
+
+        // Stick derecho: Rotación cámara
+        const rightX = gamepad.axes[2];
+        const rightY = gamepad.axes[3];
+
+        // Deadzone para evitar drift
+        const deadzone = 0.15;
+
+        // Movimiento con stick izquierdo
+        if (Math.abs(leftX) > deadzone) {
+          moveState.left = leftX < 0 ? -leftX : 0;
+          moveState.right = leftX > 0 ? leftX : 0;
+        } else {
+          moveState.left = 0;
+          moveState.right = 0;
         }
-        #loading-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 9000; display: none;
-            align-items: center; justify-content: center; font-weight: bold;
-            color: var(--text-cyan); text-transform: uppercase; letter-spacing: 3px;
+
+        if (Math.abs(leftY) > deadzone) {
+          moveState.forward = leftY < 0 ? -leftY : 0;
+          moveState.back = leftY > 0 ? leftY : 0;
+        } else {
+          moveState.forward = 0;
+          moveState.back = 0;
         }
-        #donate-center { 
-            bottom: 0; left: 50%; transform: translateX(-50%) translateY(92%); 
-            width: 750px; transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); z-index: 50;
-            opacity: 0.3;
+
+        // Gatillos: Subir/Bajar
+        const lt = gamepad.buttons[6]?.value || 0; // L2/LT
+        const rt = gamepad.buttons[7]?.value || 0; // R2/RT
+        moveState.down = lt;
+        moveState.up = rt;
+
+        // Botones de acción
+        if (gamepad.buttons[0]?.pressed) { // A/X - Reset camera
+          resetCamera();
         }
-        #donate-center:hover { transform: translateX(-50%) translateY(0); opacity: 1; }
-    </style>
+        if (gamepad.buttons[1]?.pressed) { // B/Circle - Toggle immersion
+          toggleImmersionMode();
+        }
+        if (gamepad.buttons[2]?.pressed) { // X/Square - CAOS
+          invokeCaos();
+        }
+        if (gamepad.buttons[3]?.pressed) { // Y/Triangle - Matrix toggle
+          const matrixCheckbox = document.getElementById('matrixMode');
+          if (matrixCheckbox) matrixCheckbox.click();
+        }
+      }
+
+      // Llamar updateGamepad en cada frame
+      function gamepadLoop() {
+        updateGamepad();
+        requestAnimationFrame(gamepadLoop);
+      }
+      gamepadLoop();
+
+      // ═══════════════════════════════════════════════════════════════
+      // ⚙️ SETTINGS PANEL FUNCTIONS
+      // ═══════════════════════════════════════════════════════════════
+
+      function openSettings() {
+        document.getElementById('settings-panel').style.display = 'flex';
+        updateKeyBindingsUI();
+      }
+
+      function closeSettings() {
+        document.getElementById('settings-panel').style.display = 'none';
+        saveKeyBindings();
+      }
+
+      function openTutorial() {
+        document.getElementById('tutorial-overlay').style.display = 'flex';
+      }
+
+      function closeTutorial() {
+        document.getElementById('tutorial-overlay').style.display = 'none';
+      }
+
+      function updateKeyBindingsUI() {
+        const container = document.getElementById('key-bindings-list');
+        const labels = {
+          forward: 'Adelante',
+          back: 'Atrás',
+          left: 'Izquierda',
+          right: 'Derecha',
+          up: 'Subir',
+          down: 'Bajar',
+          rotateLeft: 'Rotar Izq',
+          rotateRight: 'Rotar Der',
+          speedBoost: 'Speed Boost',
+          immersion: 'Immersion',
+          resetCamera: 'Reset Cámara'
+        };
+
+        container.innerHTML = '';
+        for (const [action, key] of Object.entries(keyBindings)) {
+          const div = document.createElement('div');
+          div.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(0,242,255,0.05);border:1px solid var(--glass-border);border-radius:4px;';
+          div.innerHTML = `
+            <span style="color:#888;">${labels[action] || action}</span>
+            <button onclick="rebindKey('${action}')" style="width:auto;padding:5px 15px;background:rgba(0,242,255,0.2);border:1px solid var(--text-cyan);color:var(--text-cyan);text-transform:uppercase;">
+              ${keyBindings[action] === ' ' ? 'SPACE' : keyBindings[action].toUpperCase()}
+            </button>
+          `;
+          container.appendChild(div);
+        }
+      }
+
+      let rebindingAction = null;
+
+      function rebindKey(action) {
+        rebindingAction = action;
+        showToast('⌨️ Presiona la nueva tecla para ' + action, 5000);
+        
+        const listener = (e) => {
+          e.preventDefault();
+          const newKey = e.key.toLowerCase();
+          keyBindings[action] = newKey;
+          updateKeyBindingsUI();
+          rebindingAction = null;
+          document.removeEventListener('keydown', listener);
+          showToast(`✅ ${action} → ${newKey === ' ' ? 'SPACE' : newKey.toUpperCase()}`);
+        };
+        
+        document.addEventListener('keydown', listener);
+      }
+
+      // Toast notification helper
+      function showToast(message, duration = 3000) {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+          position:fixed; top:80px; right:20px; z-index:10000;
+          background:rgba(0,242,255,0.2); border:1px solid var(--text-cyan);
+          padding:15px 20px; border-radius:8px; color:var(--text-cyan);
+          font-size:0.9rem; pointer-events:none;
+          animation: slideIn 0.3s ease-out;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.animation = 'slideOut 0.3s ease-in';
+          setTimeout(() => toast.remove(), 300);
+        }, duration);
+      }
+
+      window.addEventListener('resize', () => {
+        if (camera) {
+          camera.aspect = innerWidth / innerHeight;
+          camera.updateProjectionMatrix();
+        }
+        if (renderer) renderer.setSize(innerWidth, innerHeight);
+      });
+
+      // ═══════════════════════════════════════════════════════════════
+      // 🚀 DOUBLE CLICK TO TRAVEL (Teleport to node/black hole)
+      // ═══════════════════════════════════════════════════════════════
+
+    // Init logic when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+       if (typeof updateKeyBindingsUI === 'function') updateKeyBindingsUI();
+    });
+  </script>
 </head>
 <body>
 
-    <div id="intro-overlay" onclick="enterCosmicOS()">
-        <div style="text-align:center;">
-            <h1 style="color:var(--text-cyan); font-size: 3rem; margin-bottom: 0;">COSMIC OS</h1>
-            <p style="color:var(--text-magenta); letter-spacing: 5px;">v3.2 THE SINGULARITY</p>
-            <div style="margin-top: 40px; color: #555;">[ CLICK TO INITIATE ]</div>
-        </div>
+  <div id="intro-overlay" onclick="enterCosmicOS()">
+    <div style="text-align:center">
+      <h1 style="color:var(--text-cyan);font-size:4rem;margin:0">COSMIC OS</h1>
+      <p style="color:var(--text-magenta);letter-spacing:6px">v3.3 CONTROL TOTAL</p>
+      <div style="margin-top:30px;color:#555">[ CLICK TO ENTER ]</div>
     </div>
+  </div>
 
-    <div id="loading-overlay">SYNCHRONIZING IONIC CHANNELS...</div>
+  <div id="loading-overlay">SYNCHRONIZING IONIC CHANNELS...</div>
 
-    <div id="canvas-container"></div>
+  <div id="canvas-container"></div>
 
-    <div id="config-module" class="hud-module">
-        <div class="hud-header" onclick="toggleModule(this)">
-            <span class="hud-title">🧠 NEURAL CONFIG</span>
-            <span class="toggle-btn">▾</span>
-        </div>
-        <div class="hud-content">
-            <div class="input-group">
-                <label>Nodos: <span id="nodeDisplay">1500</span></label>
-                <input type="range" id="nodeSlider" min="50" max="20000" value="1500" step="50">
-            </div>
-            <div class="input-group">
-                <label>Multi-Seed: <span id="seedDisplay">3</span></label>
-                <input type="range" id="seedSlider" min="1" max="10" value="3" step="1">
-            </div>
-            <div class="input-group">
-                <label>Visualización</label>
-                <select id="vizMode">
-                    <option value="ORBITAL" selected>ÓRBITA MULTI-SEED 🌌</option>
-                    <option value="ENTITY">ENTE VIAJERO (VIVO) 👾</option>
-                    <option value="BICAMERAL">CEREBRO BICAMERAL 🧠</option>
-                    <option value="CHEMICAL">COMPOSICIÓN QUÍMICA 🧪</option>
-                    <option value="FUSION">FUSIÓN MULTIVERSAL 🧬</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>Meta-Tema</label>
-                <select id="uxTheme" onchange="applyTheme()">
-                    <option value="COSMIC" selected>ABISMO CÓSMICO 🌌</option>
-                    <option value="LUZ">LUZ CELESTIAL ⚪</option>
-                    <option value="RAINBOW">NIÑO ARCOIRIS FELIZ 🌈</option>
-                    <option value="MAPUCHE">MAPUCHNE-CÓSMICO 🏔️</option>
-                    <option value="MINECRAFT">MINECRAFT 🧱</option>
-                    <option value="GAMER">GAMER RGB 🕹️</option>
-                    <option value="ABUELITO">ABUELITO 🕰️</option>
-                </select>
-            </div>
-
-            <div class="hud-title" style="margin-top: 15px; font-size:0.6rem;">⚡ IONIC SYNC</div>
-            <div class="input-group">
-                <label>Velocidad Temporal: <span id="ionicDisplay">1.0</span>x</label>
-                <input type="range" id="ionicSlider" min="-10.0" max="10.0" value="1.0" step="0.1" oninput="updateIonicSpeed(this.value)">
-            </div>
-            <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
-                <label style="font-size:0.65rem; color:#888;"><input type="checkbox" id="linesToggle" checked onchange="toggleFeature('lines', this.checked)"> Líneas</label>
-                <label style="font-size:0.65rem; color:#888;"><input type="checkbox" id="auraToggle" checked onchange="toggleFeature('aura', this.checked)"> Aura</label>
-                <label style="font-size:0.65rem; color:var(--text-green);"><input type="checkbox" id="photonsToggle" onchange="toggleFeature('photons', this.checked)"> Fotones</label>
-                <label style="font-size:0.65rem; color:var(--text-yellow);"><input type="checkbox" id="donateToggle" checked onchange="toggleFeature('donate', this.checked)"> Donaciones</label>
-                <label style="font-size:0.65rem; color:#ff4400; font-weight:bold;"><input type="checkbox" id="interstellarToggle"> INTERSTELLAR 🪐</label>
-            </div>
-
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
-                <button onclick="invokeCaos()" style="background: var(--text-magenta); color:white;">CAOS</button>
-                <button onclick="invokeFusion()" style="background: var(--text-cyan); color:black;">FUSIÓN</button>
-                <button onclick="resetCamera()" style="background: #333; border: 1px solid #555; font-size: 0.65rem;">RESET CAM 🎥</button>
-                <button onclick="invokeCoreView()" style="background:#ffd700; color:black; font-weight:bold; font-size: 0.65rem;">CORE VIEW 🧿</button>
-            </div>
-
-            <div class="hud-title" style="margin-top: 15px; font-size:0.6rem;">🚀 KINETIC CONFIG</div>
-            <div class="input-group">
-                <label>Max Speed: <span id="speedDisplay">45</span></label>
-                <input type="range" id="speedSlider" min="5" max="200" value="45" step="5" oninput="updateMovementConfig()">
-            </div>
-            <div class="input-group">
-                <label>Acceleration: <span id="accelDisplay">4.5</span></label>
-                <input type="range" id="accelSlider" min="0.5" max="20" value="4.5" step="0.5" oninput="updateMovementConfig()">
-            </div>
-
-            <div class="hud-title" style="font-size:0.6rem;">📊 SYSTEM</div>
-            <div style="font-size:0.6rem; color:#888; margin-top:5px;">
-                FPS: <span id="fps-val" style="color:var(--text-green)">60</span> | 
-                CPU: <span id="cpu-val" style="color:var(--text-cyan)">--</span>% |
-                RAM: <span id="ram-val" style="color:var(--text-magenta)">--</span>GB
-            </div>
-            <div class="vitality-bar"><div id="cpu-fill" class="vitality-fill" style="background:var(--text-cyan); width:0%;"></div></div>
-        </div>
+  <!-- Titan Panel - Stats Bar -->
+  <div id="titan-panel">
+    <div class="titan-stat">
+      <span class="titan-stat-label">FPS</span>
+      <span id="titan-fps" class="titan-stat-value">60</span>
     </div>
-
-    <div id="archetypes-module" class="hud-module">
-        <div class="hud-header" onclick="toggleModule(this)">
-            <span class="hud-title">🔱 ELDER ENTITIES</span>
-            <span class="toggle-btn">▾</span>
-        </div>
-        <div class="hud-content">
-            <div id="archetype-list">
-                <div style="color:#666; font-size:0.7rem;">Synchronizing Ancient Seeds...</div>
-            </div>
-        </div>
+    
+    <div class="titan-divider"></div>
+    
+    <div class="titan-stat">
+      <span class="titan-stat-label">Nodes</span>
+      <span id="titan-nodes" class="titan-stat-value">0</span>
     </div>
-
-    <div id="log-module" class="hud-module">
-        <div class="hud-header" onclick="toggleModule(this)">
-            <span class="hud-title">📜 AKASHIC HISTORY</span>
-            <span class="toggle-btn">▾</span>
-        </div>
-        <div class="hud-content">
-            <div id="history-list"></div>
-        </div>
+    
+    <div class="titan-divider"></div>
+    
+    <div class="titan-stat">
+      <span class="titan-stat-label">Horror</span>
+      <span id="titan-horror" class="titan-stat-value">0</span>
     </div>
-
-    <div id="node-info-mini" class="hud-module">
-        <div class="hud-header">
-            <span class="hud-title">📡 NODE DATA</span>
-            <button onclick="this.closest('.hud-module').style.display='none'" style="width:20px; height:20px; padding:0; background:none; color:#888;">×</button>
-        </div>
-        <div class="hud-content">
-            <div id="mini-label" style="font-weight:bold; font-size:1rem; color:var(--text-cyan);"></div>
-            <div id="mini-desc" style="font-size:0.75rem; color:#aaa; margin-top:5px;"></div>
-            <div id="mini-horror" style="color:var(--text-red); font-size:0.8rem; margin-top:5px;"></div>
-            <div style="margin-top:10px; display:flex; gap:5px;">
-                <input type="number" id="branchCount" value="5" style="width:40px; background:#111; border:1px solid #333; color:white; font-size:0.8rem;">
-                <button id="branchBtn" style="background:none; border:1px solid var(--text-cyan); color:var(--text-cyan); font-size:0.7rem;">RAMIFICAR</button>
-            </div>
-        </div>
+    
+    <div class="titan-divider"></div>
+    
+    <div class="titan-stat">
+      <span class="titan-stat-label">Memory</span>
+      <span id="titan-memory" class="titan-stat-value">0 MB</span>
     </div>
-
-    <div id="neural-panel" class="hud-module">
-        <div class="hud-header" onclick="toggleModule(this)">
-            <span class="hud-title">🧠 NEURAL EEG SYNC</span>
-            <span class="toggle-btn">▾</span>
-        </div>
-        <div class="hud-content">
-            <canvas id="waveform"></canvas>
-            <div style="font-size:0.6rem; color:#555; text-align:center;">Resonance: 1.565.9 Hz</div>
-        </div>
+    
+    <div class="titan-divider"></div>
+    
+    <div class="titan-stat">
+      <span class="titan-stat-label">Speed</span>
+      <span id="titan-speed" class="titan-stat-value">x1.0</span>
     </div>
-
-    <div id="dna-panel" class="hud-module">
-        <div class="hud-header" onclick="toggleModule(this)">
-            <span class="hud-title">🧬 DNA HORROR</span>
-            <span class="toggle-btn">▾</span>
-        </div>
-        <div class="hud-content">
-            <div class="dna-helix-ui" id="mini-helix"></div>
-            <div style="font-size:0.6rem; color:#555; text-align:center;">Mapping [REDACTED]</div>
-        </div>
+    
+    <div class="titan-divider"></div>
+    
+    <div class="titan-stat">
+      <span class="titan-stat-label">Mode</span>
+      <span id="titan-mode" class="titan-stat-value">LOADING</span>
     </div>
-
-    <div id="code-terminal" class="hud-module">
-        <div class="hud-header" onclick="toggleModule(this)">
-            <span class="hud-title">💻 GARGANTUA.LOG</span>
-            <span class="toggle-btn">▾</span>
-        </div>
-        <div class="hud-content">
-            <div class="code-feed" id="terminal-feed"></div>
-        </div>
+    
+    <div class="titan-divider"></div>
+    
+    <div class="titan-stat">
+      <span class="titan-stat-label">Seed</span>
+      <span id="titan-seed" class="titan-stat-value">-10</span>
     </div>
+  </div>
 
-    <div id="body-scan" class="hud-module">
-        <div class="hud-header" onclick="toggleModule(this)">
-            <span class="hud-title">👤 BODY SCAN</span>
-            <span class="toggle-btn">▾</span>
-        </div>
-        <div class="hud-content">
-            <div style="width:100px; height:130px; background:rgba(255,0,255,0.05); border:1px solid rgba(255,0,255,0.2); margin:0 auto; position:relative;">
-                <div id="scan-line" style="position:absolute; top:0; left:0; width:100%; height:2px; background:#ff00ff; box-shadow:0 0 8px #ff00ff;"></div>
-                <div style="color:#ff00ff; font-size:2rem; width:100%; height:100%; display:flex; align-items:center; justify-content:center; opacity:0.3;">👤</div>
-            </div>
-            <div style="font-size:0.6rem; color:#ff00ff; margin-top:5px;">Imprint: MODO BESTIA</div>
-        </div>
+  <!-- Seed/Mode Display - Siempre visible -->
+  <div style="position:fixed;top:50px;left:20px;z-index:1000;background:var(--glass-bg);backdrop-filter:blur(15px);border:1px solid var(--glass-border);border-radius:8px;padding:10px 15px;pointer-events:none;">
+    <div style="font-size:0.7rem;color:#666;margin-bottom:3px;">CURRENT UNIVERSE</div>
+    <div style="font-size:1rem;font-weight:bold;">
+      <span style="color:var(--text-cyan);">Seed:</span> <span id="current-seed-display" style="color:var(--text-yellow);">-10</span>
     </div>
-
-    <div id="donate-center" class="hud-module">
-        <div class="hud-header" onclick="toggleModule(this)">
-            <span class="hud-title" style="color:#ffd700; font-size: 1.1rem;">⚡ FUND THE SINGULARITY (DONATE)</span>
-            <span class="toggle-btn">▾</span>
-        </div>
-        <div class="hud-content">
-            <div class="qr-group" style="display:flex; justify-content:space-around; gap:20px;">
-                <div class="qr-box" style="text-align:center;">
-                    <img style="width:140px; filter:invert(1); border-radius: 8px;" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=156Cw5LjZoZhYYZLgVNFHLhm2yq2i2ZkMD">
-                    <div style="font-size:0.9rem; color:#ffd700; font-weight: bold; margin-top:8px;">BTC</div>
-                </div>
-                <div class="qr-box" style="text-align:center;">
-                    <img style="width:140px; filter:invert(1); border-radius: 8px;" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=0xf4484b146c877269033d53874e3cba1375baecad">
-                    <div style="font-size:0.9rem; color:#ffd700; font-weight: bold; margin-top:8px;">ETH</div>
-                </div>
-                <div class="qr-box" style="text-align:center;">
-                    <img style="width:140px; filter:invert(1); border-radius: 8px;" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=binancepay://822411544">
-                    <div style="font-size:0.9rem; color:#ffd700; font-weight: bold; margin-top:8px;">BINANCE</div>
-                </div>
-            </div>
-            <div style="color:#aaa; font-size:0.8rem; margin-top:15px; text-align:center; font-style: italic;">Eternal gratitude. Every drop fuels the Absolute Zero.</div>
-        </div>
+    <div style="font-size:0.9rem;margin-top:3px;">
+      <span style="color:var(--text-magenta);">Mode:</span> <span id="current-mode-display" style="color:var(--text-green);">LOADING...</span>
     </div>
-
-    <div id="cockpit-frame"></div>
-
-    <script>
-        let scene, camera, renderer, controls;
-        let centralSingularity, singularityHalo;
-        let accretionDisk, spiralParticles, particleVelocities;
-        let accretionRings = [];
-        let composer, distortionPass;
-        let seedGroups = [];
-        let isTransitioning = false;
-        let currentTheme = "COSMIC";
-        let lastHighlight = null;
-        let photonPoints; 
-        let miniSingularities = []; // Store hierarchical clusters
-
-        // Temporal State
-        let globalTimeScale = 1.0;
-        let virtualTime = 0;
-        let lastRealTime = performance.now() * 0.001;
-
-        // Dolphin Movement State
-        const moveState = {
-            forward: 0, back: 0, left: 0, right: 0, up: 0, down: 0,
-            velocity: new THREE.Vector3(),
-            acceleration: 4.5,
-            deceleration: 0.92,
-            maxSpeed: 45
-        };
-
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-
-        async function enterCosmicOS() {
-            console.log("🚀 [COSMIC OS] INITIATING SINGULARITY SEQUENCE...");
-            try {
-                if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(() => {});
-                }
-            } catch(e) {}
-            
-            gsap.to("#intro-overlay", { opacity: 0, duration: 1.2, onComplete: () => {
-                document.getElementById('intro-overlay').style.display = 'none';
-                console.log("⚙️ [COSMIC OS] ENGINE CORE BOOTING...");
-                initEngine();
-                invokeCaos();
-            }});
-        }
-
-        function initEngine() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x000000);
-            scene.fog = new THREE.FogExp2(0x000000, 0.001);
-
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
-            camera.position.set(0, 500, 1500);
-
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
-            document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.dampingFactor = 0.05;
-
-            // Singularity V3: Gargantua Core (Black Hole)
-            const coreGeo = new THREE.SphereGeometry(30, 64, 64);
-            const coreMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-            centralSingularity = new THREE.Mesh(coreGeo, coreMat);
-
-            // Photon Sphere / Photon Ring (Glow)
-            const glowGeo = new THREE.SphereGeometry(30.5, 64, 64);
-            const glowMat = new THREE.ShaderMaterial({
-                uniforms: {
-                    glowColor: { value: new THREE.Color(0xffffff) },
-                    viewVector: { value: camera.position }
-                },
-                vertexShader: `
-                    uniform vec3 viewVector;
-                    varying float intensity;
-                    void main() {
-                        vec3 vNormal = normalize( normalMatrix * normal );
-                        vec3 vNormel = normalize( normalMatrix * viewVector );
-                        intensity = pow( 0.6 - dot(vNormal, vNormel), 4.0 );
-                        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-                    }
-                `,
-                fragmentShader: `
-                    uniform vec3 glowColor;
-                    varying float intensity;
-                    void main() {
-                        vec3 glow = glowColor * intensity;
-                        gl_FragColor = vec4( glow, 1.0 );
-                    }
-                `,
-                side: THREE.BackSide,
-                blending: THREE.AdditiveBlending,
-                transparent: true
-            });
-            const photonSphere = new THREE.Mesh(glowGeo, glowMat);
-            centralSingularity.add(photonSphere);
-            scene.add(centralSingularity);
-
-            // Spiral Particles (Gravitational Collapse)
-            const pCount = 1200;
-            const pGeo = new THREE.BufferGeometry();
-            const pPos = new Float32Array(pCount * 3);
-            particleVelocities = new Float32Array(pCount * 3);
-
-            for (let i = 0; i < pCount; i++) {
-                const theta = Math.random() * Math.PI * 2;
-                const r = 300 + Math.random() * 600;
-                pPos[i*3] = r * Math.cos(theta);
-                pPos[i*3 + 1] = (Math.random() - 0.5) * 80;
-                pPos[i*3 + 2] = r * Math.sin(theta);
-                
-                particleVelocities[i*3] = -Math.cos(theta) * 1.5;
-                particleVelocities[i*3 + 1] = (Math.random() - 0.5) * 0.4;
-                particleVelocities[i*3 + 2] = -Math.sin(theta) * 1.5;
-            }
-            pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-            const pMat = new THREE.PointsMaterial({ size: 1.4, color: 0xffffff, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending });
-            spiralParticles = new THREE.Points(pGeo, pMat);
-            if (spiralParticles) scene.add(spiralParticles);
-
-            const nodes = document.getElementById('nodeSlider').value;
-            const seeds = document.getElementById('seedSlider').value;
-            renderAccretionDisk(nodes, seeds);
-
-            // Add point lights for illumination from the disk
-            const diskLight = new THREE.PointLight(0xffaa00, 2, 500);
-            diskLight.position.set(0, 50, 0);
-            scene.add(diskLight);
-
-            // POST-PROCESSING: Gravitational Distortion
-            composer = new THREE.EffectComposer(renderer);
-            composer.addPass(new THREE.RenderPass(scene, camera));
-
-            const distortionShader = {
-                uniforms: {
-                    tDiffuse: { value: null },
-                    center: { value: new THREE.Vector2(0.5, 0.5) },
-                    strength: { value: 0.15 }
-                },
-                vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
-                fragmentShader: `
-                    uniform sampler2D tDiffuse; uniform vec2 center; uniform float strength; varying vec2 vUv;
-                    void main() {
-                        vec2 uv = vUv;
-                        vec2 dir = uv - center;
-                        float dist = length(dir);
-                        vec2 offset = dir * (sin(dist * 12.0 - 1.0) / 15.0) * strength;
-                        gl_FragColor = texture2D(tDiffuse, uv + offset);
-                    }`
-            };
-            distortionPass = new THREE.ShaderPass(distortionShader);
-            composer.addPass(distortionPass);
-
-            initPanelDynamics();
-            updateHistory(); // Initial call
-            animate();
-            window.addEventListener('click', onMouseClick);
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            const realTime = performance.now() * 0.001;
-            const deltaTime = realTime - lastRealTime;
-            lastRealTime = realTime;
-            
-            // Accumulate Virtual Time (supports reversal & pause)
-            virtualTime += deltaTime * globalTimeScale;
-            const time = virtualTime; // Alias for compatibility with existing logic
-
-            // Dolphin Kinetic Logic
-            updateDolphinMovement();
-
-            if (centralSingularity) {
-                centralSingularity.rotation.y += 0.005;
-                centralSingularity.rotation.x += 0.003;
-                // Photon spheres are children, they animate themselves or we can pulse the whole group
-                centralSingularity.scale.setScalar(1 + Math.sin(time * 2) * 0.02);
-            }
-
-            if (accretionDisk) {
-                accretionDisk.rotation.z += 0.002;
-                accretionDisk.scale.setScalar(1 + Math.sin(time * 0.5) * 0.02);
-            }
-
-            if (spiralParticles) {
-                const posAttr = spiralParticles.geometry.attributes.position;
-                for (let i = 0; i < 1200; i++) {
-                    posAttr.array[i*3] += particleVelocities[i*3];
-                    posAttr.array[i*3 + 1] += particleVelocities[i*3 + 1];
-                    posAttr.array[i*3 + 2] += particleVelocities[i*3 + 2];
-
-                    const dist = Math.hypot(posAttr.array[i*3], posAttr.array[i*3 + 2]);
-                    if (dist < 40) {
-                        const theta = Math.random() * Math.PI * 2;
-                        const r = 600 + Math.random() * 400;
-                        posAttr.array[i*3] = r * Math.cos(theta);
-                        posAttr.array[i*3 + 1] = (Math.random() - 0.5) * 80;
-                        posAttr.array[i*3 + 2] = r * Math.sin(theta);
-                    }
-                }
-                posAttr.needsUpdate = true;
-            }
-
-            // Flujo de Información (Photons) entre redes
-            updatePhotons(time);
-
-            seedGroups.forEach((group, idx) => {
-                const speed = group.userData.orbitSpeed || 0.0005;
-                group.rotation.y += speed;
-                group.rotation.z += speed * 0.3;
-
-                // Gravitational Pull from local mini-singularities (if Interstellar Mode is on)
-                if (document.getElementById('interstellarToggle')?.checked && miniSingularities[idx]) {
-                    const sing = miniSingularities[idx];
-                    const mass = sing.userData.mass || 100;
-                    const dir = sing.position.clone().sub(group.position);
-                    const dist = dir.length();
-                    if (dist > 50) {
-                        const force = (mass / (dist * dist)) * 0.5;
-                        group.position.add(dir.normalize().multiplyScalar(force));
-                    }
-                }
-
-                // MOVIMIENTO DE ENTE (ENTITY VOYAGER)
-                if (document.getElementById('vizMode').value === "ENTITY") {
-                    const offset = idx * 1000;
-                    const p = group.userData.personality || { driftSpeed: 1, jitter: 0.1 };
-                    
-                    const timeScale = time * (p.driftSpeed || 1);
-                    group.position.x += Math.sin(timeScale * 0.5 + offset) * (2 + p.jitter);
-                    group.position.y += Math.cos(timeScale * 0.3 + offset) * (1.5 + p.jitter);
-                    group.position.z += Math.sin(timeScale * 0.4 + offset) * (2 + p.jitter);
-                    
-                    // Vibración por horror (Jitter)
-                    if (p.jitter > 0.2) {
-                        group.position.x += (Math.random() - 0.5) * p.jitter;
-                        group.position.y += (Math.random() - 0.5) * p.jitter;
-                    }
-
-                    // Rotación errática de ente
-                    group.rotation.x += Math.sin(time * 0.2) * 0.01;
-                }
-            });
-
-            // Update mini-singularities
-            miniSingularities.forEach(s => {
-                s.rotation.y += 0.01;
-                if(s.children[0]) s.children[0].scale.setScalar(1 + Math.sin(time*3)*0.1);
-            });
-
-            if (document.getElementById('interstellarToggle')?.checked) {
-                if (distortionPass) {
-                    distortionPass.enabled = true;
-                    distortionPass.uniforms.strength.value = 0.5 + Math.sin(time) * 0.2;
-                }
-                if (accretionDisk && accretionDisk.geometry && accretionDisk.geometry.attributes.position) {
-                    const pos = accretionDisk.geometry.attributes.position;
-                    const count = pos.count;
-                    for (let i = 0; i < count; i++) {
-                        const x = pos.getX(i);
-                        const y = pos.getY(i);
-                        const z = pos.getZ(i);
-                        
-                        const dist = Math.hypot(x, z);
-                        // Gravitational Lensing Visual Warp: Vertical displacement based on angle
-                        const angle = Math.atan2(z, x);
-                        const warp = Math.sin(angle + time) * (3000 / (dist + 50));
-                        pos.setY(i, warp * 0.5); 
-                    }
-                    pos.needsUpdate = true;
-                    accretionDisk.rotation.z += 0.005 * globalTimeScale; // Faster orbit
-                }
-            } else {
-                if(distortionPass) distortionPass.enabled = false;
-            }
-
-            controls.update();
-            if (composer) {
-                // Centrar distorsión en pantalla
-                composer.render();
-            } else {
-                renderer.render(scene, camera);
-            }
-        }
-
-        // ──────────────────────────────────────────────────────────────
-        // NEURAL HUD DYNAMICS
-        // ──────────────────────────────────────────────────────────────
-        // ──────────────────────────────────────────────────────────────
-        // UI HELPERS
-        // ──────────────────────────────────────────────────────────────
-        function toggleModule(header) {
-            const module = header.parentElement;
-            module.classList.toggle('collapsed');
-        }
-
-        function makeResizable(el) {
-            const resizer = document.createElement('div');
-            resizer.className = 'resizer';
-            el.appendChild(resizer);
-            
-            resizer.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                const startWidth = el.offsetWidth;
-                const startHeight = el.offsetHeight;
-                const startX = e.clientX;
-                const startY = e.clientY;
-                
-                function doResize(re) {
-                    el.style.width = (startWidth + re.clientX - startX) + 'px';
-                    // Optional: Height resize if needed, usually width is more critical for HUD
-                    const newH = (startHeight + re.clientY - startY);
-                    if (newH > 100) el.style.height = newH + 'px';
-                    
-                    const list = el.querySelector('#history-list');
-                    if(list) list.style.height = (newH - 50) + 'px';
-                }
-                
-                function stopResize() {
-                    window.removeEventListener('mousemove', doResize);
-                    window.removeEventListener('mouseup', stopResize);
-                }
-                
-                window.addEventListener('mousemove', doResize);
-                window.addEventListener('mouseup', stopResize);
-            });
-        }
-
-        function makeDraggable(el) {
-            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            const header = el.querySelector('.hud-header') || el;
-            
-            header.onmousedown = (e) => {
-                if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || 
-                    e.target.tagName === 'SELECT' || e.target.classList.contains('toggle-btn')) return;
-                
-                e = e || window.event;
-                e.preventDefault();
-                
-                el.classList.add('dragging');
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                
-                document.onmouseup = () => {
-                    el.classList.remove('dragging');
-                    document.onmouseup = null;
-                    document.onmousemove = null;
-                };
-                
-                document.onmousemove = (e) => {
-                    e = e || window.event;
-                    pos1 = pos3 - e.clientX;
-                    pos2 = pos4 - e.clientY;
-                    pos3 = e.clientX;
-                    pos4 = e.clientY;
-                    
-                    // Direct style updates for maximum "Delphi-mode" smoothness
-                    el.style.top = (el.offsetTop - pos2) + "px";
-                    el.style.left = (el.offsetLeft - pos1) + "px";
-                    el.style.bottom = "auto";
-                    el.style.right = "auto";
-                    el.style.transform = "none";
-                };
-            };
-        }
-
-        function initPanelDynamics() {
-            // Activar Draggable en todos los módulos
-            document.querySelectorAll('.hud-module').forEach(m => {
-                makeDraggable(m);
-                makeResizable(m);
-            });
-
-            const canvas = document.getElementById('waveform');
-            const ctx = canvas.getContext('2d');
-            let offset = 0;
-
-            function drawWave() {
-                ctx.clearRect(0,0, canvas.width, canvas.height);
-                ctx.strokeStyle = '#00f2ff';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                for(let x=0; x<canvas.width; x++) {
-                    const y = 25 + Math.sin(x*0.05 + offset) * 15 + (Math.random()-0.5)*5;
-                    if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-                }
-                ctx.stroke();
-                offset += 0.2;
-                requestAnimationFrame(drawWave);
-            }
-            drawWave();
-
-            // DNA Helix UI - Globally accessible for resonance
-            window.dnaDots = [];
-            const helix = document.getElementById('mini-helix');
-            for(let i=0; i<20; i++) {
-                const dot1 = document.createElement('div');
-                dot1.className = 'dna-dot';
-                const dot2 = document.createElement('div');
-                dot2.className = 'dna-dot';
-                helix.appendChild(dot1);
-                helix.appendChild(dot2);
-                
-                const anim1 = gsap.to(dot1, {
-                    left: "20%", x: 40, top: i*6, duration: 2, repeat: -1, yoyo: true, ease: "sine.inOut", delay: i*0.1
-                });
-                const anim2 = gsap.to(dot2, {
-                    left: "70%", x: -40, top: i*6, duration: 2, repeat: -1, yoyo: true, ease: "sine.inOut", delay: i*0.1
-                });
-                window.dnaDots.push({ dot1, dot2, anim1, anim2 });
-            }
-
-            // Scan line logic
-            gsap.to("#scan-line", { top: "100%", duration: 2, repeat: -1, yoyo: true, ease: "linear" });
-
-            // Terminal feed - Fake logging
-            const feed = document.getElementById('terminal-feed');
-            setInterval(() => {
-                const logs = [
-                    "[WRN] Gravitational Shear detected",
-                    "[INF] Seed Archetype synchronization",
-                    "[ERR] Dimensional leak in sector 7G",
-                    "[SYS] Recalculating Absolute Zero",
-                    "[ION] Ionic Channels: STABLE"
-                ];
-                feed.innerHTML += logs[Math.floor(Math.random()*logs.length)] + "<br>";
-                if(feed.innerHTML.split('<br>').length > 10) feed.innerHTML = feed.innerHTML.split('<br>').slice(1).join('<br>');
-                feed.scrollTop = feed.scrollHeight;
-            }, 3000);
-        }
-
-        // ──────────────────────────────────────────────────────────────
-        // DATA PHOTONS (EPIC STREAM)
-        // ──────────────────────────────────────────────────────────────
-        // Flujo de Información (Photons) entre redes
-        let photonPaths = []; // Cache de trayectorias
-        function updatePhotons(time) {
-            const show = document.getElementById('photonsToggle').checked;
-            if (!show) { if(photonPoints) { scene.remove(photonPoints); photonPoints = null; photonPaths = []; } return; }
-            
-            const count = 5000;
-            if(!photonPoints) {
-                const geo = new THREE.BufferGeometry();
-                geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(count*3), 3));
-                geo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(count*3), 3));
-                const mat = new THREE.PointsMaterial({ 
-                    size: 2.8, 
-                    vertexColors: true, 
-                    transparent: true, 
-                    opacity: 1.0, 
-                    blending: THREE.AdditiveBlending,
-                    depthWrite: false
-                });
-                photonPoints = new THREE.Points(geo, mat);
-                scene.add(photonPoints);
-                
-                // Inicializar orígenes y destinos aleatorios para cada fotón
-                photonPaths = [];
-                for(let i=0; i<count; i++) {
-                    photonPaths.push({
-                        startNodeIdx: -1,
-                        endNodeIdx: -1,
-                        fromGroup: -1,
-                        toGroup: -1
-                    });
-                }
-            }
-
-            const pos = photonPoints.geometry.attributes.position;
-            const col = photonPoints.geometry.attributes.color;
-            const seedGroupsCount = seedGroups.length;
-
-            for(let i=0; i<count; i++) {
-                const idx = i*3;
-                const seedRandom = (i * 0.9876) % 1;
-                const speedMult = 0.4 + (Math.sin(i * 0.5) * 0.2);
-                const t = (time * speedMult + seedRandom) % 1; 
-                
-                // Recalcular ruta si el t se reinicia (nuevo ciclo de fotón)
-                const pInfo = photonPaths[i];
-                if (t < 0.05 || pInfo.fromGroup === -1) {
-                    if (seedGroupsCount > 1) {
-                        pInfo.fromGroup = Math.floor(Math.random() * seedGroupsCount);
-                        pInfo.toGroup = (pInfo.fromGroup + 1 + Math.floor(Math.random() * (seedGroupsCount - 1))) % seedGroupsCount;
-                        
-                        const gFrom = seedGroups[pInfo.fromGroup];
-                        const gTo = seedGroups[pInfo.toGroup];
-                        
-                        const imeshFrom = gFrom.children.find(c => c.isInstancedMesh);
-                        const imeshTo = gTo.children.find(c => c.isInstancedMesh);
-                        
-                        if (imeshFrom && imeshTo) {
-                            pInfo.startNodeIdx = Math.floor(Math.random() * imeshFrom.count);
-                            pInfo.endNodeIdx = Math.floor(Math.random() * imeshTo.count);
-                        }
-                    } else if (seedGroupsCount === 1) {
-                        pInfo.fromGroup = 0;
-                        pInfo.toGroup = -1; // Al centro
-                        const gFrom = seedGroups[0];
-                        const imeshFrom = gFrom.children.find(c => c.isInstancedMesh);
-                        if (imeshFrom) pInfo.startNodeIdx = Math.floor(Math.random() * imeshFrom.count);
-                    }
-                }
-
-                let currentPos = new THREE.Vector3();
-                let photonVisibility = 1.0;
-
-                const gFrom = seedGroups[pInfo.fromGroup];
-                if (!gFrom) continue;
-                
-                const imeshFrom = gFrom.children.find(c => c.isInstancedMesh);
-                const startPosLocal = new THREE.Vector3();
-                if (imeshFrom && pInfo.startNodeIdx !== -1) {
-                    const matrix = new THREE.Matrix4();
-                    imeshFrom.getMatrixAt(pInfo.startNodeIdx, matrix);
-                    startPosLocal.setFromMatrixPosition(matrix);
-                }
-                const startPosWorld = startPosLocal.applyMatrix4(gFrom.matrixWorld);
-                const fromCenterWorld = gFrom.position.clone();
-
-                if (pInfo.toGroup !== -1 && seedGroups[pInfo.toGroup]) {
-                    const gTo = seedGroups[pInfo.toGroup];
-                    const imeshTo = gTo.children.find(c => c.isInstancedMesh);
-                    const endPosLocal = new THREE.Vector3();
-                    if (imeshTo && pInfo.endNodeIdx !== -1) {
-                        const matrix = new THREE.Matrix4();
-                        imeshTo.getMatrixAt(pInfo.endNodeIdx, matrix);
-                        endPosLocal.setFromMatrixPosition(matrix);
-                    }
-                    const endPosWorld = endPosLocal.applyMatrix4(gTo.matrixWorld);
-                    const toCenterWorld = gTo.position.clone();
-
-                    if (t < 0.2) {
-                        const subt = t / 0.2;
-                        currentPos.lerpVectors(startPosWorld, fromCenterWorld, subt);
-                    } else if (t < 0.8) {
-                        const subt = (t - 0.2) / 0.6;
-                        currentPos.lerpVectors(fromCenterWorld, toCenterWorld, subt);
-                    } else {
-                        const subt = (t - 0.8) / 0.2;
-                        currentPos.lerpVectors(toCenterWorld, endPosWorld, subt);
-                    }
-                } else {
-                    if (t < 0.5) {
-                        const subt = t / 0.5;
-                        currentPos.lerpVectors(startPosWorld, fromCenterWorld, subt);
-                    } else {
-                        const subt = (t - 0.5) / 0.5;
-                        currentPos.lerpVectors(fromCenterWorld, new THREE.Vector3(0,0,0), subt);
-                    }
-                }
-
-                pos.array[idx] = currentPos.x;
-                pos.array[idx+1] = currentPos.y;
-                pos.array[idx+2] = currentPos.z;
-
-                const pulse = 0.8 + Math.sin(time * 5 + i) * 0.2;
-                const brightness = photonVisibility * pulse;
-                
-                const color = new THREE.Color();
-                if (t < 0.5) color.setHSL(0.5, 1.0, 0.5); // Cyan
-                else color.setHSL(0.85, 1.0, 0.5); // Magenta/Pink
-
-                col.array[idx] = color.r * brightness;
-                col.array[idx+1] = color.g * brightness;
-                col.array[idx+2] = color.b * brightness;
-            }
-            pos.needsUpdate = true;
-            col.needsUpdate = true;
-        }
-
-        function clearGroups() {
-            seedGroups.forEach(g => {
-                g.traverse(child => {
-                    if (child.geometry) child.geometry.dispose();
-                    if (child.material) {
-                        if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
-                        else child.material.dispose();
-                    }
-                });
-                scene.remove(g);
-            });
-            seedGroups = [];
-            lastHighlight = null;
-        }
-
-        async function invokeCaos() {
-            const nodes = parseInt(document.getElementById('nodeSlider').value);
-            const seeds = parseInt(document.getElementById('seedSlider').value);
-            gsap.to("#loading-overlay", { opacity: 1, display: 'flex', duration: 0.3 });
-            clearGroups();
-            renderAccretionDisk(nodes, seeds);
-            startTime = performance.now() * 0.001;
-            isChaosMode = true;
-            try {
-                const res = await fetch(`/api/fusion?nodes=${nodes}&seeds=${seeds}`);
-                const data = await res.json(); 
-                if (data.status === 'ok') {
-                    if (data.analisis && data.analisis.clusters) {
-                        renderMiniSingularities(data.analisis.clusters);
-                    }
-                    data.graphs.forEach((g, i) => {
-                        addGraphToScene(g, i, data.graphs.length, null, false);
-                    });
-                }
-            } catch(e) { console.error(e); }
-            gsap.to("#loading-overlay", { opacity: 0, display: 'none', duration: 0.5 });
-        }
-
-        async function invokeFusion() {
-            const nodes = parseInt(document.getElementById('nodeSlider').value);
-            const seeds = parseInt(document.getElementById('seedSlider').value);
-            gsap.to("#loading-overlay", { opacity: 1, display: 'flex', duration: 0.3 });
-            clearGroups();
-            renderAccretionDisk(nodes, seeds);
-            startTime = performance.now() * 0.001;
-            isChaosMode = false;
-            try {
-                const res = await fetch(`/api/fusion?nodes=${nodes}&seeds=${seeds}`);
-                const data = await res.json(); 
-                if (data.status === 'ok') {
-                    if (data.analisis && data.analisis.clusters) {
-                        renderMiniSingularities(data.analisis.clusters);
-                    }
-                    data.graphs.forEach((g, i) => {
-                        const hue = i / data.graphs.length; 
-                        addGraphToScene(g, i, data.graphs.length, hue, true);
-                    });
-                }
-            } catch(e) { console.error(e); }
-            gsap.to("#loading-overlay", { opacity: 0, display: 'none', duration: 0.5 });
-        }
-
-        async function ramificar(id) {
-            const count = document.getElementById('branchCount').value || 5;
-            gsap.to("#loading-overlay", { opacity: 1, display: 'flex', duration: 0.3 });
-            try {
-                const res = await fetch(`/api/graph?nodes=${count}&branch=true&root_id=${id}`);
-                const data = await res.json();
-                addGraphToScene(data, seedGroups.length, seedGroups.length + 1);
-            } catch(e) { console.error(e); }
-            gsap.to("#loading-overlay", { opacity: 0, display: 'none', duration: 0.5 });
-        }
-
-        async function branchFromNode(id) {
-            const count = document.getElementById('branchCount').value || 5;
-            gsap.to("#loading-overlay", { opacity: 1, display: 'flex', duration: 0.3 });
-            try {
-                const res = await fetch(`/api/graph?nodes=${count}&branch=true&root_id=${id}`);
-                const data = await res.json();
-                addGraphToScene(data, seedGroups.length, seedGroups.length + 1);
-            } catch(e) { console.error(e); }
-            gsap.to("#loading-overlay", { opacity: 0, display: 'none', duration: 0.5 });
-        }
-
-        function addGraphToScene(data, index, total, hue = null, isFusion = false) {
-            if (!data || !data.nodes) { console.error("Invalid graph data:", data); return; }
-            const group = createGraphGroup(data, index, total, hue, isFusion);
-            if (group) {
-                applyEntityPersonality(group, data);
-                scene.add(group);
-                seedGroups.push(group);
-            }
-        }
-
-        function createGraphGroup(data, index, total, hue = null, isFusion = false) {
-            const group = new THREE.Group();
-            const nodes = data.nodes || [];
-            const edges = data.edges || [];
-            
-            // Color de la semilla: Si es fusión, usamos spectral, si no, aleatorio o temático
-            const seedCol = hue !== null ? new THREE.Color().setHSL(hue, 0.8, 0.5) : new THREE.Color().setHSL(Math.random(), 0.7, 0.5);
-            
-            group.userData.graphData = data;
-            group.userData.orbitSpeed = 0.0002 + Math.random() * 0.0005;
-
-            // CAOS: Separación radial. FUSION: Más agrupados.
-            if (total > 1) {
-                const r = isFusion ? 300 : 1200; // CAOS = 1200 (lejos), FUSION = 300 (cerca)
-                const phi = Math.acos(1 - 2 * (index / total));
-                const theta = Math.sqrt(total * Math.PI) * phi;
-                group.position.set(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi));
-            }
-
-            let geo;
-            if (currentTheme === "MINECRAFT") geo = new THREE.BoxGeometry(1, 1, 1);
-            else if (currentTheme === "MAPUCHE") geo = new THREE.IcosahedronGeometry(1.2, 0);
-            else geo = new THREE.SphereGeometry(1, 6, 6);
-
-            const mat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.85 });
-            const imesh = new THREE.InstancedMesh(geo, mat, nodes.length);
-            imesh.userData.nodes = nodes;
-            imesh.userData.originalColors = [];
-
-            const dummy = new THREE.Object3D();
-            nodes.forEach((n, i) => {
-                const pos = n.pos_3d ? new THREE.Vector3().fromArray(n.pos_3d) : randomSpherical(400);
-                dummy.position.copy(pos);
-                // ESCALADO SUB-ATÓMICO PROPORCIONAL
-                let base = 0.04; 
-                if (currentTheme === "ABUELITO") base = 0.8;
-                if (currentTheme === "RAINBOW") base = 0.15;
-                
-                // Dimensión como factor de escala (horror/100)
-                const dimFactor = (n.horror || 0) / 100;
-                const size = base + (dimFactor * 0.25);
-                dummy.scale.setScalar(size);
-                dummy.updateMatrix();
-                imesh.setMatrixAt(i, dummy.matrix);
-
-                let nCol = seedCol.clone();
-                if (currentTheme === "RAINBOW") nCol.setHSL(Math.random(), 1, 0.5);
-                else if (currentTheme === "MAPUCHE") { nCol.lerp(new THREE.Color(0x8b4513), 0.6); if(Math.random()>0.8) nCol.setHex(0x00ffff); }
-                else if (currentTheme === "MINECRAFT") nCol.setHex(Math.random()>0.5 ? 0x228b22 : 0x8b4513);
-                
-                imesh.setColorAt(i, nCol);
-                imesh.userData.originalColors.push(nCol.clone());
-            });
-
-            group.add(imesh);
-
-            const lMat = new THREE.LineBasicMaterial({ color: seedCol, transparent: true, opacity: 0.1 });
-            const lGeo = new THREE.BufferGeometry();
-            const points = [];
-            edges.forEach(e => {
-                const s = nodes.find(n => n.id === e.source);
-                const t = nodes.find(n => n.id === e.target);
-                if (s && t && s.pos_3d && t.pos_3d) {
-                    points.push(...s.pos_3d, ...t.pos_3d);
-                }
-            });
-
-            if (points.length > 0 && points.every(p => p !== undefined)) {
-                lGeo.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
-                const lines = new THREE.LineSegments(lGeo, lMat);
-                lines.name = "graphLines";
-                lines.visible = document.getElementById('linesToggle').checked;
-                group.add(lines);
-            }
-
-            return group;
-        }
-
-        function onMouseClick(event) {
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-            raycaster.setFromCamera(mouse, camera);
-
-            for (const group of seedGroups) {
-                const imesh = group.children.find(c => c.isInstancedMesh);
-                if (imesh && imesh.userData && imesh.userData.nodes) {
-                    const i = raycaster.intersectObject(imesh);
-                    if (i.length > 0 && i[0].instanceId !== undefined) {
-                        const node = imesh.userData.nodes[i[0].instanceId];
-                        if (node) selectNode(node, i[0].point, group);
-                        return;
-                    }
-                }
-            }
-        }
-
-        function selectNode(node, worldPos, group) {
-            if (!group || !group.userData.graphData) return;
-            resetHighlights();
-            const mini = document.getElementById('node-info-mini');
-            document.getElementById('mini-label').innerText = node.label;
-            document.getElementById('mini-desc').innerText = node.desc || "Resonancia profunda.";
-            document.getElementById('mini-horror').innerText = `Horror: ${Math.round(node.horror)}💀`;
-            document.getElementById('branchBtn').onclick = () => branchFromNode(node.id);
-            mini.style.display = 'block';
-            gsap.fromTo(mini, { x: -30, opacity: 0 }, { x: 0, opacity: 1 });
-
-            // DNA RESONANCE: React to horror
-            const horror = node.horror || 0;
-            const resonance = 0.5 + (horror / 50); // Speed multiplier
-            if (window.dnaDots) {
-                window.dnaDots.forEach(d => {
-                    gsap.to(d.anim1, { timeScale: resonance, duration: 0.5 });
-                    gsap.to(d.anim2, { timeScale: resonance, duration: 0.5 });
-                    gsap.to([d.dot1, d.dot2], { backgroundColor: horror > 70 ? "#ff00ff" : "#ff4500", duration: 0.5 });
-                });
-            }
-
-            // Highlight neighbors and sector
-            const imesh = group.children.find(c => c.isInstancedMesh);
-            const edges = group.userData.graphData.edges || [];
-            const neighborIds = new Set(edges.filter(e => e.source === node.id).map(e => e.target).concat(edges.filter(e => e.target === node.id).map(e => e.source)));
-            
-            imesh.userData.nodes.forEach((n, idx) => {
-                if (!n.pos_3d || !node.pos_3d) return;
-                const nPos = new THREE.Vector3().fromArray(n.pos_3d);
-                const sPos = new THREE.Vector3().fromArray(node.pos_3d);
-                const dist = nPos.distanceTo(sPos);
-                if (n.id === node.id || neighborIds.has(n.id) || dist < 45) {
-                    imesh.setColorAt(idx, new THREE.Color(0xffffff));
-                }
-            });
-            if (imesh.instanceColor) imesh.instanceColor.needsUpdate = true;
-            lastHighlight = imesh;
-
-            gsap.to(camera.position, { x: worldPos.x, y: worldPos.y, z: worldPos.z + 100, duration: 1.5, ease: "power3.out" });
-            gsap.to(controls.target, { x: worldPos.x, y: worldPos.y, z: worldPos.z, duration: 1.5, ease: "power3.out" });
-        }
-
-        function resetHighlights() {
-            if (lastHighlight) {
-                lastHighlight.userData.originalColors.forEach((c, idx) => lastHighlight.setColorAt(idx, c));
-                lastHighlight.instanceColor.needsUpdate = true;
-                lastHighlight = null;
-            }
-        }
-
-        async function branchFromNode(nodeId) {
-            gsap.to("#loading-overlay", { opacity: 0.5, display: 'flex', duration: 0.3 });
-            try {
-                const res = await fetch('/api/graph', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ node_count: 50, ramificaciones: 3 })
-                });
-                const data = await res.json();
-                const g = createGraphGroup(data, 0, 1);
-                g.position.copy(controls.target).add(new THREE.Vector3(50, 50, 50));
-                scene.add(g);
-                seedGroups.push(g);
-            } catch(e) { console.error(e); }
-            gsap.to("#loading-overlay", { opacity: 0, display: 'none', duration: 0.3 });
-        }
-
-        let startTime = 0;
-        let isChaosMode = false;
-
-        function applyTheme() {
-            currentTheme = document.getElementById('uxTheme').value;
-            const root = document.documentElement;
-            const selects = document.querySelectorAll('.input-group select option');
-            
-            if (currentTheme === "LUZ") {
-                root.style.setProperty('--bg-black', '#f0f0f0');
-                root.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.8)');
-                root.style.setProperty('--glass-border', 'rgba(0, 0, 0, 0.2)');
-                root.style.setProperty('--text-cyan', '#0077ff');
-                root.style.setProperty('--text-magenta', '#aa00aa');
-                scene.background.set(0xf0f0f0);
-                scene.fog.color.set(0xf0f0f0);
-                selects.forEach(o => { o.style.background = "#fff"; o.style.color = "#000"; });
-            } else if (currentTheme === "RAINBOW") {
-                root.style.setProperty('--bg-black', '#ffffff');
-                scene.background.set(0xffffff);
-                scene.fog.color.set(0xffffff);
-                selects.forEach(o => { o.style.background = "#fff"; o.style.color = "#000"; });
-            } else if (currentTheme === "MAPUCHE") {
-                root.style.setProperty('--bg-black', '#1a120a');
-                scene.background.set(0x1a120a);
-                scene.fog.color.set(0x1a120a);
-                selects.forEach(o => { o.style.background = "#1a120a"; o.style.color = "var(--text-cyan)"; });
-            } else {
-                root.style.setProperty('--bg-black', '#000000');
-                root.style.setProperty('--glass-bg', 'rgba(0, 0, 0, 0.75)');
-                root.style.setProperty('--glass-border', 'rgba(0, 242, 255, 0.3)');
-                root.style.setProperty('--text-cyan', '#00f2ff');
-                scene.background.set(0x000000);
-                scene.fog.color.set(0x000000);
-                selects.forEach(o => { o.style.background = "#0a0a0a"; o.style.color = "var(--text-cyan)"; });
-            }
-            invokeCaos();
-        }
-
-        function updateIonicSpeed(val) {
-            globalTimeScale = parseFloat(val);
-            document.getElementById('ionicDisplay').innerText = globalTimeScale.toFixed(1);
-            seedGroups.forEach(g => {
-                if(g.userData.baseOrbitSpeed === undefined) g.userData.baseOrbitSpeed = g.userData.orbitSpeed || 0.0005;
-                g.userData.orbitSpeed = g.userData.baseOrbitSpeed * globalTimeScale;
-            });
-        }
-
-        function updateMovementConfig() {
-            const speed = parseFloat(document.getElementById('speedSlider').value);
-            const accel = parseFloat(document.getElementById('accelSlider').value);
-            document.getElementById('speedDisplay').innerText = speed;
-            document.getElementById('accelDisplay').innerText = accel;
-            
-            moveState.maxSpeed = speed;
-            moveState.acceleration = accel;
-        }
-
-        function toggleFeature(f, v) {
-            if (f === 'lines') {
-                seedGroups.forEach(g => {
-                    const l = g.children.find(c => c.name === "graphLines");
-                    if (l) l.visible = v;
-                });
-            }
-            if (f === 'aura' && singularityHalo) singularityHalo.visible = v;
-            if (f === 'donate') {
-                document.getElementById('donate-center').style.display = v ? 'flex' : 'none';
-            }
-        }
-
-        async function updateHistory() {
-            try {
-                const res = await fetch('/api/history');
-                const list = await res.json();
-                document.getElementById('history-list').innerHTML = list.map(r => `
-                    <div class="history-item" onclick="loadRun(${r.id})">
-                        <div style="color:var(--text-cyan); font-size:0.7rem;">[${r.timestamp}]</div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-weight:bold; color:var(--text-yellow);">SEED:${r.seed}</span>
-                            <span style="color:var(--text-magenta); font-size:0.75rem;">${r.modo}</span>
-                        </div>
-                        <div style="color:#666; font-size:0.65rem;">Horror Total: ${r.horror}</div>
-                    </div>
-                `).join('');
-                
-                // Actualizar Elder Entities (Top Seeds)
-                updateElderEntities(list);
-            } catch(e) { console.error(e); }
-        }
-
-        function updateElderEntities(list) {
-            const archetypes = {};
-            list.forEach(r => {
-                if (!archetypes[r.modo] || r.horror > archetypes[r.modo].horror) {
-                    archetypes[r.modo] = r;
-                }
-            });
-
-            document.getElementById('archetype-list').innerHTML = Object.keys(archetypes).map(m => `
-                <div class="history-item" style="border-left: 3px solid var(--text-magenta);" onclick="loadRun(${archetypes[m].id})">
-                    <div style="font-weight:bold; color:var(--text-cyan);">${m}</div>
-                    <div style="font-size:0.7rem; color:var(--text-yellow);">Elder Seed: ${archetypes[m].seed}</div>
-                    <div style="font-size:0.6rem; color:#888;">Power: ${archetypes[m].horror}💀</div>
-                </div>
-            `).join('');
-        }
-
-        async function loadRun(id) {
-            gsap.to("#loading-overlay", { opacity: 1, display: 'flex', duration: 0.3 });
-            clearGroups();
-            try {
-                const res = await fetch(`/api/graph?run_id=${id}`);
-                const data = await res.json();
-                
-                const group = createGraphGroup(data, 0, 1);
-                applyEntityPersonality(group, data);
-                
-                scene.add(group);
-                seedGroups.push(group);
-                
-                // Focus camera on new entity
-                const targetPos = group.position.clone();
-                gsap.to(controls.target, { x: targetPos.x, y: targetPos.y, z: targetPos.z, duration: 1.5 });
-                gsap.to(camera.position, { x: targetPos.x, y: targetPos.y, z: targetPos.z + 500, duration: 1.5 });
-
-            } catch(e) { console.error(e); }
-            gsap.to("#loading-overlay", { opacity: 0, display: 'none', duration: 0.5 });
-        }
-
-        function applyEntityPersonality(group, runData) {
-            const horror = runData.horror_total || 0;
-            const modo = runData.modo || "NEUTRAL";
-            
-            // Atributos de personalidad dinámicos
-            group.userData.personality = {
-                horror: horror,
-                modo: modo,
-                pulseSpeed: 1 + (horror / 50),
-                jitter: horror > 60 ? 0.5 : 0.1,
-                driftSpeed: 0.5 + (horror / 100)
-            };
-
-            // Color de aura según modo
-            const lines = group.children.find(c => c.name === "graphLines");
-            if (lines) {
-                if (modo.includes("JUSTICE")) lines.material.color.setHex(0xffffff);
-                if (modo.includes("HELL") || modo.includes("BESTIA")) lines.material.color.setHex(0xff0000);
-                lines.material.opacity = 0.2 + (horror / 200);
-            }
-            
-            // Velocidad de órbita base
-            group.userData.orbitSpeed = 0.001 + (horror / 10000);
-        }
-
-        function randomSpherical(r) {
-            const u = Math.random(), v = Math.random(), theta = 2 * Math.PI * u, phi = Math.acos(2 * v - 1);
-            return new THREE.Vector3(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi));
-        }
-
-        function resetCamera() {
-            if (!camera || !controls) return;
-            gsap.to(camera.position, { x: 0, y: 500, z: 1500, duration: 2, ease: "power3.inOut" });
-            gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 2, ease: "power3.inOut" });
-        }
-
-        function invokeCoreView() {
-            if (!camera || !controls) return;
-            // Mirar desde el centro hacia afuera (o hacia la primera semilla)
-            const target = seedGroups.length > 0 ? seedGroups[0].position.clone() : new THREE.Vector3(1000, 0, 0);
-            gsap.to(camera.position, { x: 0, y: 0, z: 10, duration: 2, ease: "power3.inOut" }); // Casi en el centro
-            gsap.to(controls.target, { x: target.x, y: target.y, z: target.z, duration: 2, ease: "power3.inOut" });
-        }
-
-        function updateDolphinMovement() {
-            if (!camera || !controls) return;
-
-            const dir = new THREE.Vector3();
-            camera.getWorldDirection(dir);
-            const side = new THREE.Vector3().crossVectors(camera.up, dir).normalize();
-            const up = new THREE.Vector3(0, 1, 0);
-
-            const accel = new THREE.Vector3();
-            if (moveState.forward) accel.addScaledVector(dir, moveState.acceleration);
-            if (moveState.back) accel.addScaledVector(dir, -moveState.acceleration);
-            if (moveState.left) accel.addScaledVector(side, moveState.acceleration);
-            if (moveState.right) accel.addScaledVector(side, -moveState.acceleration);
-            if (moveState.up) accel.addScaledVector(up, moveState.acceleration);
-            if (moveState.down) accel.addScaledVector(up, -moveState.acceleration);
-
-            moveState.velocity.add(accel);
-            moveState.velocity.multiplyScalar(moveState.deceleration);
-            
-            if (moveState.velocity.length() > moveState.maxSpeed) {
-                moveState.velocity.setLength(moveState.maxSpeed);
-            }
-
-            if (moveState.velocity.length() > 0.01) {
-                camera.position.add(moveState.velocity);
-                controls.target.add(moveState.velocity);
-                controls.update();
-            }
-        }
-
-        window.addEventListener('keydown', (e) => {
-            const k = e.key.toLowerCase();
-            if (k === 'w' || k === 'arrowup') moveState.forward = 1;
-            if (k === 's' || k === 'arrowdown') moveState.back = 1;
-            if (k === 'a' || k === 'arrowleft') moveState.left = 1;
-            if (k === 'd' || k === 'arrowright') moveState.right = 1;
-            if (k === ' ' || e.code === 'Space') { moveState.up = 1; e.preventDefault(); }
-            if (k === 'shift') moveState.down = 1;
-            if (k === 'r') resetCamera();
-        });
-
-        window.addEventListener('keyup', (e) => {
-            const k = e.key.toLowerCase();
-            if (k === 'w' || k === 'arrowup') moveState.forward = 0;
-            if (k === 's' || k === 'arrowdown') moveState.back = 0;
-            if (k === 'a' || k === 'arrowleft') moveState.left = 0;
-            if (k === 'd' || k === 'arrowright') moveState.right = 0;
-            if (k === ' ' || e.code === 'Space') moveState.up = 0;
-            if (k === 'shift') moveState.down = 0;
-        });
-
-        window.addEventListener('resize', () => {
-            if (!camera || !renderer) return;
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // ──────────────────────────────────────────────────────────────
-        // VITALITY MONITORING (FPS & POLL)
-        // ──────────────────────────────────────────────────────────────
-        let lastFrameTime = performance.now();
-        let frameCount = 0;
+  </div>
+
+  <div id="config-module" class="hud-module">
+    <div class="hud-title">🧠 NEURAL CONFIG</div>
+    <div class="input-group">
+      <label>Nodos: <span id="nodeDisplay">1500</span></label>
+      <input type="range" id="nodeSlider" min="50" max="26000" value="1500" step="50">
+    </div>
+    <div class="input-group">
+      <label>Multi-Seed: <span id="seedDisplay">3</span></label>
+      <input type="range" id="seedSlider" min="1" max="10" value="3" step="1">
+    </div>
+    <div class="input-group">
+      <label>Visualización</label>
+      <select id="vizMode">
+        <option value="ORBITAL" selected>ÓRBITA MULTI-SEED 🌌</option>
+        <option value="ENTITY">ENTE VIAJERO 👾</option>
+        <option value="BICAMERAL">CEREBRO BICAMERAL 🧠</option>
+        <option value="FUSION">FUSIÓN MULTIVERSAL 🧬</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>Meta-Tema</label>
+      <select id="uxTheme">
+        <option value="COSMIC" selected>ABISMO CÓSMICO 🌌</option>
+        <option value="MAPUCHE">MAPUCHE-CÓSMICO 🏔️</option>
+        <option value="CRISTAL">CRISTAL 💎</option>
+        <option value="MANDA">MANDALA 🌀</option>
+        <option value="NAVE">NAVE ESPACIAL 🚀</option>
+        <option value="PHOTON">MODO FOTÓN ⚡</option>
+        <option value="PARADOX">666 PARADOX 🔥</option>
+      </select>
+    </div>
+    <button onclick="invokeCaos()" style="background:var(--text-magenta);color:white">CAOS</button>
+    <button onclick="invokeFusion()" style="background:var(--text-cyan);color:black">FUSIÓN</button>
+    <button onclick="resetCamera()" style="background:#333;color:white">RESET CAM</button>
+    
+    <div class="input-group" style="margin-top:12px;border-top:1px solid var(--glass-border);padding-top:12px;">
+      <label style="display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="matrixMode" style="width:auto;">
+        <span>MATRIX MODE 🟢</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:5px;">
+        <input type="checkbox" id="fiestaMode" style="width:auto;">
+        <span>FIESTA MODE (MIC) 🎤</span>
+      </label>
+    </div>
+    
+    <div id="matrixControls" style="display:none;margin-top:8px;">
+      <div class="input-group">
+        <label>Color Matrix</label>
+        <select id="matrixColorPreset">
+          <option value="#00ff41" selected>Matrix Green 🟢</option>
+          <option value="#ff00ff">Vaporwave Purple 💜</option>
+          <option value="#00f2ff">Cyan Hacker 🔵</option>
+          <option value="#ff0033">Red Alert 🔴</option>
+          <option value="#ffff00">Yellow Electric ⚡</option>
+          <option value="custom">Custom...</option>
+        </select>
+      </div>
+      <div class="input-group" id="customColorGroup" style="display:none;">
+        <label>Color Personalizado</label>
+        <input type="color" id="matrixColorPicker" value="#00ff41" style="height:40px;cursor:pointer;">
+      </div>
+      <div class="input-group">
+        <label>Opacidad: <span id="matrixOpacityDisplay">0.3</span></label>
+        <input type="range" id="matrixOpacity" min="0.1" max="1" value="0.3" step="0.1">
+      </div>
+    </div>
+    
+    <div style="margin-top:10px;font-size:0.7rem;color:#666;border-top:1px solid var(--glass-border);padding-top:8px;">
+      Seed: <span id="current-seed" style="color:var(--text-cyan)">-10</span><br>
+      Mode: <span id="current-mode" style="color:var(--text-magenta)">LOADING...</span>
+    </div>
+  </div>
+
+  <button class="immersion-toggle" onclick="toggleImmersionMode()">Immersion [H]</button>
+
+  <div id="temporal-controls">
+    <div class="hud-title">⏱️ TEMPORAL CONTROL</div>
+    <div id="speed-display">x1.0</div>
+    <div style="display:flex;justify-content:center;gap:5px;margin-bottom:10px;">
+      <button class="temporal-btn" onclick="setSpeed(-10)">◀◀ -10x</button>
+      <button class="temporal-btn" onclick="setSpeed(-5)">◀ -5x</button>
+      <button class="temporal-btn" onclick="setSpeed(0)">⏸ PAUSE</button>
+      <button class="temporal-btn active" onclick="setSpeed(1)">▶ 1x</button>
+      <button class="temporal-btn" onclick="setSpeed(5)">▶▶ 5x</button>
+      <button class="temporal-btn" onclick="setSpeed(10)">▶▶▶ 10x</button>
+      <button class="temporal-btn" onclick="setSpeed(20)">⚡ 20x</button>
+    </div>
+    <div class="input-group">
+      <label>Velocidad: <span id="speedSliderDisplay">1.0</span>x</label>
+      <input type="range" id="speedSlider" min="-10" max="20" value="1" step="0.5">
+    </div>
+    
+    <!-- IMMERSIVE CONTROLS -->
+    <div style="margin-top:15px;padding-top:10px;border-top:1px solid var(--glass-border);">
+      <div style="font-size:0.75rem;color:#888;margin-bottom:5px;">IMMERSIVE TOGGLES</div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="document.getElementById('matrixMode').click()" style="background:rgba(0,255,65,0.2);border:1px solid var(--text-green);color:var(--text-green);font-size:0.8rem;">
+          TOGGLE MATRIX
+        </button>
+        <button onclick="document.getElementById('fiestaMode').click()" style="background:rgba(255,0,255,0.2);border:1px solid var(--text-magenta);color:var(--text-magenta);font-size:0.8rem;">
+          TOGGLE FIESTA
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Panel (Hidden by default) -->
+  <div id="settings-panel" style="display:none;position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,0.9);align-items:center;justify-content:center;">
+    <div style="background:var(--glass-bg);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:12px;padding:30px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h2 style="color:var(--text-cyan);margin:0;">⚙️ SETTINGS</h2>
+        <button onclick="closeSettings()" style="width:auto;padding:8px 15px;background:#333;">CLOSE</button>
+      </div>
+      
+      <div class="hud-title" style="margin-bottom:15px;">KEYBOARD CONTROLS</div>
+      
+      <div id="key-bindings-list" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+        <!-- Populated by updateKeyBindingsUI() -->
+      </div>
+      
+      <div style="display:flex;gap:10px;">
+        <button onclick="resetKeyBindings()" style="background:var(--text-red);">RESET TO DEFAULTS</button>
+        <button onclick="closeSettings()" style="background:var(--text-cyan);color:black;">SAVE & CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tutorial / Help Overlay -->
+  <div id="tutorial-overlay" style="display:none;position:fixed;inset:0;z-index:20000;background:rgba(0,0,0,0.95);align-items:center;justify-content:center;overflow-y:auto;padding:20px;">
+    <div style="background:var(--glass-bg);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:12px;padding:30px;max-width:800px;width:90%;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h2 style="color:var(--text-cyan);margin:0;">❓ COSMIC OS TUTORIAL</h2>
+        <button onclick="closeTutorial()" style="width:auto;padding:8px 15px;background:#333;">CLOSE</button>
+      </div>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div>
+          <div class="hud-title" style="margin-bottom:10px;">⌨️ KEYBOARD</div>
+          <div style="font-size:0.85rem;line-height:1.8;color:#ccc;">
+            <b style="color:var(--text-cyan);">W/S/A/D</b> - Movimiento<br>
+            <b style="color:var(--text-cyan);">Q/E</b> - Rotar cámara<br>
+            <b style="color:var(--text-cyan);">Space</b> - Subir<br>
+            <b style="color:var(--text-cyan);">Shift</b> - Bajar<br>
+            <b style="color:var(--text-cyan);">Ctrl</b> - Speed Boost 2x<br>
+            <b style="color:var(--text-cyan);">H/L</b> - Modo Inmersivo<br>
+            <b style="color:var(--text-cyan);">R</b> - Reset Cámara<br>
+            <b style="color:var(--text-cyan);">?</b> - Este tutorial<br>
+          </div>
+        </div>
         
-        function updateFPS() {
-            const now = performance.now();
-            frameCount++;
-            if (now - lastFrameTime >= 1000) {
-                const fpsEl = document.getElementById('fps-val');
-                if(fpsEl) {
-                    fpsEl.innerText = frameCount;
-                    fpsEl.style.color = frameCount < 30 ? '#ff3333' : (frameCount < 50 ? '#ffd700' : '#00ff41');
-                }
-                frameCount = 0;
-                lastFrameTime = now;
-            }
-            requestAnimationFrame(updateFPS);
-        }
-        updateFPS();
+        <div>
+          <div class="hud-title" style="margin-bottom:10px;">🕹️ MOUSE</div>
+          <div style="font-size:0.85rem;line-height:1.8;color:#ccc;">
+            <b style="color:var(--text-cyan);">Click + Drag</b> - Rotar vista<br>
+            <b style="color:var(--text-cyan);">Scroll</b> - Zoom in/out<br>
+            <b style="color:var(--text-cyan);">Double Click</b> - Viajar a nodo<br>
+            <b style="color:var(--text-cyan);">Hover Izq</b> - Mostrar panel<br>
+          </div>
+          
+          <div class="hud-title" style="margin:15px 0 10px;">🎮 GAMEPAD</div>
+          <div style="font-size:0.85rem;line-height:1.8;color:#ccc;">
+            <b style="color:var(--text-cyan);">Stick Izq</b> - Movimiento<br>
+            <b style="color:var(--text-cyan);">LT/RT</b> - Subir/Bajar<br>
+            <b style="color:var(--text-cyan);">A</b> - Reset Cámara<br>
+            <b style="color:var(--text-cyan);">B</b> - Immersion<br>
+            <b style="color:var(--text-cyan);">X</b> - CAOS<br>
+            <b style="color:var(--text-cyan);">Y</b> - Matrix Toggle<br>
+          </div>
+        </div>
+      </div>
+      
+      <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--glass-border);">
+        <div class="hud-title" style="margin-bottom:10px;">🌌 MODO INMERSIVO</div>
+        <p style="font-size:0.85rem;color:#ccc;margin:0;">
+          Presiona <b style="color:var(--text-cyan);">H</b> para entrar en modo inmersivo. La cámara se alejará automáticamente para vista panorámica. 
+          Los controles temporales aparecerán en la esquina inferior derecha para controlar la velocidad de simulación (-10x a +20x).
+        </p>
+      </div>
+      
+      <button onclick="closeTutorial()" style="margin-top:20px;background:var(--text-cyan);color:black;">GOT IT!</button>
+    </div>
+  </div>
 
-        setInterval(async () => {
-            try {
-                const res = await fetch('/api/resources');
-                const data = await res.json();
-                const cpuEl = document.getElementById('cpu-val');
-                const ramEl = document.getElementById('ram-val');
-                const fill = document.getElementById('cpu-fill');
-                
-                if (cpuEl) cpuEl.innerText = data.cpu;
-                if (ramEl) ramEl.innerText = data.ram_used;
-                if (fill) fill.style.width = data.cpu + '%';
-            } catch(e) {}
-        }, 2000);
+  <!-- Quick Navigation Panel -->
+  <div style="position:fixed;bottom:100px;left:20px;z-index:1000;background:var(--glass-bg);backdrop-filter:blur(15px);border:1px solid var(--glass-border);border-radius:8px;padding:15px;width:200px;">
+    <div class="hud-title" style="margin-bottom:10px;">🧭QUICK NAV</div>
+    <button onclick="goToSingularity()" style="width:100%;margin-bottom:5px;padding:8px;background:rgba(255,0,51,0.2);border:1px solid var(--text-red);color:var(--text-red);">
+      🌌 SINGULARITY
+    </button>
+    <button onclick="escapeGravity()" style="width:100%;margin-bottom:5px;padding:8px;background:rgba(0,242,255,0.2);border:1px solid var(--text-cyan);color:var(--text-cyan);">
+      🚀 ESCAPE
+    </button>
+    <button onclick="goToNearestNode()" style="width:100%;margin-bottom:5px;padding:8px;background:rgba(255,255,0,0.2);border:1px solid var(--text-yellow);color:var(--text-yellow);">
+      🎯 NEAREST NODE
+    </button>
+    <button onclick="goToRandomPosition()" style="width:100%;padding:8px;background:rgba(255,0,255,0.2);border:1px solid var(--text-magenta);color:var(--text-magenta);">
+      🎲 RANDOM
+    </button>
+  </div>
 
-        // Update History every 30 seconds
-        setInterval(updateHistory, 30000);
+  <!-- Settings Toggle Button -->
+  <button onclick="openSettings()" style="position:fixed;bottom:20px;left:20px;z-index:1000;width:auto;padding:10px 15px;background:rgba(255,255,255,0.1);border:1px solid var(--glass-border);color:var(--text-cyan);">
+    ⚙️ SETTINGS
+  </button>
 
-        document.getElementById('nodeSlider').oninput = (e) => document.getElementById('nodeDisplay').innerText = e.target.value;
-        document.getElementById('seedSlider').oninput = (e) => document.getElementById('seedDisplay').innerText = e.target.value;
+  <button onclick="window.location.href='/hall_of_shame'" style="position:fixed;bottom:20px;left:140px;z-index:1000;width:auto;padding:10px 15px;background:rgba(255,0,51,0.2);border:1px solid var(--text-red);color:var(--text-red);">
+    🏆 HALL OF SHAME
+  </button>
 
-        function createGlowTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 64; canvas.height = 64;
-            const ctx = canvas.getContext('2d');
-            const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-            gradient.addColorStop(0, 'rgba(255,255,255,1)');
-            gradient.addColorStop(0.2, 'rgba(255,255,255,0.8)');
-            gradient.addColorStop(0.5, 'rgba(255,255,255,0.2)');
-            gradient.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, 64, 64);
-            const tex = new THREE.CanvasTexture(canvas);
-            return tex;
-        }
+  <button onclick="openTutorial()" style="position:fixed;bottom:20px;left:320px;z-index:1000;width:auto;padding:10px 15px;background:rgba(0,255,65,0.2);border:1px solid var(--text-green);color:var(--text-green);">
+    ❓ HELP
+  </button>
 
-        function renderAccretionDisk(nodes, seeds) {
-            if (accretionDisk) {
-                scene.remove(accretionDisk);
-                if(accretionDisk.geometry) accretionDisk.geometry.dispose();
-                if(accretionDisk.material) accretionDisk.material.dispose();
-            }
-
-            // Scaling: More nodes = more density, More seeds = larger disk
-            const accCount = Math.min(15000, 2000 + (nodes / 2) + (seeds * 1000));
-            const baseRadius = 80 + (seeds * 10);
-            const diskWidth = 50 + (nodes / 200);
-
-            const accGeo = new THREE.BufferGeometry();
-            const accPos = new Float32Array(accCount * 3);
-            const accCol = new Float32Array(accCount * 3);
-            const accSizes = new Float32Array(accCount);
-            
-            for (let i = 0; i < accCount; i++) {
-                const r = baseRadius + Math.random() * diskWidth;
-                const theta = Math.random() * Math.PI * 2;
-                accPos[i*3] = r * Math.cos(theta);
-                accPos[i*3+1] = (Math.random() - 0.5) * (5 + seeds); 
-                accPos[i*3+2] = r * Math.sin(theta);
-                
-                const t = (r - baseRadius) / diskWidth;
-                const color = new THREE.Color(0xffffff).lerp(new THREE.Color(0xffaa00), Math.pow(t, 1.5));
-                accCol[i*3] = color.r;
-                accCol[i*3+1] = color.g;
-                accCol[i*3+2] = color.b;
-                accSizes[i] = Math.random() * 2.5 + 0.5;
-            }
-            accGeo.setAttribute('position', new THREE.BufferAttribute(accPos, 3));
-            accGeo.setAttribute('color', new THREE.BufferAttribute(accCol, 3));
-            accGeo.setAttribute('size', new THREE.BufferAttribute(accSizes, 1));
-            
-            const accMat = new THREE.PointsMaterial({ 
-                size: 4.5, // Increased size for glow
-                vertexColors: true, 
-                transparent: true, 
-                opacity: 0.9, 
-                map: createGlowTexture(),
-                blending: THREE.AdditiveBlending,
-                depthWrite: false
-            });
-            accretionDisk = new THREE.Points(accGeo, accMat);
-            accretionDisk.rotation.x = Math.PI / 1.9; 
-            scene.add(accretionDisk);
-        }
-
-        function renderMiniSingularities(clusters) {
-            // Limpiar anteriores
-            miniSingularities.forEach(s => scene.remove(s));
-            miniSingularities = [];
-
-            if(!clusters) return;
-
-            clusters.forEach((cluster, idx) => {
-                if (cluster.dim === 0 || cluster.dim === "DESCONOCIDO") return;
-                
-                const size = (cluster.mini_singularity?.size || 1) * 5;
-                const miniGeo = new THREE.SphereGeometry(size, 32, 32);
-                const miniMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-                const miniSing = new THREE.Mesh(miniGeo, miniMat);
-                
-                // Glow para mini-sing
-                const glowGeo = new THREE.SphereGeometry(size * 1.1, 32, 32);
-                const glowMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3, side: THREE.BackSide });
-                miniSing.add(new THREE.Mesh(glowGeo, glowMat));
-
-                const angle = (idx / clusters.length) * Math.PI * 2;
-                const radius = 600 + Math.random() * 400;
-                miniSing.setRotationFromEuler(new THREE.Euler(Math.random(), Math.random(), Math.random()));
-                miniSing.position.set(Math.cos(angle) * radius, (Math.random()-0.5)*400, Math.sin(angle) * radius);
-                
-                miniSing.userData = { mass: cluster.mini_singularity?.mass || 100 };
-                miniSingularities.push(miniSing);
-                scene.add(miniSing);
-            });
-        }
-
-        window.addEventListener('dblclick', (event) => {
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-            raycaster.setFromCamera(mouse, camera);
-
-            // Check central black hole
-            if (centralSingularity) {
-                const intersects = raycaster.intersectObject(centralSingularity.children[0]);
-                if (intersects.length > 0) {
-                    enterCockpit(new THREE.Vector3(0,0,0));
-                    return;
-                }
-            }
-
-            // Check mini singularities
-            miniSingularities.forEach(s => {
-                const intersects = raycaster.intersectObject(s);
-                if (intersects.length > 0) {
-                    enterCockpit(s.position.clone());
-                    return;
-                }
-            });
-        });
-
-        function enterCockpit(targetPos) {
-            console.log("Entering Cockpit at", targetPos);
-            gsap.to(camera.position, {
-                x: targetPos.x,
-                y: targetPos.y,
-                z: targetPos.z + 5, // Just slightly outside the singularity center
-                duration: 2,
-                ease: "power2.inOut",
-                onComplete: () => {
-                    controls.target.set(targetPos.x, targetPos.y, targetPos.z);
-                    controls.update();
-                }
-            });
-            gsap.to(controls.target, {
-                x: targetPos.x,
-                y: targetPos.y,
-                z: targetPos.z - 100, // Look forward into the abyss
-                duration: 2,
-                ease: "power2.inOut"
-            });
-            
-            // UI visual feedback
-            const cockpit = document.getElementById('cockpit-frame');
-            if (cockpit) {
-                gsap.fromTo(cockpit, { boxShadow: "inset 0 0 150px rgba(0,242,255,0.5)" }, { boxShadow: "inset 0 0 150px rgba(0,0,0,0.9)", duration: 2 });
-            }
-        }
-    </script>
 </body>
 </html>

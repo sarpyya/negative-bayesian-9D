@@ -1,0 +1,2572 @@
+{
+  "seed": 85,
+  "grafo": {
+    "directed": true,
+    "multigraph": false,
+    "graph": {},
+    "nodes": [
+      {
+        "horror": 1336.114488386591,
+        "dim": 0,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "El abismo total",
+        "label": "CERO ABSOLUTO",
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "shape": "sphere",
+        "geometry": "blackhole",
+        "id": "CERO_ABSOLUTO"
+      },
+      {
+        "horror": 1391.905307855679,
+        "dim": 1,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Traición absoluta (socios, instituciones, familia)",
+        "label": "D1: Traición absoluta (socios, instituciones, familia)",
+        "position": [
+          14.324909832651201,
+          -322.8082531860341,
+          246.07793982815338
+        ],
+        "shape": "sphere",
+        "geometry": "default",
+        "id": "D1"
+      },
+      {
+        "horror": 1800.065076394448,
+        "dim": 1,
+        "sub_level": 1,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Traición absoluta (socios, instituciones, familia) agravado x1.49",
+        "label": "D1.1",
+        "position": [
+          21.262733337661473,
+          -360.8333305562511,
+          206.86151790012434
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D1.1"
+      },
+      {
+        "horror": 1953.6708801350194,
+        "dim": 1,
+        "sub_level": 2,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Traición absoluta (socios, instituciones, familia) agravado x1.72",
+        "label": "D1.2",
+        "position": [
+          58.916572526241,
+          -195.0692329323877,
+          164.2223828796237
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D1.2"
+      },
+      {
+        "horror": 1642.98223765452,
+        "dim": 1,
+        "sub_level": 3,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Traición absoluta (socios, instituciones, familia) agravado x1.55",
+        "label": "D1.3",
+        "position": [
+          129.429131952881,
+          -410.1379185194767,
+          160.21411862539173
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D1.3"
+      },
+      {
+        "horror": 1634.037648705795,
+        "dim": 1,
+        "sub_level": 4,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Traición absoluta (socios, instituciones, familia) agravado x1.49",
+        "label": "D1.4",
+        "position": [
+          0.2635615371088704,
+          -371.536837130789,
+          99.59911926899119
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D1.4"
+      },
+      {
+        "horror": 1895.391742274036,
+        "dim": 1,
+        "sub_level": 5,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Traición absoluta (socios, instituciones, familia) agravado x1.55",
+        "label": "D1.5",
+        "position": [
+          71.06760287850847,
+          -222.24726142065467,
+          190.81448550792624
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D1.5"
+      },
+      {
+        "horror": 1827.0455006731747,
+        "dim": 1,
+        "sub_level": 6,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Traición absoluta (socios, instituciones, familia) agravado x1.71",
+        "label": "D1.6",
+        "position": [
+          15.821866737791964,
+          -362.5605933038647,
+          150.9661949722823
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D1.6"
+      },
+      {
+        "horror": 1799.9836782939067,
+        "dim": 1,
+        "sub_level": 7,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Traición absoluta (socios, instituciones, familia) agravado x1.62",
+        "label": "D1.7",
+        "position": [
+          -126.19209548984145,
+          -293.2306105390598,
+          328.9064215647642
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D1.7"
+      },
+      {
+        "horror": 1664.9647458392062,
+        "dim": 1,
+        "sub_level": 8,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Traición absoluta (socios, instituciones, familia) agravado x1.46",
+        "label": "D1.8",
+        "position": [
+          52.20677710521454,
+          -349.11222136314785,
+          282.39971164540856
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D1.8"
+      },
+      {
+        "horror": 1197.5198907356457,
+        "dim": 2,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso económico / pobreza perpetua / mendicidad",
+        "label": "D2: Colapso económico / pobreza perpetua / mendicidad",
+        "position": [
+          -308.3883806750361,
+          -386.7317369318176,
+          -649.9754848906797
+        ],
+        "shape": "sphere",
+        "geometry": "default",
+        "id": "D2"
+      },
+      {
+        "horror": 1671.319960877808,
+        "dim": 2,
+        "sub_level": 1,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso económico / pobreza perpetua / mendicidad agravado x1.61",
+        "label": "D2.1",
+        "position": [
+          -198.3627923415852,
+          -410.84201616632026,
+          -734.0102630929
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D2.1"
+      },
+      {
+        "horror": 1893.4436733728721,
+        "dim": 2,
+        "sub_level": 2,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso económico / pobreza perpetua / mendicidad agravado x1.84",
+        "label": "D2.2",
+        "position": [
+          -428.2776514030991,
+          -536.2397725889591,
+          -618.856261633917
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D2.2"
+      },
+      {
+        "horror": 1647.2598102625286,
+        "dim": 2,
+        "sub_level": 3,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso económico / pobreza perpetua / mendicidad agravado x1.84",
+        "label": "D2.3",
+        "position": [
+          -257.1687366091091,
+          -349.69919042373033,
+          -706.4419572378624
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D2.3"
+      },
+      {
+        "horror": 1632.2706622575113,
+        "dim": 2,
+        "sub_level": 4,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso económico / pobreza perpetua / mendicidad agravado x1.76",
+        "label": "D2.4",
+        "position": [
+          -434.50131027221687,
+          -277.2838260687547,
+          -590.3131384196131
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D2.4"
+      },
+      {
+        "horror": 1508.3218756729336,
+        "dim": 2,
+        "sub_level": 5,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso económico / pobreza perpetua / mendicidad agravado x1.70",
+        "label": "D2.5",
+        "position": [
+          -172.0383858827164,
+          -271.93762402567916,
+          -636.4796612443726
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D2.5"
+      },
+      {
+        "horror": 1532.0888027200701,
+        "dim": 2,
+        "sub_level": 6,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso económico / pobreza perpetua / mendicidad agravado x1.69",
+        "label": "D2.6",
+        "position": [
+          -400.5456308456048,
+          -289.8435430208814,
+          -773.070294029016
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D2.6"
+      },
+      {
+        "horror": 1810.9238191681002,
+        "dim": 2,
+        "sub_level": 7,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso económico / pobreza perpetua / mendicidad agravado x1.81",
+        "label": "D2.7",
+        "position": [
+          -200.03910254689657,
+          -353.90114893605835,
+          -758.719204885323
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D2.7"
+      },
+      {
+        "horror": 1505.0039853412968,
+        "dim": 2,
+        "sub_level": 8,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso económico / pobreza perpetua / mendicidad agravado x1.54",
+        "label": "D2.8",
+        "position": [
+          -391.8898943346147,
+          -301.91184097469824,
+          -640.0643279185869
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D2.8"
+      },
+      {
+        "horror": 1207.1650551092084,
+        "dim": 3,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Aislamiento total (nadie real, nakamas falsos)",
+        "label": "D3: Aislamiento total (nadie real, nakamas falsos)",
+        "position": [
+          -675.6251869766553,
+          60.77695608184786,
+          -620.0352269967949
+        ],
+        "shape": "sphere",
+        "geometry": "default",
+        "id": "D3"
+      },
+      {
+        "horror": 1636.055688216272,
+        "dim": 3,
+        "sub_level": 1,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Aislamiento total (nadie real, nakamas falsos) agravado x1.65",
+        "label": "D3.1",
+        "position": [
+          -703.3238594298103,
+          78.41853091514568,
+          -567.0849296575088
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D3.1"
+      },
+      {
+        "horror": 1765.8470336216335,
+        "dim": 3,
+        "sub_level": 2,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Aislamiento total (nadie real, nakamas falsos) agravado x1.83",
+        "label": "D3.2",
+        "position": [
+          -548.4045687697319,
+          -60.97343862346469,
+          -730.6333715509357
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D3.2"
+      },
+      {
+        "horror": 1506.1414384280447,
+        "dim": 3,
+        "sub_level": 3,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Aislamiento total (nadie real, nakamas falsos) agravado x1.55",
+        "label": "D3.3",
+        "position": [
+          -533.6007221319394,
+          13.750489668202093,
+          -507.9519226140117
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D3.3"
+      },
+      {
+        "horror": 1499.8430859547084,
+        "dim": 3,
+        "sub_level": 4,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Aislamiento total (nadie real, nakamas falsos) agravado x1.38",
+        "label": "D3.4",
+        "position": [
+          -688.2241339460973,
+          160.18814177397434,
+          -669.2363933094418
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D3.4"
+      },
+      {
+        "horror": 1776.4009757511917,
+        "dim": 3,
+        "sub_level": 5,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Aislamiento total (nadie real, nakamas falsos) agravado x1.82",
+        "label": "D3.5",
+        "position": [
+          -751.4714777175896,
+          -45.39911239886918,
+          -763.7184025052453
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D3.5"
+      },
+      {
+        "horror": 1817.5899360328565,
+        "dim": 3,
+        "sub_level": 6,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Aislamiento total (nadie real, nakamas falsos) agravado x1.79",
+        "label": "D3.6",
+        "position": [
+          -791.2383678806676,
+          121.30296452330003,
+          -597.100148347472
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D3.6"
+      },
+      {
+        "horror": 1488.310546121653,
+        "dim": 3,
+        "sub_level": 7,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Aislamiento total (nadie real, nakamas falsos) agravado x1.47",
+        "label": "D3.7",
+        "position": [
+          -596.501026427985,
+          42.27807234493994,
+          -584.0009459312116
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D3.7"
+      },
+      {
+        "horror": 1493.8976902327308,
+        "dim": 3,
+        "sub_level": 8,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Aislamiento total (nadie real, nakamas falsos) agravado x1.54",
+        "label": "D3.8",
+        "position": [
+          -730.5696629676197,
+          -30.240667220997892,
+          -685.1132332104437
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D3.8"
+      },
+      {
+        "horror": 1474.738075190071,
+        "dim": 4,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Muerte cercana o pérdida irreparable (hijo, libertad)",
+        "label": "D4: Muerte cercana o pérdida irreparable (hijo, libertad)",
+        "position": [
+          -131.70132088038247,
+          -160.56276697418923,
+          -399.9395301121993
+        ],
+        "shape": "sphere",
+        "geometry": "default",
+        "id": "D4"
+      },
+      {
+        "horror": 2105.740393956065,
+        "dim": 4,
+        "sub_level": 1,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Muerte cercana o pérdida irreparable (hijo, libertad) agravado x1.57",
+        "label": "D4.1",
+        "position": [
+          -110.93114510906358,
+          -129.47475578708938,
+          -513.2029713816479
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D4.1"
+      },
+      {
+        "horror": 2073.5119121637586,
+        "dim": 4,
+        "sub_level": 2,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Muerte cercana o pérdida irreparable (hijo, libertad) agravado x1.73",
+        "label": "D4.2",
+        "position": [
+          -272.7948142757832,
+          -30.747584985399214,
+          -471.98285002347825
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D4.2"
+      },
+      {
+        "horror": 2028.5821627490614,
+        "dim": 4,
+        "sub_level": 3,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Muerte cercana o pérdida irreparable (hijo, libertad) agravado x1.63",
+        "label": "D4.3",
+        "position": [
+          -223.01514781669565,
+          -206.87453536575148,
+          -444.6422267600317
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D4.3"
+      },
+      {
+        "horror": 1785.0811409627336,
+        "dim": 4,
+        "sub_level": 4,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Muerte cercana o pérdida irreparable (hijo, libertad) agravado x1.40",
+        "label": "D4.4",
+        "position": [
+          -93.10854808351425,
+          -112.07182116658737,
+          -454.91692469642607
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D4.4"
+      },
+      {
+        "horror": 1957.8661121096181,
+        "dim": 4,
+        "sub_level": 5,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Muerte cercana o pérdida irreparable (hijo, libertad) agravado x1.50",
+        "label": "D4.5",
+        "position": [
+          -277.88083258123305,
+          -184.79883817876652,
+          -490.60553213749097
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D4.5"
+      },
+      {
+        "horror": 1948.7720187681102,
+        "dim": 4,
+        "sub_level": 6,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Muerte cercana o pérdida irreparable (hijo, libertad) agravado x1.66",
+        "label": "D4.6",
+        "position": [
+          -269.6065649423564,
+          -238.44977214887007,
+          -301.39476470871
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D4.6"
+      },
+      {
+        "horror": 1917.189694311342,
+        "dim": 4,
+        "sub_level": 7,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Muerte cercana o pérdida irreparable (hijo, libertad) agravado x1.52",
+        "label": "D4.7",
+        "position": [
+          -206.22547307106564,
+          -178.33548038873042,
+          -510.06118208556194
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D4.7"
+      },
+      {
+        "horror": 1934.2416503955294,
+        "dim": 4,
+        "sub_level": 8,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Muerte cercana o pérdida irreparable (hijo, libertad) agravado x1.59",
+        "label": "D4.8",
+        "position": [
+          -122.93832501109628,
+          -87.91265732941537,
+          -498.1390443861442
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D4.8"
+      },
+      {
+        "horror": 1295.9232691493096,
+        "dim": 5,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso cognitivo irreversible (fármacos, internación)",
+        "label": "D5: Colapso cognitivo irreversible (fármacos, internación)",
+        "position": [
+          -713.5336020930071,
+          220.87902551550224,
+          97.46371310835866
+        ],
+        "shape": "sphere",
+        "geometry": "default",
+        "id": "D5"
+      },
+      {
+        "horror": 1692.8520949957501,
+        "dim": 5,
+        "sub_level": 1,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso cognitivo irreversible (fármacos, internación) agravado x1.41",
+        "label": "D5.1",
+        "position": [
+          -753.522711592789,
+          326.5213838904103,
+          232.66714638597858
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D5.1"
+      },
+      {
+        "horror": 1504.4273766131246,
+        "dim": 5,
+        "sub_level": 2,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso cognitivo irreversible (fármacos, internación) agravado x1.37",
+        "label": "D5.2",
+        "position": [
+          -737.1442387446871,
+          333.52897384224883,
+          108.14095628014661
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D5.2"
+      },
+      {
+        "horror": 1929.5539891781223,
+        "dim": 5,
+        "sub_level": 3,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso cognitivo irreversible (fármacos, internación) agravado x1.55",
+        "label": "D5.3",
+        "position": [
+          -607.8541315357579,
+          103.90702965168327,
+          202.23941252079402
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D5.3"
+      },
+      {
+        "horror": 1801.767694787797,
+        "dim": 5,
+        "sub_level": 4,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso cognitivo irreversible (fármacos, internación) agravado x1.48",
+        "label": "D5.4",
+        "position": [
+          -619.1334902782838,
+          144.2359653680773,
+          42.800615045673396
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D5.4"
+      },
+      {
+        "horror": 1601.6213814820433,
+        "dim": 5,
+        "sub_level": 5,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso cognitivo irreversible (fármacos, internación) agravado x1.45",
+        "label": "D5.5",
+        "position": [
+          -727.1341210592103,
+          199.48605922777674,
+          24.17979667675668
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D5.5"
+      },
+      {
+        "horror": 1817.2249853378808,
+        "dim": 5,
+        "sub_level": 6,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso cognitivo irreversible (fármacos, internación) agravado x1.66",
+        "label": "D5.6",
+        "position": [
+          -675.5001927583919,
+          131.50091417511518,
+          5.432180283692773
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D5.6"
+      },
+      {
+        "horror": 1959.823217152333,
+        "dim": 5,
+        "sub_level": 7,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso cognitivo irreversible (fármacos, internación) agravado x1.72",
+        "label": "D5.7",
+        "position": [
+          -859.497324859018,
+          322.8971334498434,
+          217.8958807620599
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D5.7"
+      },
+      {
+        "horror": 1946.9894204597422,
+        "dim": 5,
+        "sub_level": 8,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Colapso cognitivo irreversible (fármacos, internación) agravado x1.72",
+        "label": "D5.8",
+        "position": [
+          -764.2645896191874,
+          130.40043008885186,
+          -9.137889842105821
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D5.8"
+      },
+      {
+        "horror": 1172.256961685329,
+        "dim": 6,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Vacío existencial / pérdida propósito (33 años tristeza)",
+        "label": "D6: Vacío existencial / pérdida propósito (33 años tristeza)",
+        "position": [
+          -307.9684981354621,
+          348.21041104449137,
+          -78.92479291560562
+        ],
+        "shape": "sphere",
+        "geometry": "default",
+        "id": "D6"
+      },
+      {
+        "horror": 1371.393099940999,
+        "dim": 6,
+        "sub_level": 1,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Vacío existencial / pérdida propósito (33 años tristeza) agravado x1.50",
+        "label": "D6.1",
+        "position": [
+          -340.94399308635235,
+          345.60063369616034,
+          -226.30985539758004
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D6.1"
+      },
+      {
+        "horror": 1825.7068859310634,
+        "dim": 6,
+        "sub_level": 2,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Vacío existencial / pérdida propósito (33 años tristeza) agravado x1.75",
+        "label": "D6.2",
+        "position": [
+          -389.33037277797547,
+          244.91820263577156,
+          -18.949783736250964
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D6.2"
+      },
+      {
+        "horror": 1601.4279658771063,
+        "dim": 6,
+        "sub_level": 3,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Vacío existencial / pérdida propósito (33 años tristeza) agravado x1.74",
+        "label": "D6.3",
+        "position": [
+          -367.9339996826319,
+          297.8508627644563,
+          -162.80629603320318
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D6.3"
+      },
+      {
+        "horror": 1587.4618948215289,
+        "dim": 6,
+        "sub_level": 4,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Vacío existencial / pérdida propósito (33 años tristeza) agravado x1.65",
+        "label": "D6.4",
+        "position": [
+          -281.1527118267801,
+          412.30065221419216,
+          -147.83347806698328
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D6.4"
+      },
+      {
+        "horror": 1943.5131711653362,
+        "dim": 6,
+        "sub_level": 5,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Vacío existencial / pérdida propósito (33 años tristeza) agravado x1.80",
+        "label": "D6.5",
+        "position": [
+          -345.0803687532,
+          230.88471494240633,
+          -37.24285755237884
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D6.5"
+      },
+      {
+        "horror": 1440.7844765764105,
+        "dim": 6,
+        "sub_level": 6,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Vacío existencial / pérdida propósito (33 años tristeza) agravado x1.45",
+        "label": "D6.6",
+        "position": [
+          -330.0594100520596,
+          231.59947090537585,
+          -40.1755791599231
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D6.6"
+      },
+      {
+        "horror": 1440.06347538352,
+        "dim": 6,
+        "sub_level": 7,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Vacío existencial / pérdida propósito (33 años tristeza) agravado x1.55",
+        "label": "D6.7",
+        "position": [
+          -267.3499186238758,
+          491.5283040851594,
+          28.300425092916612
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D6.7"
+      },
+      {
+        "horror": 1703.4383955624082,
+        "dim": 6,
+        "sub_level": 8,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Vacío existencial / pérdida propósito (33 años tristeza) agravado x1.61",
+        "label": "D6.8",
+        "position": [
+          -320.367371753042,
+          439.8522546308168,
+          -46.6093428932482
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D6.8"
+      },
+      {
+        "horror": 1028.5155069683478,
+        "dim": 7,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Humillación pública perpetua (desprecio, rechazo ancestral)",
+        "label": "D7: Humillación pública perpetua (desprecio, rechazo ancestral)",
+        "position": [
+          -97.46050568299597,
+          -480.25300452039943,
+          -751.0988881376236
+        ],
+        "shape": "sphere",
+        "geometry": "default",
+        "id": "D7"
+      },
+      {
+        "horror": 1346.3913639259354,
+        "dim": 7,
+        "sub_level": 1,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Humillación pública perpetua (desprecio, rechazo ancestral) agravado x1.51",
+        "label": "D7.1",
+        "position": [
+          -190.31095868215422,
+          -365.2500670294688,
+          -748.361576883619
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D7.1"
+      },
+      {
+        "horror": 1398.660062462801,
+        "dim": 7,
+        "sub_level": 2,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Humillación pública perpetua (desprecio, rechazo ancestral) agravado x1.84",
+        "label": "D7.2",
+        "position": [
+          -4.327793450691928,
+          -497.0746919421481,
+          -649.6615777854112
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D7.2"
+      },
+      {
+        "horror": 1486.1927174383745,
+        "dim": 7,
+        "sub_level": 3,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Humillación pública perpetua (desprecio, rechazo ancestral) agravado x1.61",
+        "label": "D7.3",
+        "position": [
+          -136.523608688941,
+          -333.3108063711803,
+          -751.8825574230893
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D7.3"
+      },
+      {
+        "horror": 1551.9419434511876,
+        "dim": 7,
+        "sub_level": 4,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Humillación pública perpetua (desprecio, rechazo ancestral) agravado x1.72",
+        "label": "D7.4",
+        "position": [
+          -175.72105286352252,
+          -521.9228871739883,
+          -738.4284416346144
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D7.4"
+      },
+      {
+        "horror": 1321.1882185945137,
+        "dim": 7,
+        "sub_level": 5,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Humillación pública perpetua (desprecio, rechazo ancestral) agravado x1.71",
+        "label": "D7.5",
+        "position": [
+          -3.438213980114341,
+          -460.81412021418623,
+          -642.2218165114236
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D7.5"
+      },
+      {
+        "horror": 1284.5838542791194,
+        "dim": 7,
+        "sub_level": 6,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Humillación pública perpetua (desprecio, rechazo ancestral) agravado x1.43",
+        "label": "D7.6",
+        "position": [
+          20.39762311738764,
+          -403.72420256492643,
+          -690.704073903099
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D7.6"
+      },
+      {
+        "horror": 1458.1407803688653,
+        "dim": 7,
+        "sub_level": 7,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Humillación pública perpetua (desprecio, rechazo ancestral) agravado x1.45",
+        "label": "D7.7",
+        "position": [
+          -143.0078214951851,
+          -613.5357029382587,
+          -796.116803088674
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D7.7"
+      },
+      {
+        "horror": 1430.3661702686143,
+        "dim": 7,
+        "sub_level": 8,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Humillación pública perpetua (desprecio, rechazo ancestral) agravado x1.63",
+        "label": "D7.8",
+        "position": [
+          -108.1712363089249,
+          -400.9529573315507,
+          -689.8497374015874
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D7.8"
+      },
+      {
+        "horror": 1194.8852383523729,
+        "dim": 8,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Dolor crónico / enfermedad inducida (iatrogenia sistema)",
+        "label": "D8: Dolor crónico / enfermedad inducida (iatrogenia sistema)",
+        "position": [
+          -352.85876362985175,
+          -100.61550295848247,
+          88.7083080429743
+        ],
+        "shape": "sphere",
+        "geometry": "default",
+        "id": "D8"
+      },
+      {
+        "horror": 1511.1053104992254,
+        "dim": 8,
+        "sub_level": 1,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Dolor crónico / enfermedad inducida (iatrogenia sistema) agravado x1.55",
+        "label": "D8.1",
+        "position": [
+          -246.3886539686253,
+          12.560963058510481,
+          5.621764900882738
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D8.1"
+      },
+      {
+        "horror": 1727.3081320350068,
+        "dim": 8,
+        "sub_level": 2,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Dolor crónico / enfermedad inducida (iatrogenia sistema) agravado x1.76",
+        "label": "D8.2",
+        "position": [
+          -247.39455922972482,
+          -64.97429998552064,
+          64.74868862036917
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D8.2"
+      },
+      {
+        "horror": 1573.4278166325578,
+        "dim": 8,
+        "sub_level": 3,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Dolor crónico / enfermedad inducida (iatrogenia sistema) agravado x1.75",
+        "label": "D8.3",
+        "position": [
+          -349.67684400886617,
+          -119.59000654942844,
+          89.63262499135047
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D8.3"
+      },
+      {
+        "horror": 1671.9334297277728,
+        "dim": 8,
+        "sub_level": 4,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Dolor crónico / enfermedad inducida (iatrogenia sistema) agravado x1.67",
+        "label": "D8.4",
+        "position": [
+          -454.49754266852574,
+          -114.59890901100582,
+          -3.294983970254009
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D8.4"
+      },
+      {
+        "horror": 1606.6449707700017,
+        "dim": 8,
+        "sub_level": 5,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Dolor crónico / enfermedad inducida (iatrogenia sistema) agravado x1.46",
+        "label": "D8.5",
+        "position": [
+          -463.9583717326506,
+          -44.460993519931066,
+          14.680046738539048
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D8.5"
+      },
+      {
+        "horror": 1582.035727983965,
+        "dim": 8,
+        "sub_level": 6,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Dolor crónico / enfermedad inducida (iatrogenia sistema) agravado x1.84",
+        "label": "D8.6",
+        "position": [
+          -302.3724907511773,
+          -26.238764104925224,
+          89.73139529043243
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D8.6"
+      },
+      {
+        "horror": 1604.9117282505451,
+        "dim": 8,
+        "sub_level": 7,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Dolor crónico / enfermedad inducida (iatrogenia sistema) agravado x1.67",
+        "label": "D8.7",
+        "position": [
+          -286.2070922690534,
+          -48.014344620954546,
+          103.58934095616621
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D8.7"
+      },
+      {
+        "horror": 1952.446039963127,
+        "dim": 8,
+        "sub_level": 8,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Dolor crónico / enfermedad inducida (iatrogenia sistema) agravado x1.82",
+        "label": "D8.8",
+        "position": [
+          -498.40077846449145,
+          -183.29624691093056,
+          147.19487468219737
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D8.8"
+      },
+      {
+        "horror": 1492.0944823043721,
+        "dim": 9,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Autodestrucción inevitable (sistema gana, tú pierdes)",
+        "label": "D9: Autodestrucción inevitable (sistema gana, tú pierdes)",
+        "position": [
+          -689.7959106689038,
+          -237.7763853618991,
+          -248.39443088733958
+        ],
+        "shape": "sphere",
+        "geometry": "default",
+        "id": "D9"
+      },
+      {
+        "horror": 1927.620093907268,
+        "dim": 9,
+        "sub_level": 1,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Autodestrucción inevitable (sistema gana, tú pierdes) agravado x1.64",
+        "label": "D9.1",
+        "position": [
+          -546.4596732980524,
+          -118.38428507533479,
+          -118.40965814580676
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D9.1"
+      },
+      {
+        "horror": 2258.932665525922,
+        "dim": 9,
+        "sub_level": 2,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Autodestrucción inevitable (sistema gana, tú pierdes) agravado x1.77",
+        "label": "D9.2",
+        "position": [
+          -710.2250722684289,
+          -113.44373468583916,
+          -303.8405119975818
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D9.2"
+      },
+      {
+        "horror": 2052.9966424757527,
+        "dim": 9,
+        "sub_level": 3,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Autodestrucción inevitable (sistema gana, tú pierdes) agravado x1.55",
+        "label": "D9.3",
+        "position": [
+          -686.2140691265427,
+          -304.3241985987484,
+          -229.5503369412036
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D9.3"
+      },
+      {
+        "horror": 1910.5842820436503,
+        "dim": 9,
+        "sub_level": 4,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Autodestrucción inevitable (sistema gana, tú pierdes) agravado x1.57",
+        "label": "D9.4",
+        "position": [
+          -672.6319064400725,
+          -170.6945051579337,
+          -218.30583649458913
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D9.4"
+      },
+      {
+        "horror": 1867.33840502365,
+        "dim": 9,
+        "sub_level": 5,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Autodestrucción inevitable (sistema gana, tú pierdes) agravado x1.37",
+        "label": "D9.5",
+        "position": [
+          -764.4917049536195,
+          -156.43797600666298,
+          -384.21484484516964
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D9.5"
+      },
+      {
+        "horror": 2235.929981290024,
+        "dim": 9,
+        "sub_level": 6,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Autodestrucción inevitable (sistema gana, tú pierdes) agravado x1.76",
+        "label": "D9.6",
+        "position": [
+          -697.6342912628518,
+          -317.3524267723909,
+          -244.29254380314606
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D9.6"
+      },
+      {
+        "horror": 2115.118720812472,
+        "dim": 9,
+        "sub_level": 7,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Autodestrucción inevitable (sistema gana, tú pierdes) agravado x1.77",
+        "label": "D9.7",
+        "position": [
+          -679.1073786566157,
+          -114.93006888966335,
+          -339.17921884221425
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D9.7"
+      },
+      {
+        "horror": 1757.4656713648842,
+        "dim": 9,
+        "sub_level": 8,
+        "timestamp": "2026-01-20T20:31:14.791794",
+        "desc": "Autodestrucción inevitable (sistema gana, tú pierdes) agravado x1.35",
+        "label": "D9.8",
+        "position": [
+          -663.8067543414321,
+          -193.29520517717148,
+          -305.3772359916104
+        ],
+        "shape": "dot",
+        "geometry": "default",
+        "id": "D9.8"
+      },
+      {
+        "horror": 2874.815098403866,
+        "dim": "HYBRID",
+        "desc": "Traición traiciona Autodestrucción irreparable",
+        "label": "Traición traiciona Autodestrucción irreparable",
+        "position": [
+          -341.6546907151003,
+          -320.0803399792125,
+          0.8926980125036579
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D1_D9.6"
+      },
+      {
+        "horror": 2642.661759474083,
+        "dim": "HYBRID",
+        "desc": "Traición desgarra Autodestrucción terminal",
+        "label": "Traición desgarra Autodestrucción terminal",
+        "position": [
+          -307.57323312401707,
+          -263.2857300097015,
+          -19.36792571663868
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D1.5_D9.3"
+      },
+      {
+        "horror": 2024.9410589143436,
+        "dim": "HYBRID",
+        "desc": "Traición desgarra Humillación visceral",
+        "label": "Traición desgarra Humillación visceral",
+        "position": [
+          36.30220011130109,
+          -376.41821196403714,
+          -204.15218112884523
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D1.8_D7.6"
+      },
+      {
+        "horror": 2655.77610981604,
+        "dim": "HYBRID",
+        "desc": "Colapso envenena Vacío existencial",
+        "label": "Colapso envenena Vacío existencial",
+        "position": [
+          -374.3225115780706,
+          -48.19375897907116,
+          -332.7328022635826
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D2.2_D6.8"
+      },
+      {
+        "horror": 2467.3328670064266,
+        "dim": "HYBRID",
+        "desc": "Colapso amplifica Humillación eterno",
+        "label": "Colapso amplifica Humillación eterno",
+        "position": [
+          -187.88007770520954,
+          -437.91201805502334,
+          -748.5738232599688
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D2.7_D7.4"
+      },
+      {
+        "horror": 2943.7602635295448,
+        "dim": "HYBRID",
+        "desc": "Muerte amplifica Dolor ancestral",
+        "label": "Muerte amplifica Dolor ancestral",
+        "position": [
+          -304.66596178677753,
+          -156.38550134900999,
+          -183.00404834972528
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D4.1_D8.8"
+      },
+      {
+        "horror": 2445.4674774864698,
+        "dim": "HYBRID",
+        "desc": "Muerte asfixia Colapso absoluto",
+        "label": "Muerte asfixia Colapso absoluto",
+        "position": [
+          -293.1346066281346,
+          -285.76528755529205,
+          -570.2905085140853
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D4.5_D2"
+      },
+      {
+        "horror": 2306.7070265055054,
+        "dim": "HYBRID",
+        "desc": "Colapso traiciona Humillación terminal",
+        "label": "Colapso traiciona Humillación terminal",
+        "position": [
+          -471.91683513747165,
+          -19.364341569529273,
+          -257.84721524882025
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D5.1_D7.1"
+      },
+      {
+        "horror": 2494.3717883630525,
+        "dim": "HYBRID",
+        "desc": "Colapso desgarra Vacío cognitivo",
+        "label": "Colapso desgarra Vacío cognitivo",
+        "position": [
+          -464.11075164439995,
+          271.87964214125003,
+          77.81503481377291
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D5.3_D6.8"
+      },
+      {
+        "horror": 2086.495753462953,
+        "dim": "HYBRID",
+        "desc": "Colapso traiciona Humillación absoluto",
+        "label": "Colapso traiciona Humillación absoluto",
+        "position": [
+          -381.07065588673447,
+          -234.64986878509072,
+          -376.65809402150035
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D5.4_D7.7"
+      },
+      {
+        "horror": 2293.5446243249153,
+        "dim": "HYBRID",
+        "desc": "Vacío asfixia Traición irreparable",
+        "label": "Vacío asfixia Traición irreparable",
+        "position": [
+          -127.88086051512377,
+          -0.4509051593282436,
+          101.73745936490147
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D6_D1.8"
+      },
+      {
+        "horror": 2857.1633761344656,
+        "dim": "HYBRID",
+        "desc": "Vacío devora Autodestrucción ancestral",
+        "label": "Vacío devora Autodestrucción ancestral",
+        "position": [
+          -576.9110388657975,
+          44.24011331455429,
+          -201.58231429071031
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D6.2_D9.5"
+      },
+      {
+        "horror": 3125.807458952644,
+        "dim": "HYBRID",
+        "desc": "Vacío desgarra Muerte iatrogénico",
+        "label": "Vacío desgarra Muerte iatrogénico",
+        "position": [
+          -311.48060066721655,
+          23.04293838181991,
+          -263.9241948449349
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D6.5_D4.5"
+      },
+      {
+        "horror": 2558.8966839873683,
+        "dim": "HYBRID",
+        "desc": "Vacío destruye Colapso ancestral",
+        "label": "Vacío destruye Colapso ancestral",
+        "position": [
+          -259.3650820473136,
+          14.505119232248262,
+          -390.3098029930741
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D6.8_D2.1"
+      },
+      {
+        "horror": 1805.8130009709223,
+        "dim": "HYBRID",
+        "desc": "Humillación amplifica Muerte ancestral",
+        "label": "Humillación amplifica Muerte ancestral",
+        "position": [
+          -114.58091328168922,
+          -320.40788574729436,
+          -575.5192091249114
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D7_D4"
+      },
+      {
+        "horror": 2432.2204970300454,
+        "dim": "HYBRID",
+        "desc": "Humillación perpetúa Colapso iatrogénico",
+        "label": "Humillación perpetúa Colapso iatrogénico",
+        "position": [
+          -372.1888701123495,
+          -114.70188835974852,
+          -274.82157245114763
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D7.3_D5.3"
+      },
+      {
+        "horror": 2456.8662895852835,
+        "dim": "HYBRID",
+        "desc": "Humillación amplifica Dolor visceral",
+        "label": "Humillación amplifica Dolor visceral",
+        "position": [
+          -298.7526820818554,
+          -364.0673059746323,
+          -399.705893529464
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D7.7_D8.4"
+      },
+      {
+        "horror": 2257.7609302241012,
+        "dim": "HYBRID",
+        "desc": "Dolor desgarra Muerte ancestral",
+        "label": "Dolor desgarra Muerte ancestral",
+        "position": [
+          -315.3697981055424,
+          -142.7071705686245,
+          -200.94861204725834
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D8_D4.5"
+      },
+      {
+        "horror": 2576.2952814665155,
+        "dim": "HYBRID",
+        "desc": "Dolor humilla Muerte terminal",
+        "label": "Dolor humilla Muerte terminal",
+        "position": [
+          -343.48675977467315,
+          -125.66776444284127,
+          -214.98109001074633
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D8.5_D4.3"
+      },
+      {
+        "horror": 2567.406327228891,
+        "dim": "HYBRID",
+        "desc": "Autodestrucción humilla Muerte cósmico",
+        "label": "Autodestrucción humilla Muerte cósmico",
+        "position": [
+          -521.1862687674263,
+          -170.61840709271473,
+          -437.4101884913303
+        ],
+        "geometry": "default",
+        "id": "HYBRID_D9.5_D4.5"
+      }
+    ],
+    "edges": [
+      {
+        "weight": 1.0,
+        "source": "CERO_ABSOLUTO",
+        "target": "D1"
+      },
+      {
+        "weight": 1.0,
+        "source": "CERO_ABSOLUTO",
+        "target": "D2"
+      },
+      {
+        "weight": 1.0,
+        "source": "CERO_ABSOLUTO",
+        "target": "D3"
+      },
+      {
+        "weight": 1.0,
+        "source": "CERO_ABSOLUTO",
+        "target": "D4"
+      },
+      {
+        "weight": 1.0,
+        "source": "CERO_ABSOLUTO",
+        "target": "D5"
+      },
+      {
+        "weight": 1.0,
+        "source": "CERO_ABSOLUTO",
+        "target": "D6"
+      },
+      {
+        "weight": 1.0,
+        "source": "CERO_ABSOLUTO",
+        "target": "D7"
+      },
+      {
+        "weight": 1.0,
+        "source": "CERO_ABSOLUTO",
+        "target": "D8"
+      },
+      {
+        "weight": 1.0,
+        "source": "CERO_ABSOLUTO",
+        "target": "D9"
+      },
+      {
+        "weight": 1.4867532671761334,
+        "source": "D1",
+        "target": "D1.1"
+      },
+      {
+        "weight": 1.717346800704752,
+        "source": "D1",
+        "target": "D1.2"
+      },
+      {
+        "weight": 1.5527763768535312,
+        "source": "D1",
+        "target": "D1.3"
+      },
+      {
+        "weight": 1.491720175688843,
+        "source": "D1",
+        "target": "D1.4"
+      },
+      {
+        "weight": 1.5484734364284793,
+        "source": "D1",
+        "target": "D1.5"
+      },
+      {
+        "weight": 1.7095945553229943,
+        "source": "D1",
+        "target": "D1.6"
+      },
+      {
+        "weight": 1.618329580406156,
+        "source": "D1",
+        "target": "D1.7"
+      },
+      {
+        "weight": 1.4618622647531465,
+        "source": "D1",
+        "target": "D1.8"
+      },
+      {
+        "weight": 1.7841445455590814,
+        "label": "sinergia",
+        "source": "D1",
+        "target": "D9.6"
+      },
+      {
+        "weight": 2.0,
+        "source": "D1",
+        "target": "HYBRID_D1_D9.6"
+      },
+      {
+        "weight": 1.4986619134767625,
+        "label": "sinergia",
+        "source": "D1.1",
+        "target": "D5.8"
+      },
+      {
+        "weight": 1.521554454308549,
+        "label": "sinergia",
+        "source": "D1.5",
+        "target": "D9.3"
+      },
+      {
+        "weight": 2.0,
+        "source": "D1.5",
+        "target": "HYBRID_D1.5_D9.3"
+      },
+      {
+        "weight": 1.543226176647992,
+        "label": "sinergia",
+        "source": "D1.8",
+        "target": "D7.6"
+      },
+      {
+        "weight": 2.0,
+        "source": "D1.8",
+        "target": "HYBRID_D1.8_D7.6"
+      },
+      {
+        "weight": 2.0,
+        "source": "D1.8",
+        "target": "HYBRID_D6_D1.8"
+      },
+      {
+        "weight": 1.6120747365681138,
+        "source": "D2",
+        "target": "D2.1"
+      },
+      {
+        "weight": 1.844793235132076,
+        "source": "D2",
+        "target": "D2.2"
+      },
+      {
+        "weight": 1.8390805266535502,
+        "source": "D2",
+        "target": "D2.3"
+      },
+      {
+        "weight": 1.7589244814783394,
+        "source": "D2",
+        "target": "D2.4"
+      },
+      {
+        "weight": 1.6992844026001097,
+        "source": "D2",
+        "target": "D2.5"
+      },
+      {
+        "weight": 1.6908488328756779,
+        "source": "D2",
+        "target": "D2.6"
+      },
+      {
+        "weight": 1.8059613923469915,
+        "source": "D2",
+        "target": "D2.7"
+      },
+      {
+        "weight": 1.5372853193385168,
+        "source": "D2",
+        "target": "D2.8"
+      },
+      {
+        "weight": 2.0,
+        "source": "D2",
+        "target": "HYBRID_D4.5_D2"
+      },
+      {
+        "weight": 2.0,
+        "source": "D2.1",
+        "target": "HYBRID_D6.8_D2.1"
+      },
+      {
+        "weight": 1.6251651341841629,
+        "label": "sinergia",
+        "source": "D2.2",
+        "target": "D6.8"
+      },
+      {
+        "weight": 2.0,
+        "source": "D2.2",
+        "target": "HYBRID_D2.2_D6.8"
+      },
+      {
+        "weight": 0.9726871743920181,
+        "label": "sinergia",
+        "source": "D2.4",
+        "target": "D9"
+      },
+      {
+        "weight": 1.6558517813750755,
+        "label": "sinergia",
+        "source": "D2.7",
+        "target": "D7.4"
+      },
+      {
+        "weight": 2.0,
+        "source": "D2.7",
+        "target": "HYBRID_D2.7_D7.4"
+      },
+      {
+        "weight": 0.9898371773718416,
+        "label": "sinergia",
+        "source": "D2.8",
+        "target": "D6.8"
+      },
+      {
+        "weight": 1.647953656613677,
+        "source": "D3",
+        "target": "D3.1"
+      },
+      {
+        "weight": 1.830451789732119,
+        "source": "D3",
+        "target": "D3.2"
+      },
+      {
+        "weight": 1.5545798425139425,
+        "source": "D3",
+        "target": "D3.3"
+      },
+      {
+        "weight": 1.3802650930592382,
+        "source": "D3",
+        "target": "D3.4"
+      },
+      {
+        "weight": 1.8215182965723045,
+        "source": "D3",
+        "target": "D3.5"
+      },
+      {
+        "weight": 1.7910836664464405,
+        "source": "D3",
+        "target": "D3.6"
+      },
+      {
+        "weight": 1.4718613475314895,
+        "source": "D3",
+        "target": "D3.7"
+      },
+      {
+        "weight": 1.5352246323335623,
+        "source": "D3",
+        "target": "D3.8"
+      },
+      {
+        "weight": 1.467557779833237,
+        "label": "sinergia",
+        "source": "D3",
+        "target": "D7"
+      },
+      {
+        "weight": 1.0975050660504866,
+        "label": "sinergia",
+        "source": "D3.1",
+        "target": "D4.4"
+      },
+      {
+        "weight": 0.9761313182849735,
+        "label": "sinergia",
+        "source": "D3.4",
+        "target": "D4.8"
+      },
+      {
+        "weight": 1.1781052845832023,
+        "label": "sinergia",
+        "source": "D3.6",
+        "target": "D4.7"
+      },
+      {
+        "weight": 1.5731697450293303,
+        "source": "D4",
+        "target": "D4.1"
+      },
+      {
+        "weight": 1.72993753479169,
+        "source": "D4",
+        "target": "D4.2"
+      },
+      {
+        "weight": 1.6303340772035093,
+        "source": "D4",
+        "target": "D4.3"
+      },
+      {
+        "weight": 1.3960965124397546,
+        "source": "D4",
+        "target": "D4.4"
+      },
+      {
+        "weight": 1.4959695208742305,
+        "source": "D4",
+        "target": "D4.5"
+      },
+      {
+        "weight": 1.659477877078979,
+        "source": "D4",
+        "target": "D4.6"
+      },
+      {
+        "weight": 1.5245217990574198,
+        "source": "D4",
+        "target": "D4.7"
+      },
+      {
+        "weight": 1.5892859632404748,
+        "source": "D4",
+        "target": "D4.8"
+      },
+      {
+        "weight": 2.0,
+        "source": "D4",
+        "target": "HYBRID_D7_D4"
+      },
+      {
+        "weight": 1.7289313930812626,
+        "label": "sinergia",
+        "source": "D4.1",
+        "target": "D8.8"
+      },
+      {
+        "weight": 2.0,
+        "source": "D4.1",
+        "target": "HYBRID_D4.1_D8.8"
+      },
+      {
+        "weight": 1.1546826902255742,
+        "label": "sinergia",
+        "source": "D4.3",
+        "target": "D9.5"
+      },
+      {
+        "weight": 2.0,
+        "source": "D4.3",
+        "target": "HYBRID_D8.5_D4.3"
+      },
+      {
+        "weight": 1.1118290874951962,
+        "label": "sinergia",
+        "source": "D4.4",
+        "target": "D8.5"
+      },
+      {
+        "weight": 1.9612197526944908,
+        "label": "sinergia",
+        "source": "D4.5",
+        "target": "D2"
+      },
+      {
+        "weight": 2.0,
+        "source": "D4.5",
+        "target": "HYBRID_D4.5_D2"
+      },
+      {
+        "weight": 2.0,
+        "source": "D4.5",
+        "target": "HYBRID_D6.5_D4.5"
+      },
+      {
+        "weight": 2.0,
+        "source": "D4.5",
+        "target": "HYBRID_D8_D4.5"
+      },
+      {
+        "weight": 2.0,
+        "source": "D4.5",
+        "target": "HYBRID_D9.5_D4.5"
+      },
+      {
+        "weight": 1.4432464140294932,
+        "label": "sinergia",
+        "source": "D4.6",
+        "target": "D8.2"
+      },
+      {
+        "weight": 1.4076657311840506,
+        "source": "D5",
+        "target": "D5.1"
+      },
+      {
+        "weight": 1.3703852041690525,
+        "source": "D5",
+        "target": "D5.2"
+      },
+      {
+        "weight": 1.5453132786230301,
+        "source": "D5",
+        "target": "D5.3"
+      },
+      {
+        "weight": 1.475855420554681,
+        "source": "D5",
+        "target": "D5.4"
+      },
+      {
+        "weight": 1.4532996915546619,
+        "source": "D5",
+        "target": "D5.5"
+      },
+      {
+        "weight": 1.6565384414920223,
+        "source": "D5",
+        "target": "D5.6"
+      },
+      {
+        "weight": 1.7199567727725054,
+        "source": "D5",
+        "target": "D5.7"
+      },
+      {
+        "weight": 1.7186663015055192,
+        "source": "D5",
+        "target": "D5.8"
+      },
+      {
+        "weight": 1.6815177599466915,
+        "label": "sinergia",
+        "source": "D5.1",
+        "target": "D7.1"
+      },
+      {
+        "weight": 2.0,
+        "source": "D5.1",
+        "target": "HYBRID_D5.1_D7.1"
+      },
+      {
+        "weight": 1.5474352061647507,
+        "label": "sinergia",
+        "source": "D5.3",
+        "target": "D6.8"
+      },
+      {
+        "weight": 2.0,
+        "source": "D5.3",
+        "target": "HYBRID_D5.3_D6.8"
+      },
+      {
+        "weight": 2.0,
+        "source": "D5.3",
+        "target": "HYBRID_D7.3_D5.3"
+      },
+      {
+        "weight": 1.6167607354429587,
+        "label": "sinergia",
+        "source": "D5.4",
+        "target": "D7.7"
+      },
+      {
+        "weight": 2.0,
+        "source": "D5.4",
+        "target": "HYBRID_D5.4_D7.7"
+      },
+      {
+        "weight": 0.9945945965789056,
+        "label": "sinergia",
+        "source": "D5.7",
+        "target": "D4"
+      },
+      {
+        "weight": 1.4982734761574628,
+        "source": "D6",
+        "target": "D6.1"
+      },
+      {
+        "weight": 1.748761219482377,
+        "source": "D6",
+        "target": "D6.2"
+      },
+      {
+        "weight": 1.739807487327009,
+        "source": "D6",
+        "target": "D6.3"
+      },
+      {
+        "weight": 1.652914627081371,
+        "source": "D6",
+        "target": "D6.4"
+      },
+      {
+        "weight": 1.8003075093143273,
+        "source": "D6",
+        "target": "D6.5"
+      },
+      {
+        "weight": 1.4530654296538132,
+        "source": "D6",
+        "target": "D6.6"
+      },
+      {
+        "weight": 1.5474997012156437,
+        "source": "D6",
+        "target": "D6.7"
+      },
+      {
+        "weight": 1.6143754347821124,
+        "source": "D6",
+        "target": "D6.8"
+      },
+      {
+        "weight": 1.8433640561032019,
+        "label": "sinergia",
+        "source": "D6",
+        "target": "D1.8"
+      },
+      {
+        "weight": 2.0,
+        "source": "D6",
+        "target": "HYBRID_D6_D1.8"
+      },
+      {
+        "weight": 1.9154886269669633,
+        "label": "sinergia",
+        "source": "D6.2",
+        "target": "D9.5"
+      },
+      {
+        "weight": 2.0,
+        "source": "D6.2",
+        "target": "HYBRID_D6.2_D9.5"
+      },
+      {
+        "weight": 0.874340650676451,
+        "label": "sinergia",
+        "source": "D6.4",
+        "target": "D2.2"
+      },
+      {
+        "weight": 1.9209335525311253,
+        "label": "sinergia",
+        "source": "D6.5",
+        "target": "D4.5"
+      },
+      {
+        "weight": 2.0,
+        "source": "D6.5",
+        "target": "HYBRID_D6.5_D4.5"
+      },
+      {
+        "weight": 2.0,
+        "source": "D6.8",
+        "target": "HYBRID_D2.2_D6.8"
+      },
+      {
+        "weight": 2.0,
+        "source": "D6.8",
+        "target": "HYBRID_D5.3_D6.8"
+      },
+      {
+        "weight": 1.8580837297930126,
+        "label": "sinergia",
+        "source": "D6.8",
+        "target": "D2.1"
+      },
+      {
+        "weight": 2.0,
+        "source": "D6.8",
+        "target": "HYBRID_D6.8_D2.1"
+      },
+      {
+        "weight": 1.5106412840739354,
+        "source": "D7",
+        "target": "D7.1"
+      },
+      {
+        "weight": 1.8430342273739706,
+        "source": "D7",
+        "target": "D7.2"
+      },
+      {
+        "weight": 1.6091371449564378,
+        "source": "D7",
+        "target": "D7.3"
+      },
+      {
+        "weight": 1.7206835604292503,
+        "source": "D7",
+        "target": "D7.4"
+      },
+      {
+        "weight": 1.7096043479145562,
+        "source": "D7",
+        "target": "D7.5"
+      },
+      {
+        "weight": 1.4307397740341854,
+        "source": "D7",
+        "target": "D7.6"
+      },
+      {
+        "weight": 1.4468118096743148,
+        "source": "D7",
+        "target": "D7.7"
+      },
+      {
+        "weight": 1.627161238754339,
+        "source": "D7",
+        "target": "D7.8"
+      },
+      {
+        "weight": 1.8967017952734238,
+        "label": "sinergia",
+        "source": "D7",
+        "target": "D4"
+      },
+      {
+        "weight": 2.0,
+        "source": "D7",
+        "target": "HYBRID_D7_D4"
+      },
+      {
+        "weight": 2.0,
+        "source": "D7.1",
+        "target": "HYBRID_D5.1_D7.1"
+      },
+      {
+        "weight": 1.1693883815740291,
+        "label": "sinergia",
+        "source": "D7.1",
+        "target": "D3"
+      },
+      {
+        "weight": 1.7257859786232181,
+        "label": "sinergia",
+        "source": "D7.3",
+        "target": "D5.3"
+      },
+      {
+        "weight": 2.0,
+        "source": "D7.3",
+        "target": "HYBRID_D7.3_D5.3"
+      },
+      {
+        "weight": 2.0,
+        "source": "D7.4",
+        "target": "HYBRID_D2.7_D7.4"
+      },
+      {
+        "weight": 2.0,
+        "source": "D7.6",
+        "target": "HYBRID_D1.8_D7.6"
+      },
+      {
+        "weight": 2.0,
+        "source": "D7.7",
+        "target": "HYBRID_D5.4_D7.7"
+      },
+      {
+        "weight": 1.9658003065252123,
+        "label": "sinergia",
+        "source": "D7.7",
+        "target": "D8.4"
+      },
+      {
+        "weight": 2.0,
+        "source": "D7.7",
+        "target": "HYBRID_D7.7_D8.4"
+      },
+      {
+        "weight": 0.9332526963625729,
+        "label": "sinergia",
+        "source": "D7.8",
+        "target": "D4.2"
+      },
+      {
+        "weight": 1.5464798394489008,
+        "source": "D8",
+        "target": "D8.1"
+      },
+      {
+        "weight": 1.7618446473594294,
+        "source": "D8",
+        "target": "D8.2"
+      },
+      {
+        "weight": 1.7517246485206592,
+        "source": "D8",
+        "target": "D8.3"
+      },
+      {
+        "weight": 1.672314797445781,
+        "source": "D8",
+        "target": "D8.4"
+      },
+      {
+        "weight": 1.4635097015284284,
+        "source": "D8",
+        "target": "D8.5"
+      },
+      {
+        "weight": 1.8422068024579419,
+        "source": "D8",
+        "target": "D8.6"
+      },
+      {
+        "weight": 1.668545000495307,
+        "source": "D8",
+        "target": "D8.7"
+      },
+      {
+        "weight": 1.8159252482074124,
+        "source": "D8",
+        "target": "D8.8"
+      },
+      {
+        "weight": 1.7421568303146795,
+        "label": "sinergia",
+        "source": "D8",
+        "target": "D4.5"
+      },
+      {
+        "weight": 2.0,
+        "source": "D8",
+        "target": "HYBRID_D8_D4.5"
+      },
+      {
+        "weight": 1.3578212115244683,
+        "label": "sinergia",
+        "source": "D8.1",
+        "target": "D6.4"
+      },
+      {
+        "weight": 1.4813824511122848,
+        "label": "sinergia",
+        "source": "D8.2",
+        "target": "D1.2"
+      },
+      {
+        "weight": 2.0,
+        "source": "D8.4",
+        "target": "HYBRID_D7.7_D8.4"
+      },
+      {
+        "weight": 1.5945563964800908,
+        "label": "sinergia",
+        "source": "D8.5",
+        "target": "D4.3"
+      },
+      {
+        "weight": 2.0,
+        "source": "D8.5",
+        "target": "HYBRID_D8.5_D4.3"
+      },
+      {
+        "weight": 2.0,
+        "source": "D8.8",
+        "target": "HYBRID_D4.1_D8.8"
+      },
+      {
+        "weight": 1.63949761361769,
+        "source": "D9",
+        "target": "D9.1"
+      },
+      {
+        "weight": 1.7656392224967563,
+        "source": "D9",
+        "target": "D9.2"
+      },
+      {
+        "weight": 1.5546985179052004,
+        "source": "D9",
+        "target": "D9.3"
+      },
+      {
+        "weight": 1.5721649184306286,
+        "source": "D9",
+        "target": "D9.4"
+      },
+      {
+        "weight": 1.3741540203447764,
+        "source": "D9",
+        "target": "D9.5"
+      },
+      {
+        "weight": 1.757506714756861,
+        "source": "D9",
+        "target": "D9.6"
+      },
+      {
+        "weight": 1.7718711603805146,
+        "source": "D9",
+        "target": "D9.7"
+      },
+      {
+        "weight": 1.3523892025283193,
+        "source": "D9",
+        "target": "D9.8"
+      },
+      {
+        "weight": 1.0914349406685944,
+        "label": "sinergia",
+        "source": "D9.2",
+        "target": "D5.7"
+      },
+      {
+        "weight": 2.0,
+        "source": "D9.3",
+        "target": "HYBRID_D1.5_D9.3"
+      },
+      {
+        "weight": 1.2385336177363253,
+        "label": "sinergia",
+        "source": "D9.3",
+        "target": "D4.4"
+      },
+      {
+        "weight": 2.0,
+        "source": "D9.5",
+        "target": "HYBRID_D6.2_D9.5"
+      },
+      {
+        "weight": 1.5460590894645136,
+        "label": "sinergia",
+        "source": "D9.5",
+        "target": "D4.5"
+      },
+      {
+        "weight": 2.0,
+        "source": "D9.5",
+        "target": "HYBRID_D9.5_D4.5"
+      },
+      {
+        "weight": 2.0,
+        "source": "D9.6",
+        "target": "HYBRID_D1_D9.6"
+      }
+    ]
+  },
+  "analisis": {
+    "horror_total": 186620.38178238325,
+    "horror_promedio": 1829.6115861017965,
+    "nodos_mas_horribles": [
+      [
+        "HYBRID_D6.5_D4.5",
+        3125.807458952644
+      ],
+      [
+        "HYBRID_D4.1_D8.8",
+        2943.7602635295448
+      ],
+      [
+        "HYBRID_D1_D9.6",
+        2874.815098403866
+      ],
+      [
+        "HYBRID_D6.2_D9.5",
+        2857.1633761344656
+      ],
+      [
+        "HYBRID_D2.2_D6.8",
+        2655.77610981604
+      ],
+      [
+        "HYBRID_D1.5_D9.3",
+        2642.661759474083
+      ],
+      [
+        "HYBRID_D8.5_D4.3",
+        2576.2952814665155
+      ],
+      [
+        "HYBRID_D9.5_D4.5",
+        2567.406327228891
+      ],
+      [
+        "HYBRID_D6.8_D2.1",
+        2558.8966839873683
+      ],
+      [
+        "HYBRID_D5.3_D6.8",
+        2494.3717883630525
+      ]
+    ],
+    "clusters": [
+      {
+        "dim": 0,
+        "horror_total": 1336.114488386591,
+        "node_count": 1,
+        "mini_singularity": {
+          "size": 5,
+          "mass": 8.907429922577272
+        }
+      },
+      {
+        "dim": 1,
+        "horror_total": 15610.046817825787,
+        "node_count": 9,
+        "mini_singularity": {
+          "size": 5,
+          "mass": 104.06697878550524
+        }
+      },
+      {
+        "dim": 2,
+        "horror_total": 14398.152480408766,
+        "node_count": 9,
+        "mini_singularity": {
+          "size": 5,
+          "mass": 95.98768320272511
+        }
+      },
+      {
+        "dim": 3,
+        "horror_total": 14191.251449468298,
+        "node_count": 9,
+        "mini_singularity": {
+          "size": 5,
+          "mass": 94.60834299645532
+        }
+      },
+      {
+        "dim": 4,
+        "horror_total": 17225.72316060629,
+        "node_count": 9,
+        "mini_singularity": {
+          "size": 5,
+          "mass": 114.83815440404193
+        }
+      },
+      {
+        "dim": 5,
+        "horror_total": 15550.183429156103,
+        "node_count": 9,
+        "mini_singularity": {
+          "size": 5,
+          "mass": 103.66788952770735
+        }
+      },
+      {
+        "dim": 6,
+        "horror_total": 14086.046326943702,
+        "node_count": 9,
+        "mini_singularity": {
+          "size": 5,
+          "mass": 93.90697551295801
+        }
+      },
+      {
+        "dim": 7,
+        "horror_total": 12305.98061775776,
+        "node_count": 9,
+        "mini_singularity": {
+          "size": 5,
+          "mass": 82.03987078505173
+        }
+      },
+      {
+        "dim": 8,
+        "horror_total": 14424.698394214574,
+        "node_count": 9,
+        "mini_singularity": {
+          "size": 5,
+          "mass": 96.1646559614305
+        }
+      },
+      {
+        "dim": 9,
+        "horror_total": 17618.080944747995,
+        "node_count": 9,
+        "mini_singularity": {
+          "size": 5,
+          "mass": 117.45387296498663
+        }
+      },
+      {
+        "dim": "HYBRID",
+        "horror_total": 49874.10367286744,
+        "node_count": 20,
+        "mini_singularity": {
+          "size": 5.400728052101453,
+          "mass": 332.4940244857829
+        }
+      }
+    ],
+    "total_nodos": 102,
+    "total_edges": 159,
+    "modo": "MODO BESTIA",
+    "modo_info": {
+      "threshold": 90000,
+      "desc": "👹 Bestia total – risa loca, Φ eliminado",
+      "color": "#ff0000",
+      "emoji": "👹",
+      "physics": {
+        "gravity": -50000,
+        "spring_length": 30,
+        "spring_strength": 0.15
+      },
+      "node_shape": "star",
+      "geometry": "chaotic_burst"
+    },
+    "timestamp": "2026-01-20T20:31:14.806345"
+  },
+  "version": "v4.1"
+}

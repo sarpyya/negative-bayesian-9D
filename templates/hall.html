@@ -1,100 +1,212 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
     <title>🔥 HALL OF SHAME - Bayesian Negative 9D</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg-black: #000000;
-            --text-red: #ff0033;
-            --text-yellow: #ffff00;
-            --text-green: #00ff41;
-            --glow-red: 0 0 10px #ff0033;
-        }
-        body {
-            background: var(--bg-black);
-            color: var(--text-green);
-            font-family: 'Courier New', monospace;
-            padding: 20px;
-        }
-        .container { max-width: 1200px; margin: 0 auto; }
-        header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid var(--text-red); padding-bottom: 20px; }
-        h1 { color: var(--text-red); text-shadow: var(--glow-red); font-size: 3rem; margin-bottom: 10px; }
-        .back-btn {
-            display: inline-block;
-            background: transparent;
-            color: var(--text-yellow);
-            border: 1px solid var(--text-yellow);
-            padding: 10px 20px;
-            text-decoration: none;
-            margin-bottom: 20px;
-            transition: 0.3s;
-        }
-        .back-btn:hover { background: var(--text-yellow); color: var(--bg-black); }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #333; padding: 15px; text-align: left; }
-        th { color: var(--text-yellow); background: #111; font-size: 1.2rem; }
-        
-        .rank { color: var(--text-red); font-weight: bold; font-size: 1.5rem; }
-        .horror-val { color: var(--text-red); font-weight: bold; font-size: 1.3rem; }
-        .node-list { font-size: 0.8rem; color: #888; }
-        .node-item { margin-bottom: 4px; }
-        .timestamp { color: #555; font-size: 0.8rem; }
-        
-        tr:hover { background: #0a0a0a; }
-        tr:nth-child(1) td { border-top: 3px solid var(--text-red); }
+      body {
+        background: #000;
+        color: #00ff41;
+        font-family: "Courier New", monospace;
+        padding: 40px;
+      }
+      h1 {
+        color: #ff0033;
+        text-align: center;
+        font-size: 3rem;
+        text-shadow: 0 0 20px #ff0033;
+      }
+      .tabs {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 30px 0;
+      }
+      .tab {
+        padding: 10px 20px;
+        background: #111;
+        border: 1px solid #333;
+        color: #888;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .tab:hover {
+        background: #222;
+        color: #00ffff;
+      }
+      .tab.active {
+        background: #ff0033;
+        color: #fff;
+        border-color: #ff0033;
+      }
+      .ranking-section {
+        display: none;
+      }
+      .ranking-section.active {
+        display: block;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #333;
+        padding: 15px;
+        text-align: left;
+      }
+      th {
+        background: #111;
+        color: #ffff00;
+      }
+      .rank {
+        color: #ff0033;
+        font-size: 1.8rem;
+        font-weight: bold;
+      }
+      .horror {
+        color: #ff0033;
+        font-size: 1.4rem;
+        font-weight: bold;
+      }
+      .modo {
+        color: #ffd700;
+      }
+      a {
+        color: #00ffff;
+        text-decoration: none;
+      }
+      a:hover {
+        text-shadow: 0 0 10px #00ffff;
+      }
+      .back {
+        display: block;
+        text-align: center;
+        margin: 30px;
+        font-size: 1.2rem;
+      }
+      .mode-emoji {
+        font-size: 1.5rem;
+        margin-right: 10px;
+      }
     </style>
-</head>
-<body>
-    <div class="container">
-        <a href="/" class="back-btn">⬅ VOLVER AL ABISMO</a>
-        
-        <header>
-            <h1>🔥 HALL OF SHAME 🔥</h1>
-            <p>Los peores escenarios jamás calculados por la humanidad</p>
-        </header>
+  </head>
+  <body>
+    <a href="/" class="back">⬅ VOLVER AL ABISMO</a>
+    <h1>🔥 HALL OF SHAME 🔥</h1>
+    <p style="text-align: center; color: #888">
+      Los peores abismos calculados • Rankings por Modo de Consciencia
+    </p>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>RANK</th>
-                    <th>HORROR TOTAL</th>
-                    <th>MODO</th>
-                    <th>SEED</th>
-                    <th>TOP HORRORES</th>
-                    <th>FECHA</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for run in runs %}
-                <tr>
-                    <td class="rank">#{{ loop.index }}</td>
-                    <td class="horror-val">{{ "%.1f"|format(run.horror_total) }}</td>
-                    <td style="color: var(--text-yellow);">{{ run.modo }}</td>
-                    <td>{{ run.seed }}</td>
-                    <td>
-                        <div class="node-list">
-                            {% for node in run.top_nodes_list[:3] %}
-                            <div class="node-item">
-                                <span style="color: var(--text-red);">[{{ "%.0f"|format(node.horror) }}]</span> 
-                                {{ node.label.split(':')[1] if ':' in node.label else node.label }}
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </td>
-                    <td class="timestamp">{{ run.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
-                    <td>
-                        <a href="/visualize/seed/{{ run.seed }}" target="_blank" style="color: var(--text-cyan); text-decoration: none; border: 1px solid var(--text-cyan); padding: 5px 10px; font-size: 0.8rem;">
-                            👁 VER ABISMO
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="tabs">
+      <div class="tab active" onclick="showRanking('all')">🌌 TODOS</div>
+      <div class="tab" onclick="showRanking('MODO BESTIA')">👹 BESTIA</div>
+      <div class="tab" onclick="showRanking('MODO JUSTICE')">⚖️ JUSTICE</div>
+      <div class="tab" onclick="showRanking('NIÑO_WOWO')">🤪 WOWO</div>
+      <div class="tab" onclick="showRanking('CHILL')">🧊 CHILL</div>
+      <div class="tab" onclick="showRanking('DOLPHIN')">🐬 DOLPHIN</div>
     </div>
-</body>
+
+    <div id="all" class="ranking-section active">
+      <h2 style="color:#00ffff;text-align:center;">🏆 TOP 50 ABSOLUTO</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>RANK</th>
+            <th>HORROR TOTAL</th>
+            <th>MODO</th>
+            <th>SEED</th>
+            <th>TOP 3 HORRORES</th>
+            <th>FECHA</th>
+            <th>VER</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for run in runs %}
+          <tr>
+            <td class="rank">#{{ loop.index }}</td>
+            <td class="horror">{{ "%.0f"|format(run.horror_total) }}</td>
+            <td class="modo">{{ run.modo }}</td>
+            <td>{{ run.seed }}</td>
+            <td>
+              {% for node in run.top_nodes[:3] %}
+              <div>[{{ "%.0f"|format(node.horror) }}] {{ node.label }}</div>
+              {% endfor %}
+            </td>
+            <td>{{ run.timestamp[:10] }} {{ run.timestamp[11:16] }}</td>
+            <td>
+              <a href="/visualize?seed={{ run.seed }}" target="_blank"
+                >👁 VER ABISMO</a
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% for modo in ['MODO BESTIA', 'MODO JUSTICE', 'NIÑO_WOWO', 'CHILL', 'DOLPHIN'] %}
+    <div id="{{ modo }}" class="ranking-section">
+      <h2 style="color:#00ffff;text-align:center;">
+        {% if modo == 'MODO BESTIA' %}👹{% elif modo == 'MODO JUSTICE' %}⚖️{% elif modo == 'NIÑO_WOWO' %}🤪{% elif modo == 'CHILL' %}🧊{% else %}🐬{% endif %}
+        TOP {{ modo }}
+      </h2>
+      <table>
+        <thead>
+          <tr>
+            <th>RANK</th>
+            <th>HORROR TOTAL</th>
+            <th>SEED</th>
+            <th>TOP 3 HORRORES</th>
+            <th>FECHA</th>
+            <th>VER</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for run in runs %}
+          {% if modo in run.modo %}
+          <tr>
+            <td class="rank">#{{ loop.index }}</td>
+            <td class="horror">{{ "%.0f"|format(run.horror_total) }}</td>
+            <td>{{ run.seed }}</td>
+            <td>
+              {% for node in run.top_nodes[:3] %}
+              <div>[{{ "%.0f"|format(node.horror) }}] {{ node.label }}</div>
+              {% endfor %}
+            </td>
+            <td>{{ run.timestamp[:10] }} {{ run.timestamp[11:16] }}</td>
+            <td>
+              <a href="/visualize?seed={{ run.seed }}" target="_blank"
+                >👁 VER ABISMO</a
+              >
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endfor %}
+
+    <script>
+      function showRanking(mode) {
+        // Hide all sections
+        document.querySelectorAll('.ranking-section').forEach(section => {
+          section.classList.remove('active');
+        });
+        
+        // Remove active from all tabs
+        document.querySelectorAll('.tab').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        
+        // Show selected section
+        document.getElementById(mode).classList.add('active');
+        
+        // Activate clicked tab
+        event.target.classList.add('active');
+      }
+    </script>
+  </body>
 </html>
