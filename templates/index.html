@@ -71,32 +71,70 @@
     }
     .hud-title { font-weight:700; font-size:0.9rem; letter-spacing:2px; color:var(--text-cyan); text-transform:uppercase; border-bottom:1px solid var(--glass-border); padding-bottom:5px; }
     
-    /* Config Module - Collapsible from left */
+    /* Config Module - Collapsible from left (EXPANDE HACIA ARRIBA) */
     #config-module {
-      bottom:300px; left:-280px; width:300px;
-      transform:translateX(0);
-      opacity:0.3;
+      bottom: 20px; /* Anclado abajo */
+      left: -430px; /* Oculto (450px - 20px borde) */
+      width: 450px; /* Más ancho */
+      max-width: 90vw;
+      max-height: 85vh; /* Máximo altura disponible */
+      overflow-y: auto; /* Scroll si es necesario */
+      transform: translateX(0);
+      opacity: 0.4;
+      z-index: 800; /* Debajo de Donation/Sine? Ajustable */
+      transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s, z-index 0s 0.3s;
+      
+      /* Grid Layout Dinámico */
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      align-content: start;
     }
+    
     #config-module:hover,
     #config-module:focus-within {
-      transform:translateX(280px);
-      opacity:1;
+      transform: translateX(430px); /* Desliza hacia la derecha para mostrarse */
+      opacity: 1;
+      z-index: 2000; /* Encima de todo al interactuar */
+      transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s, z-index 0s 0s;
     }
+    
+    #config-module .hud-title {
+      grid-column: 1 / -1; /* Título ocupa todo el ancho */
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    
+    #config-module > div[style*="grid"] {
+      grid-column: 1 / -1; /* Botones de acción ocupan todo el ancho */
+    }
+
+    #config-module.dragging {
+      transform: none !important; /* Desactivar transform al arrastrar */
+      opacity: 1 !important;
+      z-index: 2000 !important;
+    }
+    
     #config-module::before {
-      content:'☰';
-      position:absolute;
-      right:-30px;
-      top:50%;
-      transform:translateY(-50%);
-      background:var(--glass-bg);
-      border:1px solid var(--glass-border);
-      border-left:none;
-      border-radius:0 8px 8px 0;
-      padding:10px 8px;
-      color:var(--text-cyan);
-      font-size:1.2rem;
-      cursor:pointer;
-      pointer-events:auto;
+      content: '☰';
+      position: absolute;
+      right: -35px; /* Ajustado para el borde */
+      top: 20px; 
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-left: none;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 8px;
+      color: var(--text-cyan);
+      font-size: 1.4rem;
+      cursor: pointer;
+      pointer-events: auto;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 5px rgba(0, 242, 255, 0.3); }
+      50% { box-shadow: 0 0 15px rgba(0, 242, 255, 0.6); }
     }
     .input-group { margin-bottom:12px; }
     .input-group label { display:block; font-size:0.75rem; color:#888; margin-bottom:5px; }
@@ -188,6 +226,161 @@
       background:var(--glass-border);
     }
     
+    /* Titan Panel Controls */
+    #titan-panel-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    #titan-panel-controls button {
+      background: rgba(0, 242, 255, 0.1);
+      border: 1px solid var(--glass-border);
+      color: var(--text-cyan);
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      min-width: 35px;
+      height: 30px;
+    }
+    
+    #titan-panel-controls button:hover {
+      background: rgba(0, 242, 255, 0.3);
+      transform: scale(1.1);
+      box-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+    }
+    
+    #titan-panel-controls button.hidden-panel {
+      opacity: 0.4;
+      background: rgba(255, 0, 51, 0.1);
+      border-color: rgba(255, 0, 51, 0.3);
+    }
+    
+    #titan-panel-controls button.hidden-panel:hover {
+      background: rgba(255, 0, 51, 0.2);
+    }
+    
+    /* Draggable cursor */
+    .draggable {
+      cursor: move;
+    }
+    
+    .draggable.dragging {
+      cursor: grabbing;
+      z-index: 2000 !important;
+      opacity: 0.9;
+    }
+    
+    /* Donation Module */
+    #donation-module {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 1000;
+      background: var(--glass-bg);
+      backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all 0.3s ease;
+      max-width: 90vw;
+    }
+    
+    @media (min-width: 800px) {
+      #donation-module {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+    
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 242, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .qr-container:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(0, 242, 255, 0.6);
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+    }
+    
+    .qr-image {
+      width: 120px;
+      height: 120px;
+      /* background: white;  Removed, img src will provide content */
+      border-radius: 4px;
+      display: block; /* Changed from grid */
+      box-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+      position: relative;
+    }
+    
+    /* Removed ::before simulation */
+    
+    .qr-image-overlay {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      font-size: 0.6rem;
+      font-weight: bold;
+      color: #000;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 1px 3px;
+      border-radius: 2px;
+      pointer-events: none;
+    }
+    
+
+    
+    .qr-label {
+      font-size: 0.75rem;
+      color: var(--text-cyan);
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Sine Wave Visualization (Top Left) */
+    #sine-wave-canvas {
+      position: fixed;
+      top: 50px; /* Debajo del Titan Panel */
+      left: 10px;
+      width: 300px;
+      height: 150px;
+      z-index: 500;
+      background: var(--glass-bg);
+      backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 5px;
+      box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+      pointer-events: none;
+      opacity: 0.8;
+      transition: opacity 0.3s ease;
+    }
+    
+    #sine-wave-canvas:hover {
+      opacity: 1;
+    }
+    
+    #sine-wave-canvas canvas {
+      width: 100%;
+      height: 100%;
+      border-radius: 4px;
+    }
+
     /* Toast Animations */
     @keyframes slideIn {
       from { transform:translateX(400px); opacity:0; }
@@ -242,10 +435,10 @@
     let currentUniverseData = { modo: "LOADING", modo_info: { physics: { gravity: 1000 } } }; 
     let frameCount = 0;
     
-    // Performance Optimization Globals
-    const CHUNK_SIZE = 10000; // Process 10k nodes per frame
+    // Performance Optimization Globals (VEGA 11 OPTIMIZED)
+    const CHUNK_SIZE = 15000; // 15k nodes per frame (balanced for Vega 11)
     let currentChunk = 0;
-    let totalNodes = 50000;
+    let totalNodes = 120000; // 120k nodes max (realistic for Vega 11)
     
     // Debounce state
     let sliderTimeout = null;
@@ -529,6 +722,80 @@
     }
 
     // ═══════════════════════════════════════════════════════════════
+    // 🌊 SINE WAVE VISUALIZATION (TOP LEFT)
+    // ═══════════════════════════════════════════════════════════════
+    
+    function initSineWave() {
+      const canvas = document.getElementById('sine-canvas');
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+      
+      let phase = 0;
+      
+      function drawSineWave() {
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+        
+        // Background gradient
+        const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
+        bgGradient.addColorStop(0, 'rgba(0, 20, 40, 0.3)');
+        bgGradient.addColorStop(1, 'rgba(0, 10, 20, 0.5)');
+        ctx.fillStyle = bgGradient;
+        ctx.fillRect(0, 0, width, height);
+        
+        // Get audio data if available
+        let audioFactor = 1.0;
+        if (isFiestaMode && dataArray) {
+          const avgAudio = dataArray.slice(0, 50).reduce((a, b) => a + b, 0) / 50;
+          audioFactor = 1.0 + (avgAudio / 255) * 2; // 1.0 - 3.0
+        }
+        
+        // Draw multiple sine waves
+        const waves = [
+          { amplitude: 20, frequency: 0.02, color: 'rgba(0, 242, 255, 0.8)', offset: 0 },
+          { amplitude: 15, frequency: 0.03, color: 'rgba(255, 0, 255, 0.6)', offset: Math.PI / 2 },
+          { amplitude: 10, frequency: 0.04, color: 'rgba(0, 255, 65, 0.4)', offset: Math.PI }
+        ];
+        
+        waves.forEach(wave => {
+          ctx.beginPath();
+          ctx.strokeStyle = wave.color;
+          ctx.lineWidth = 2;
+          
+          for (let x = 0; x < width; x++) {
+            const y = height / 2 + 
+                     Math.sin((x * wave.frequency) + phase + wave.offset) * 
+                     wave.amplitude * audioFactor;
+            
+            if (x === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              ctx.lineTo(x, y);
+            }
+          }
+          
+          ctx.stroke();
+        });
+        
+        // Draw FPS indicator
+        ctx.fillStyle = 'rgba(0, 242, 255, 0.6)';
+        ctx.font = '10px monospace';
+        ctx.fillText(`WAVE ${Math.round(phase * 10)}`, 5, 12);
+        
+        // Update phase
+        phase += 0.05 * timeSpeed;
+        if (phase > Math.PI * 2) phase = 0;
+        
+        requestAnimationFrame(drawSineWave);
+      }
+      
+      drawSineWave();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
     // ⚙️ SISTEMA DE CONTROLES CONFIGURABLES
     // ═══════════════════════════════════════════════════════════════
 
@@ -562,16 +829,218 @@
       showToast('⚙️ Controles reseteados a defaults');
     }
 
-    // Movimiento
+    // ═══════════════════════════════════════════════════════════════
+    // 🎯 SISTEMA DRAGGABLE UNIVERSAL
+    // ═══════════════════════════════════════════════════════════════
+    
+    function makeDraggable(elementId, handleSelector = null) {
+      const element = document.getElementById(elementId);
+      if (!element) return;
+      
+      const handle = handleSelector ? element.querySelector(handleSelector) : element;
+      if (!handle) return;
+      
+      let isDragging = false;
+      let startX, startY, initialLeft, initialTop;
+      
+      handle.style.cursor = 'move';
+      element.classList.add('draggable');
+      
+      handle.addEventListener('mousedown', (e) => {
+        // Ignorar si es el botón hamburguesa del config-module
+        if (e.target.matches('#config-module::before')) return;
+        
+        e.preventDefault();
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        
+        const rect = element.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialTop = rect.top;
+        
+        // Convertir a posicionamiento absoluto
+        element.style.position = 'fixed';
+        element.style.bottom = 'auto';
+        element.style.right = 'auto';
+        element.style.transform = 'none';
+        element.style.left = initialLeft + 'px';
+        element.style.top = initialTop + 'px';
+        
+        element.classList.add('dragging');
+        handle.style.cursor = 'grabbing';
+      });
+      
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        
+        const newLeft = initialLeft + dx;
+        const newTop = initialTop + dy;
+        
+        element.style.left = newLeft + 'px';
+        element.style.top = newTop + 'px';
+      });
+      
+      document.addEventListener('mouseup', () => {
+        if (isDragging) {
+          isDragging = false;
+          element.classList.remove('dragging');
+          handle.style.cursor = 'move';
+          
+          // Guardar posición
+          savePosition(elementId, element.style.left, element.style.top);
+        }
+      });
+    }
+    
+    // ═══════════════════════════════════════════════════════════════
+    // 💾 SISTEMA DE PERSISTENCIA DE PANELES
+    // ═══════════════════════════════════════════════════════════════
+    
+    const panelStates = {
+      'config-module': { visible: true, defaultPos: { top: '50%', left: '-280px', transform: 'translateY(-50%)' } },
+      'temporal-controls': { visible: false, defaultPos: { bottom: '20px', right: '20px' } },
+      'quick-nav-panel': { visible: true, defaultPos: { bottom: '20px', left: '50%', transform: 'translateX(-50%)' } },
+      'donation-module': { visible: true, defaultPos: { bottom: '20px', left: '20px' } }
+    };
+    
+    function savePosition(panelId, left, top) {
+      const positions = JSON.parse(localStorage.getItem('cosmicOS_panelPositions') || '{}');
+      positions[panelId] = { left, top };
+      localStorage.setItem('cosmicOS_panelPositions', JSON.stringify(positions));
+    }
+    
+    function restorePositions() {
+      const positions = JSON.parse(localStorage.getItem('cosmicOS_panelPositions') || '{}');
+      Object.keys(positions).forEach(panelId => {
+        const panel = document.getElementById(panelId);
+        if (panel && positions[panelId]) {
+          panel.style.position = 'fixed';
+          panel.style.left = positions[panelId].left;
+          panel.style.top = positions[panelId].top;
+          panel.style.bottom = 'auto';
+          panel.style.right = 'auto';
+          panel.style.transform = 'none';
+        }
+      });
+      
+      // Restaurar estados de visibilidad
+      const states = JSON.parse(localStorage.getItem('cosmicOS_panelStates') || '{}');
+      Object.keys(states).forEach(panelId => {
+        if (states[panelId] !== undefined && states[panelId].visible !== undefined) {
+          panelStates[panelId].visible = states[panelId].visible;
+          const panel = document.getElementById(panelId);
+          if (panel) {
+            panel.style.display = states[panelId].visible ? '' : 'none';
+          }
+          // Actualizar botón
+          updatePanelButton(panelId, states[panelId].visible);
+        }
+      });
+    }
+    
+    function togglePanel(panelId) {
+      const panel = document.getElementById(panelId);
+      if (!panel) return;
+      
+      // If it's the config module, we don't want to hide it completely (display:none)
+      // because that kills the hover handle. We just want to "collapse" it.
+      if (panelId === 'config-module') {
+         // Check if it's currently expanded "programmatically" (e.g. dragging or pinned?)
+         // Actually, our CSS handles the collapse (left: -430px). 
+         // "Toggle" button might just be for "Focus" or "Hide completely"?
+         // User says "without pressing button".
+         // Let's make the button mostly irrelevant -> it just ensures it's in default state.
+         
+         const isHidden = panel.classList.contains('force-hidden');
+         
+         if (isHidden) {
+             panel.classList.remove('force-hidden');
+             panel.style.display = ''; 
+             showToast('👁️ Panel Neural Restaurado');
+         } else {
+             // If user really wants to hide it?
+             // Maybe just flash it?
+             // Let's assume the button should "Reset" it to peeking state if it was hidden.
+             panel.classList.remove('force-hidden');
+             panel.style.display = '';
+             showToast('🧠 Panel Neural Listo (Desliza mouse al borde izquierdo)');
+         }
+         // Update button state
+         updatePanelButton(panelId, true);
+         return;
+      }
+
+      const isVisible = panel.style.display !== 'none';
+      panel.style.display = isVisible ? 'none' : '';
+      panelStates[panelId].visible = !isVisible;
+      
+      // Actualizar botón
+      updatePanelButton(panelId, !isVisible);
+      
+      // Guardar estado
+      const states = JSON.parse(localStorage.getItem('cosmicOS_panelStates') || '{}');
+      states[panelId] = { visible: !isVisible };
+      localStorage.setItem('cosmicOS_panelStates', JSON.stringify(states));
+      
+      showToast(`${isVisible ? '🙈' : '👁️'} Panel ${isVisible ? 'ocultado' : 'restaurado'}`);
+    }
+    
+    function updatePanelButton(panelId, isVisible) {
+      const btn = document.querySelector(`[data-panel="${panelId}"]`);
+      if (btn) {
+        if (isVisible) {
+          btn.classList.remove('hidden-panel');
+        } else {
+          btn.classList.add('hidden-panel');
+        }
+      }
+    }
+    
+    function resetAllPanels() {
+      Object.keys(panelStates).forEach(panelId => {
+        const panel = document.getElementById(panelId);
+        if (!panel) return;
+        
+        const defaultPos = panelStates[panelId].defaultPos;
+        panel.style.position = 'fixed';
+        Object.keys(defaultPos).forEach(prop => {
+          panel.style[prop] = defaultPos[prop];
+        });
+        
+        // Resetear otras propiedades
+        panel.style.display = '';
+        panel.style.bottom = defaultPos.bottom || 'auto';
+        panel.style.right = defaultPos.right || 'auto';
+        panel.style.left = defaultPos.left || 'auto';
+        panel.style.top = defaultPos.top || 'auto';
+        
+        panelStates[panelId].visible = true;
+        updatePanelButton(panelId, true);
+      });
+      
+      // Limpiar localStorage
+      localStorage.removeItem('cosmicOS_panelStates');
+      localStorage.removeItem('cosmicOS_panelPositions');
+      
+      showToast('🔄 Vista restaurada a defaults');
+    }
+
+
+    // Movimiento (EXTREME SPEED MODE)
     const moveState = { forward:0, back:0, left:0, right:0, up:0, down:0, rotateUp:0, rotateDown:0, rotateLeft:0, rotateRight:0 };
     const velocity = new THREE.Vector3();
-    let acceleration = 4.5;
-    const deceleration = 0.92;
-    let maxSpeed = 45;
-    let speedBoost = 1.0; // Multiplicador de velocidad con Ctrl
-    let rotationSpeed = 0.02; // Velocidad de rotación de cámara
+    let acceleration = 9.0; // 2x faster acceleration
+    const deceleration = 0.94; // Smoother deceleration
+    let maxSpeed = 90; // 2x max speed
+    let speedBoost = 2.5; // 2.5x boost with Ctrl (was 1.0)
+    let rotationSpeed = 0.04; // 2x rotation speed
 
-    const availableSeeds = Array.from({length:200}, (_,i) => -10 + i);
+    const availableSeeds = Array.from({length:500}, (_,i) => -10 + i); // 500 seeds (2.5x upgrade)
 
     async function loadUniverse(seed) {
       document.getElementById('loading-overlay').style.display = 'flex';
@@ -594,7 +1063,8 @@
              horror_total: 666,
              modo_info: { emoji: "🆘", desc: "Suministro de emergencia activado" }
            };
-            for(let i=0; i<50000; i++) {
+            const sliderCount = parseInt(document.getElementById('nodeSlider')?.value || 50000);
+            for(let i=0; i<sliderCount; i++) {
               // Spherical Distribution for "Bien 360"
               const theta = Math.random() * Math.PI * 2;
               const phi = Math.acos(2 * Math.random() - 1);
@@ -624,41 +1094,98 @@
         scene.add(centralSingularity);
 
         // Nodos
-        if (data.nodes) {
-          const count = data.nodes.length;
-          const pos = new Float32Array(count * 3);
-          const colors = new Float32Array(count * 3);
-          const originalColors = new Float32Array(count * 3);
+        // Nodos
+        const sliderTarget = parseInt(document.getElementById('nodeSlider')?.value || 50000);
+        const jsonCount = data.nodes ? data.nodes.length : 0;
+        const totalCount = Math.max(jsonCount, sliderTarget);
+        
+        if (totalCount > 0) {
+          const pos = new Float32Array(totalCount * 3);
+          const colors = new Float32Array(totalCount * 3);
+          const originalColors = new Float32Array(totalCount * 3);
+          const sizes = new Float32Array(totalCount); // Variable sizes
           
-          data.nodes.forEach((n,i) => {
-            const p = n.position || [Math.random()*2000-1000, Math.random()*1000-500, Math.random()*2000-1000];
-            pos[i*3] = p[0]; pos[i*3+1] = p[1]; pos[i*3+2] = p[2];
-            
-            // Generate base color (from n.color or deterministic random)
-            const c = new THREE.Color();
-            if (n.color) {
-               c.set(n.color);
-            } else {
-               const hue = ((Math.abs(seed) % 10) / 10 + (i/count)*0.1) % 1;
-               c.setHSL(hue, 0.8, 0.5);
-            }
-            colors[i*3] = c.r; colors[i*3+1] = c.g; colors[i*3+2] = c.b;
-            originalColors[i*3] = c.r; originalColors[i*3+1] = c.g; originalColors[i*3+2] = c.b;
-          });
+          // 1. Cargar nodos del JSON (Estructura Real)
+          if (data.nodes) {
+              data.nodes.forEach((n,i) => {
+                const p = n.position || [Math.random()*2000-1000, Math.random()*1000-500, Math.random()*2000-1000];
+                pos[i*3] = p[0]; pos[i*3+1] = p[1]; pos[i*3+2] = p[2];
+                
+                // Color base
+                const c = new THREE.Color();
+                if (n.color) {
+                   c.set(n.color);
+                } else {
+                   const hue = ((Math.abs(seed) % 10) / 10 + (i/jsonCount)*0.1) % 1;
+                   c.setHSL(hue, 0.8, 0.5);
+                }
+                colors[i*3] = c.r; colors[i*3+1] = c.g; colors[i*3+2] = c.b;
+                originalColors[i*3] = c.r; originalColors[i*3+1] = c.g; originalColors[i*3+2] = c.b;
+                sizes[i] = 2.0; // Nodos estructurales más grandes
+              });
+          }
+          
+          // 2. Generar nodos procedimentales (Materia Oscura / Polvo Cósmico) para llenar hasta el slider
+          if (totalCount > jsonCount) {
+             const geometryType = document.getElementById('vizMode')?.value || "ORBITAL";
+             
+             for (let i = jsonCount; i < totalCount; i++) {
+                let x, y, z;
+                
+                // Distribución basada en el modo actual
+                if (geometryType === 'MANDALA') {
+                    const r = 800 + Math.random() * 2000;
+                    const theta = (i / totalCount) * Math.PI * 2 * 34; // Golden angle-ish
+                    const phi = Math.random() * Math.PI;
+                    x = r * Math.sin(phi) * Math.cos(theta);
+                    y = r * Math.sin(phi) * Math.sin(theta);
+                    z = (Math.random() - 0.5) * 600;
+                } else {
+                    // Distribución Esférica Expandida (Halo)
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos(2 * Math.random() - 1);
+                    const r = 1000 + Math.random() * 3000; // Radio más amplio
+                    
+                    x = r * Math.sin(phi) * Math.cos(theta);
+                    y = r * Math.sin(phi) * Math.sin(theta);
+                    z = r * Math.cos(phi);
+                }
+                
+                pos[i*3] = x; pos[i*3+1] = y; pos[i*3+2] = z;
+                
+                // Color tenue para el fondo (Background noise)
+                const c = new THREE.Color();
+                // Usar color del tema o variación
+                const modeColor = data.modo_info?.color || "#00ffff";
+                c.set(modeColor);
+                // Oscurecer y variar ligeramente
+                c.offsetHSL(Math.random()*0.1, -0.2, -0.3); 
+                
+                colors[i*3] = c.r; colors[i*3+1] = c.g; colors[i*3+2] = c.b;
+                originalColors[i*3] = c.r; originalColors[i*3+1] = c.g; originalColors[i*3+2] = c.b;
+                sizes[i] = 0.8 + Math.random() * 0.8; // Más pequeños
+             }
+          }
           
           const g = new THREE.BufferGeometry();
           g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
           g.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-          g.userData.originalColors = originalColors; // Preserve for luminosity logic
+          g.setAttribute('size', new THREE.BufferAttribute(sizes, 1)); // Necesita soporte en shader o sizeAttenuation manual
+          g.userData.originalColors = originalColors;
           
           pointsCloud = new THREE.Points(g, new THREE.PointsMaterial({
               vertexColors: true, 
-              size: 2, // Optimized for 50k nodes
+              size: 1.2, 
               transparent: true,
-              opacity: 0.8,
-              blending: THREE.AdditiveBlending
+              opacity: 0.6,
+              blending: THREE.AdditiveBlending,
+              sizeAttenuation: true
           }));
           scene.add(pointsCloud);
+          
+          // Actualizar contador real
+          const tNodes = document.getElementById('titan-nodes');
+          if (tNodes) tNodes.textContent = totalCount.toLocaleString();
         }
 
         const modoText = data.modo || "DOLPHIN";
@@ -690,10 +1217,15 @@
       camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 10000);
       camera.position.set(0, 500, 1500);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit pixel ratio for performance
+      renderer = new THREE.WebGLRenderer({ 
+        antialias: false, // Disabled for extreme performance
+        powerPreference: "high-performance",
+        logarithmicDepthBuffer: true // Better depth precision for large scenes
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Reduced for 150k nodes
       renderer.setSize(innerWidth, innerHeight);
       renderer.toneMapping = THREE.ReinhardToneMapping;
+      renderer.toneMappingExposure = 1.0;
       document.getElementById('canvas-container').appendChild(renderer.domElement);
 
       // WebGL Resilience
@@ -708,12 +1240,17 @@
           loadUniverse(currentUniverseSeed);
       }, false);
 
-      // 1. Post-processing setup
+      // 1. Post-processing setup (OPTIMIZED FOR 150K NODES)
       const renderScene = new THREE.RenderPass(scene, camera);
-      bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 1.5, 0.4, 0.85);
-      bloomPass.threshold = 0.21;
-      bloomPass.strength = 1.2;
-      bloomPass.radius = 0.55;
+      bloomPass = new THREE.UnrealBloomPass(
+        new THREE.Vector2(innerWidth * 0.8, innerHeight * 0.8), // Reduced resolution for performance
+        1.2, // Reduced strength
+        0.3, // Reduced radius
+        0.88 // Higher threshold
+      );
+      bloomPass.threshold = 0.25; // Higher threshold = less bloom = better FPS
+      bloomPass.strength = 0.9; // Reduced strength
+      bloomPass.radius = 0.45; // Reduced radius
 
       composer = new THREE.EffectComposer(renderer);
       composer.addPass(renderScene);
@@ -774,6 +1311,7 @@
 
 
       loadUniverse(currentUniverseSeed);
+      initSineWave(); // Initialize sine wave visualization
       animate();
     }
 
@@ -1162,7 +1700,14 @@
       const allNodes = [];
       const offsetDistance = 2000;
       
+      const loadingCounter = document.getElementById('loading-overlay');
+      
       for (let i = 0; i < seeds.length; i++) {
+        if (i % 10 === 0) { // Batch updates every 10 seeds
+            loadingCounter.textContent = `🌌 COLAPSANDO EL MULTIVERSO... [${i}/${seeds.length}]`;
+            await new Promise(r => setTimeout(r, 10)); // Allow DOM to breathe
+        }
+
         try {
           const res = await fetch(`/web/data_seed_${seeds[i]}.json`);
           if (!res.ok) continue;
@@ -1193,6 +1738,7 @@
           console.error(`Error loading seed ${seeds[i]}:`, e);
         }
       }
+      loadingCounter.textContent = `ESTABILIZANDO SINGULARIDAD... (${allNodes.length.toLocaleString()} nodos)`;
       
       const positions = new Float32Array(allNodes.length * 3);
       const colors = new Float32Array(allNodes.length * 3);
@@ -1210,10 +1756,16 @@
       geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
       geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
       
+      // Dynamic Point Size based on total nodes
+      let pSize = 8;
+      if (allNodes.length > 500000) pSize = 1;
+      else if (allNodes.length > 200000) pSize = 2;
+      else if (allNodes.length > 100000) pSize = 4;
+
       pointsCloud = new THREE.Points(
         geometry,
         new THREE.PointsMaterial({
-          size: 8,
+          size: pSize,
           vertexColors: true,
           transparent: true,
           opacity: 0.8
@@ -1221,10 +1773,23 @@
       );
       
       scene.add(pointsCloud);
-      document.getElementById('loading-overlay').style.display = 'none';
       
-      showToast(`${seeds.length} universos fusionados`);
+      // Force Titan Panel update for node count
+      if (typeof updateTitanPanel === 'function') updateTitanPanel();
+
+      document.getElementById('loading-overlay').style.display = 'none';
     }
+
+    // 🔥 SINGULARITY OMEGA - 200 UNIVERSES CONVERGING
+    async function invokeSingularityOmega() {
+        const omegaSeeds = [];
+        for(let i=0; i<200; i++) {
+            omegaSeeds.push(availableSeeds[Math.floor(Math.random() * availableSeeds.length)]);
+        }
+        showToast('⚠ ALERTA: Iniciando SINGULARIDAD OMEGA (1M Nodos)');
+        await loadMultipleSeeds(omegaSeeds);
+    }
+
 
     // 🌸 MANDALA UNIVERSE (FRACTAL & AUDIO REACTIVE)
     function createMandalaUniverse() {
@@ -1927,6 +2492,40 @@
       });
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // 🎨 MATRIX COLOR CONTROL (NUEVO)
+    // ═══════════════════════════════════════════════════════════════
+    
+    function setMatrixColor(hexColor) {
+      // Convertir hex a número para THREE.js
+      matrixColor = parseInt(hexColor.replace('#', '0x'), 16);
+      
+      // Actualizar el color picker visual
+      const picker = document.getElementById('matrixColorPicker');
+      if (picker) picker.value = hexColor;
+      
+      // Actualizar matriz si está activa
+      if (matrixLines) {
+        matrixLines.material.color.setHex(matrixColor);
+        matrixLines.material.needsUpdate = true;
+      }
+      
+      // Notificar al usuario
+      const colorName = {
+        '#00ff41': 'Verde Matrix',
+        '#00ffff': 'Cyan',
+        '#ff00ff': 'Magenta',
+        '#ffff00': 'Amarillo',
+        '#ff0033': 'Rojo',
+        '#ff6600': 'Naranja',
+        '#9900ff': 'Púrpura',
+        '#ffffff': 'Blanco'
+      }[hexColor] || 'Personalizado';
+      
+      showToast(`🎨 Matrix: ${colorName}`);
+      console.log(`🎨 Matrix color changed to: ${hexColor} (${matrixColor})`);
+    }
+
     function goToNearestNode() {
       if (!pointsCloud || !camera) return;
       
@@ -2173,15 +2772,22 @@
       document.getElementById('nodeSlider')?.addEventListener('input', e => {
         const val = e.target.value;
         const display = document.getElementById('nodeDisplay');
-        if (display) display.textContent = val;
+        if (display) display.textContent = parseInt(val).toLocaleString();
         
         if (!pendingSliderUpdate) {
             pendingSliderUpdate = true;
             requestAnimationFrame(() => {
-                // Future-proof: add logic here if sliders trigger re-renders
                 pendingSliderUpdate = false;
             });
         }
+      });
+      
+      // Regenerate on release
+      document.getElementById('nodeSlider')?.addEventListener('change', () => {
+         const btn = document.createElement('div'); 
+         // Toast or simple reload
+         showToast('🔄 Regenerando universo con nueva capacidad...');
+         loadUniverse(currentUniverseSeed);
       });
       document.getElementById('seedSlider')?.addEventListener('input', e => {
         if (document.getElementById('seedDisplay')) document.getElementById('seedDisplay').textContent = e.target.value;
@@ -2718,6 +3324,25 @@
          if(k === 'f' && !e.repeat) triggerAction('F');
     });
     
+    // ═══════════════════════════════════════════════════════════════
+    // 🎯 INICIALIZACIÓN DE SISTEMA DRAGGABLE
+    // ═══════════════════════════════════════════════════════════════
+    
+    // Inicializar draggable para todos los paneles cuando el DOM esté listo
+    window.addEventListener('DOMContentLoaded', () => {
+      // Restaurar posiciones guardadas
+      restorePositions();
+      
+      // Hacer paneles draggables (usar .hud-title como handle)
+      makeDraggable('config-module', '.hud-title');
+      makeDraggable('temporal-controls', '.hud-title');
+      makeDraggable('quick-nav-panel', '#quick-nav-handle');
+      makeDraggable('donation-module'); // Todo el módulo es draggable
+      
+      console.log('🎯 Sistema Draggable inicializado');
+    });
+
+    
   </script>
 </head>
 <body>
@@ -2787,6 +3412,18 @@
       <span class="titan-stat-label">Dimensions</span>
       <span id="titan-dims" class="titan-stat-value">11D</span>
     </div>
+    
+    <div class="titan-divider"></div>
+    
+    <!-- Panel Visibility Controls -->
+    <div id="titan-panel-controls">
+      <button data-panel="config-module" onclick="togglePanel('config-module')" title="Toggle Neural Config">🧠</button>
+      <button data-panel="temporal-controls" onclick="togglePanel('temporal-controls')" title="Toggle Temporal Controls">⏱️</button>
+      <button data-panel="quick-nav-panel" onclick="togglePanel('quick-nav-panel')" title="Toggle Quick Navigation">🧭</button>
+      <button data-panel="donation-module" onclick="togglePanel('donation-module')" title="Toggle Donations">💰</button>
+      <div class="titan-divider"></div>
+      <button onclick="resetAllPanels()" title="Restaurar Vista" style="background:rgba(0,255,65,0.2);border-color:var(--text-green);">🔄</button>
+    </div>
   </div>
 
   <!-- Seed/Mode Display - Siempre visible -->
@@ -2800,15 +3437,24 @@
     </div>
   </div>
 
+  <!-- Sine Wave Visualization (Top Left) -->
+  <div id="sine-wave-canvas">
+    <canvas id="sine-canvas" width="290" height="140"></canvas>
+  </div>
+
   <div id="config-module" class="hud-module">
     <div class="hud-title">🧠 NEURAL CONFIG (11D BIAS)</div>
     <div class="input-group">
       <label>Nodos: <span id="nodeDisplay">50000</span></label>
-      <input type="range" id="nodeSlider" min="50" max="50000" value="50000" step="50">
+      <input type="range" id="nodeSlider" min="50" max="1000000" value="50000" step="1000">
     </div>
     <div class="input-group">
       <label>Multi-Seed: <span id="seedDisplay">3</span></label>
-      <input type="range" id="seedSlider" min="1" max="10" value="3" step="1">
+      <input type="range" id="seedSlider" min="1" max="100" value="3" step="1">
+    </div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+       <button onclick="invokeFusion()" style="background:var(--text-cyan);color:black; padding:8px; font-size:0.75rem;">FUSIÓN</button>
+       <button onclick="invokeSingularityOmega()" style="background:var(--text-red);color:white; padding:8px; font-size:0.75rem;">Ω OMEGA</button>
     </div>
     <div class="input-group">
       <label>Visualización</label>
@@ -2843,7 +3489,6 @@
       </select>
     </div>
     <button onclick="invokeCaos()" style="background:var(--text-magenta);color:white">CAOS</button>
-    <button onclick="invokeFusion()" style="background:var(--text-cyan);color:black">FUSIÓN</button>
     <button onclick="resetCamera()" style="background:#333;color:white">RESET CAM</button>
     
     <div class="input-group" style="margin-top:12px;border-top:1px solid var(--glass-border);padding-top:12px;">
@@ -2851,6 +3496,23 @@
         <input type="checkbox" id="matrixMode" style="width:auto;">
         <span>MATRIX MODE 🟢</span>
       </label>
+      
+      <!-- NUEVO: Color Personalizado de Matrix -->
+      <div style="margin-top:10px;padding:8px;background:rgba(0,255,65,0.05);border-radius:4px;border:1px solid rgba(0,255,65,0.2);">
+        <label style="font-size:0.75rem;color:#888;margin-bottom:5px;display:block;">Color Matrix Estático</label>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:8px;">
+          <button onclick="setMatrixColor('#00ff41')" style="background:#00ff41;width:100%;height:30px;border:1px solid #fff;border-radius:3px;cursor:pointer;" title="Verde Clásico"></button>
+          <button onclick="setMatrixColor('#00ffff')" style="background:#00ffff;width:100%;height:30px;border:1px solid #fff;border-radius:3px;cursor:pointer;" title="Cyan"></button>
+          <button onclick="setMatrixColor('#ff00ff')" style="background:#ff00ff;width:100%;height:30px;border:1px solid #fff;border-radius:3px;cursor:pointer;" title="Magenta"></button>
+          <button onclick="setMatrixColor('#ffff00')" style="background:#ffff00;width:100%;height:30px;border:1px solid #fff;border-radius:3px;cursor:pointer;" title="Amarillo"></button>
+          <button onclick="setMatrixColor('#ff0033')" style="background:#ff0033;width:100%;height:30px;border:1px solid #fff;border-radius:3px;cursor:pointer;" title="Rojo"></button>
+          <button onclick="setMatrixColor('#ff6600')" style="background:#ff6600;width:100%;height:30px;border:1px solid #fff;border-radius:3px;cursor:pointer;" title="Naranja"></button>
+          <button onclick="setMatrixColor('#9900ff')" style="background:#9900ff;width:100%;height:30px;border:1px solid #fff;border-radius:3px;cursor:pointer;" title="Púrpura"></button>
+          <button onclick="setMatrixColor('#ffffff')" style="background:#ffffff;width:100%;height:30px;border:1px solid #888;border-radius:3px;cursor:pointer;" title="Blanco"></button>
+        </div>
+        <input type="color" id="matrixColorPicker" value="#00ff41" style="width:100%;height:35px;border:1px solid var(--glass-border);background:rgba(0,0,0,0.3);border-radius:4px;cursor:pointer;" onchange="setMatrixColor(this.value)">
+      </div>
+      
       <label style="display:flex;align-items:center;gap:8px;margin-top:5px;">
         <input type="checkbox" id="fiestaMode" style="width:auto;">
         <span>FIESTA MODE (MIC) 🎤</span>
@@ -3015,18 +3677,41 @@
 
 
 
-  <!-- Settings Toggle Button -->
-  <button onclick="openSettings()" style="position:fixed;bottom:20px;left:20px;z-index:1000;width:auto;padding:10px 15px;background:rgba(255,255,255,0.1);border:1px solid var(--glass-border);color:var(--text-cyan);">
-    ⚙️ SETTINGS
-  </button>
-
-  <button onclick="window.location.href='/hall_of_shame'" style="position:fixed;bottom:20px;left:140px;z-index:1000;width:auto;padding:10px 15px;background:rgba(255,0,51,0.2);border:1px solid var(--text-red);color:var(--text-red);">
-    🏆 HALL OF SHAME
-  </button>
-
-  <button onclick="openTutorial()" style="position:fixed;bottom:20px;left:320px;z-index:1000;width:auto;padding:10px 15px;background:rgba(0,255,65,0.2);border:1px solid var(--text-green);color:var(--text-green);">
-    ❓ HELP
-  </button>
+  <!-- Donation Module (Responsive) -->
+  <div id="donation-module">
+    <div style="font-size:0.8rem; font-weight:bold; color:var(--text-white); margin-bottom:5px; border-bottom:1px solid rgba(0,242,255,0.2); padding-bottom:5px;">
+      DONACIONES (ABISMO 11D)
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:10px;">
+      <div class="qr-container">
+        <div style="position:relative;">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh" class="qr-image" alt="Bitcoin QR">
+          <div class="qr-image-overlay">BTC</div>
+        </div>
+        <span class="qr-label">Bitcoin (BTC)</span>
+        <span style="font-size:0.55rem; color:#aaa; font-family:monospace;">bc1q...seed</span>
+      </div>
+      <div class="qr-container">
+        <div style="position:relative;">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=0x71C7656EC7ab88b098defB751B7401B5f6d8976F" class="qr-image" alt="Ethereum QR">
+          <div class="qr-image-overlay">ETH</div>
+        </div>
+        <span class="qr-label">Ethereum (ETH)</span>
+        <span style="font-size:0.55rem; color:#aaa; font-family:monospace;">0x...abyss</span>
+      </div>
+    </div>
+    <div style="margin-top: 10px; display: flex; gap: 8px;">
+       <button onclick="openSettings()" style="width:auto;padding:8px 12px;background:rgba(255,255,255,0.1);border:1px solid var(--glass-border);color:var(--text-cyan); font-size:0.7rem;">
+        ⚙️ SETTINGS
+      </button>
+      <button onclick="window.location.href='/hall_of_shame'" style="width:auto;padding:8px 12px;background:rgba(255,0,51,0.2);border:1px solid var(--text-red);color:var(--text-red); font-size:0.7rem;">
+        🏆 SHAME
+      </button>
+      <button onclick="openTutorial()" style="width:auto;padding:8px 12px;background:rgba(0,255,65,0.2);border:1px solid var(--text-green);color:var(--text-green); font-size:0.7rem;">
+        ❓ HELP
+      </button>
+    </div>
+  </div>
 
 </body>
 </html>
