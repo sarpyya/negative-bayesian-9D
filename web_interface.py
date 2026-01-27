@@ -316,20 +316,3 @@ def main(batch_size: int = 200, start_seed: int = -10):
 
 if __name__ == "__main__":
     main(batch_size=200, start_seed=-10)  # Tu seed -10 favorito ahora funciona 100%
-    
-import random
-import glob
-
-# Al final del archivo, antes de app.run()
-@app.route('/random_seed')
-def random_seed():
-    json_files = glob.glob("web/data_seed_*.json")
-    if not json_files:
-        return {"error": "No hay universos generados aún"}
-    chosen = random.choice(json_files)
-    seed = chosen.split("_")[-1].replace(".json", "")
-    return {"file": chosen, "seed": int(seed)}
-
-@app.route('/')
-def index():
-    return render_template('index.html')  # tu template actual
