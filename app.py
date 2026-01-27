@@ -13,6 +13,7 @@ Servidor Flask completo con:
 from flask import Flask, render_template, jsonify, send_from_directory, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import hmac
 import json
 import os
 import glob
@@ -27,6 +28,8 @@ from core_engine import (
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///horror_runs.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['CLEANUP_TOKEN'] = os.environ.get('CLEANUP_TOKEN')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', os.urandom(32))
 db = SQLAlchemy(app)
 
 # ═══════════════════════════════════════════════════════════════
@@ -158,6 +161,25 @@ def main(batch_size: int = 200, start_seed: int = -10):
 # 🌐 RUTAS FLASK
 # ═══════════════════════════════════════════════════════════════
 
+@app.after_request
+def set_security_headers(response):
+    response.headers.setdefault(
+        "Content-Security-Policy",
+        "default-src 'self'; "
+        "script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net 'unsafe-inline'; "
+        "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; "
+        "font-src https://fonts.gstatic.com; "
+        "img-src 'self' data:; "
+        "connect-src 'self'; "
+        "base-uri 'self'; "
+        "frame-ancestors 'self'"
+    )
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+    response.headers.setdefault("Referrer-Policy", "no-referrer")
+    response.headers.setdefault("Permissions-Policy", "camera=(), geolocation=(), microphone=(self)")
+    return response
+
 @app.route('/')
 def index():
     """Página principal con visualizador 3D"""
@@ -221,6 +243,19 @@ def api_cleanup():
     import shutil
     
     try:
+        cleanup_token = app.config.get('CLEANUP_TOKEN')
+        provided_token = request.headers.get('X-Cleanup-Token', '')
+        if not cleanup_token:
+            return jsonify({
+                "status": "error",
+                "message": "Cleanup token no configurado. Define CLEANUP_TOKEN en el entorno."
+            }), 403
+        if not hmac.compare_digest(provided_token, cleanup_token):
+            return jsonify({
+                "status": "error",
+                "message": "Token inválido para cleanup."
+            }), 403
+
         # Borrar base de datos
         HorrorRun.query.delete()
         db.session.commit()
