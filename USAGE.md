@@ -29,11 +29,30 @@ cd bayesian_negative_9d
 pip install -r requirements.txt
 pip install flask-sqlalchemy
 
-# 3. EJECUTAR EL ABISMO
+# 3. EJECUTAR EL ABISMO (servidor web)
+python app.py
+
+# 4. (Opcional) Generación batch por CLI
 python web_interface.py
 ```
 
 Abre **http://localhost:5000** y prepárate.
+
+---
+
+## 🧹 Limpieza de datos (API protegida)
+
+El endpoint `POST /api/cleanup` ahora requiere un token de entorno para evitar borrados accidentales.
+
+1. Define el token antes de iniciar el servidor:
+   ```bash
+   export CLEANUP_TOKEN="tu-token-seguro"
+   ```
+2. Llama el endpoint con el header:
+   ```bash
+   curl -X POST http://localhost:5000/api/cleanup \
+     -H "X-Cleanup-Token: tu-token-seguro"
+   ```
 
 ---
 
