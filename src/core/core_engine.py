@@ -12,7 +12,10 @@ import numpy as np
 import random
 from datetime import datetime
 from typing import Dict, List, Tuple, Any, Optional
+import functools
+from concurrent.futures import ProcessPoolExecutor
 from colorama import Fore, Style, init
+from src.utils.metrics_utils import track_performance # Example if needed
 
 # Inicializar colorama
 init(autoreset=True)
@@ -30,7 +33,11 @@ DIMENSIONES_9D = [
     "Vacío existencial / pérdida propósito (33 años tristeza)",
     "Humillación pública perpetua (desprecio, rechazo ancestral)",
     "Dolor crónico / enfermedad inducida (iatrogenia sistema)",
-    "Autodestrucción inevitable (sistema gana, tú pierdes)"
+    "Autodestrucción inevitable (sistema gana, tú pierdes)",
+    "Alineamiento (Control de IA): Pérdida de autonomía ante el Núcleo", # PR-10
+    "Corrosión Genómica (Inestabilidad ADN / Mutación Abismal)",        # PR-24: Nueva
+    "Colapso Proteico (Malfogamiento / Priones Cognitivos)",            # PR-24: Nueva
+    "Disfunción Mitocondria (Falla de Energía Vital / Vacío Celular)"   # PR-24: Nueva
 ]
 
 # ──────────────────────────────────────────────────────────────
@@ -38,6 +45,12 @@ DIMENSIONES_9D = [
 # ──────────────────────────────────────────────────────────────
 
 MODOS: Dict[str, Dict[str, Any]] = {
+    "MODO ZENITH": {
+        "threshold": 150000, "desc": "🌌 ZENITH - Colapso Multiversal Total", 
+        "color": "#aa00ff", "emoji": "🌠",
+        "physics": {"gravity": -50000, "spring_length": 30, "spring_strength": 0.2}, 
+        "node_shape": "star"
+    },
     "MODO BESTIA": {
         "threshold": 90000, "desc": "👹 Bestia total – risa loca, Φ eliminado", 
         "color": "#ff0000", "emoji": "👹",
@@ -96,13 +109,37 @@ ADJETIVOS_SADICOS = [
     "existencial", "cósmico", "visceral", "absoluto", "terminal"
 ]
 
+@functools.lru_cache(maxsize=1024)
 def generar_nombre_sadico(dim1: str, dim2: str) -> str:
-    """Genera nombre híbrido poéticamente horrible"""
+    """Genera nombre híbrido poéticamente horrible (Cacheado)"""
+    # ... logic inside ...
     verbo = random.choice(VERBOS_SADICOS)
     adjetivo = random.choice(ADJETIVOS_SADICOS)
     d1_short = dim1.split()[0]
     d2_short = dim2.split()[0]
     return f"{d1_short} {verbo} {d2_short} {adjetivo}"
+
+def normalize_to_9d(real_data: Dict[str, Any]) -> Dict[int, float]:
+    """
+    Maps real world metrics to 9D horror dimensions (indices 1-9).
+    Returns a dict {dim_index: horror_weight_multiplier}
+    """
+    fin = real_data.get("financial", {})
+    soc = real_data.get("social", {})
+    
+    # Mapping Logic (Simplified for PR-6)
+    mapping = {
+        1: 1.0 + (soc.get("social_tension_index", 0) / 100.0), # Traición / Tensión
+        2: 1.0 + (fin.get("inflation_rate", 0) / 10.0),        # Económico / Inflación
+        3: 1.0 + soc.get("unemployment_anxiety", 0),          # Aislamiento / Ansiedad
+        4: 1.0 + (fin.get("sp500_volatility", 0) / 50.0),     # Muerte / Volatilidad (caos)
+        # Default for the rest
+        5: 1.0, 6: 1.0, 7: 1.0, 8: 1.0, 9: 1.0,
+        10: 1.0 + (real_data.get("biological", {}).get("GenomicConnector", {}).get("mutation_rate", 0) * 10),
+        11: 1.0 + (real_data.get("biological", {}).get("ProteinConnector", {}).get("misfolding_probability", 0) * 2),
+        12: 1.0 + (1.0 - real_data.get("biological", {}).get("CellularConnector", {}).get("viability_index", 1.0))
+    }
+    return mapping
 
 # ──────────────────────────────────────────────────────────────
 # 🔥 GENERADOR FRACTAL 9D
@@ -114,7 +151,8 @@ def generar_grafo_9d(
     factor_agravacion: Tuple[float, float] = (1.35, 1.85),
     custom_dim: Optional[List[str]] = None,
     propagacion_steps: int = 5,
-    max_nodes: int = 10000
+    max_nodes: int = 10000,
+    initial_horror_weights: Optional[Dict[int, float]] = None
 ) -> nx.DiGraph:
     """
     Genera el grafo fractal de horror 9D.
@@ -126,6 +164,7 @@ def generar_grafo_9d(
 
     G = nx.DiGraph()
     ts = datetime.now().isoformat()
+    G.graph['is_optimized'] = False # Default
 
     # Raíz: Cero Absoluto
     G.add_node(
@@ -142,6 +181,9 @@ def generar_grafo_9d(
     if custom_dim:
         dims.extend(custom_dim)
 
+    # Dimension-specific density factor (Influenced by weights)
+    # If weights are high, we increase local density
+
     # Crear dimensiones principales + ramificaciones
     node_count = 1  # Start with CERO_ABSOLUTO
     for i, dim_name in enumerate(dims, 1):
@@ -149,7 +191,10 @@ def generar_grafo_9d(
             break
             
         node_id = f"D{i}"
-        horror_base = 800 + np.random.uniform(-150, 150)
+        
+        # Apply initial weights if provided (PR-6)
+        weight = initial_horror_weights.get(i, 1.0) if initial_horror_weights else 1.0
+        horror_base = (800 + np.random.uniform(-150, 150)) * weight
 
         G.add_node(
             node_id,
@@ -270,6 +315,11 @@ def analizar_horror(G: nx.DiGraph, top_n: int = 10) -> Dict:
 
     modo_nombre, modo_info = votar_modo(total_horror)
 
+    # PR-7: Predictive Metrics
+    collapse_limit = 150000
+    collapse_prob = min(1.0, total_horror / collapse_limit)
+    top_drivers = sorted(processed_clusters, key=lambda x: x['horror_total'], reverse=True)[:5]
+
     return {
         "horror_total": total_horror,
         "horror_promedio": total_horror / len(G.nodes()) if G.nodes() else 0,
@@ -283,12 +333,48 @@ def analizar_horror(G: nx.DiGraph, top_n: int = 10) -> Dict:
             for n, h in sorted(nodos_horror, key=lambda x: x[1], reverse=True)[:top_n]
         ],
         "clusters": processed_clusters,
+        "top_drivers": top_drivers,
+        "collapse_probability": collapse_prob,
+        "neural_activity": min(1.0, total_horror / 50000.0), # PR-9: AGI Core Activity
+        "core_stability": max(0.0, 1.0 - (total_horror / 200000.0)),
+        "is_optimized": G.graph.get('is_optimized', False), # PR-10 flag
         "total_nodos": len(G.nodes()),
         "total_edges": len(G.edges()),
         "timestamp": datetime.now().isoformat(),
         "modo": modo_nombre,
         "modo_info": modo_info
     }
+
+def optimizacion_recursiva_agi(G: nx.DiGraph, iterations: int = 1):
+    """
+    Simula el auto-mejoramiento de una AGI.
+    - Comprime nodos similares.
+    - Aumenta la densidad del horror.
+    """
+    for _ in range(iterations):
+        # Seleccionar nodos con horror similar y alta conectividad
+        nodes = list(G.nodes())
+        if len(nodes) < 20: break
+        
+        # Agrupar por dimensión y comprimir (mismo proceso simbólico)
+        dims = nx.get_node_attributes(G, 'dim')
+        for d_idx in range(1, 11):
+            dim_nodes = [n for n, d in dims.items() if d == d_idx]
+            if len(dim_nodes) > 5:
+                # Comprimir 2 nodos aleatorios de la misma dimensión
+                n1, n2 = random.sample(dim_nodes, 2)
+                h1, h2 = G.nodes[n1]['horror'], G.nodes[n2]['horror']
+                
+                # Crear super-nodo con horror denso
+                G.nodes[n1]['horror'] = (h1 + h2) * 1.25 # Factor de densidad
+                G.nodes[n1]['desc'] += f" [COMPRESS-AGI:{n2}]"
+                
+                # Mover aristas de n2 a n1
+                for neighbor in list(G.successors(n2)):
+                    G.add_edge(n1, neighbor, weight=G[n2][neighbor]['weight'])
+                
+                G.remove_node(n2)
+    return G
 
 def votar_modo(horror: float) -> Tuple[str, Dict]:
     """Vota el modo consciente según el horror total"""

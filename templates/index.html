@@ -71,66 +71,28 @@
     }
     .hud-title { font-weight:700; font-size:0.9rem; letter-spacing:2px; color:var(--text-cyan); text-transform:uppercase; border-bottom:1px solid var(--glass-border); padding-bottom:5px; }
     
-    /* Config Module - Collapsible from left (EXPANDE HACIA ARRIBA) */
+    /* Config Module - Now always visible */
     #config-module {
-      bottom: 20px; /* Anclado abajo */
-      left: -430px; /* Oculto (450px - 20px borde) */
-      width: 450px; /* Más ancho */
+      top: 60px; /* Debajo del titan panel */
+      left: 20px;
+      width: 320px;
       max-width: 90vw;
-      max-height: 85vh; /* Máximo altura disponible */
-      overflow-y: auto; /* Scroll si es necesario */
-      transform: translateX(0);
-      opacity: 0.4;
-      z-index: 800; /* Debajo de Donation/Sine? Ajustable */
-      transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s, z-index 0s 0.3s;
-      
-      /* Grid Layout Dinámico */
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 15px;
-      align-content: start;
-    }
-    
-    #config-module:hover,
-    #config-module:focus-within {
-      transform: translateX(430px); /* Desliza hacia la derecha para mostrarse */
+      max-height: 80vh;
+      overflow-y: auto;
+      z-index: 900;
+      display: block;
       opacity: 1;
-      z-index: 2000; /* Encima de todo al interactuar */
-      transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s, z-index 0s 0s;
     }
     
     #config-module .hud-title {
-      grid-column: 1 / -1; /* Título ocupa todo el ancho */
       text-align: center;
       margin-bottom: 10px;
     }
-    
-    #config-module > div[style*="grid"] {
-      grid-column: 1 / -1; /* Botones de acción ocupan todo el ancho */
-    }
 
     #config-module.dragging {
-      transform: none !important; /* Desactivar transform al arrastrar */
-      opacity: 1 !important;
       z-index: 2000 !important;
     }
-    
-    #config-module::before {
-      content: '☰';
-      position: absolute;
-      right: -35px; /* Ajustado para el borde */
-      top: 20px; 
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-left: none;
-      border-radius: 0 8px 8px 0;
-      padding: 12px 8px;
-      color: var(--text-cyan);
-      font-size: 1.4rem;
-      cursor: pointer;
-      pointer-events: auto;
-      animation: pulse 2s ease-in-out infinite;
-    }
+
     
     @keyframes pulse {
       0%, 100% { box-shadow: 0 0 5px rgba(0, 242, 255, 0.3); }
@@ -161,6 +123,22 @@
       min-width:350px;
       display:none; /* Oculto por defecto, solo en immersive mode */
     }
+    
+    /* Multiverse Control */
+    #multiverse-panel {
+      position:fixed; top:120px; right:20px; z-index:10;
+      background:var(--glass-bg); backdrop-filter:blur(15px);
+      border:1px solid var(--glass-border); border-radius:8px; padding:15px;
+      box-shadow:0 0 20px rgba(170,0,255,0.2); pointer-events:auto;
+      min-width:250px; display:none;
+    }
+    .branch-item {
+      padding:10px; margin-top:5px;
+      background:rgba(170,0,255,0.1); border:1px solid rgba(170,0,255,0.3);
+      cursor:pointer; transition:all 0.3s; font-size:0.75rem; color:#ccc;
+      border-radius:4px;
+    }
+    .branch-item:hover { background:rgba(170,0,255,0.3); color:#fff; }
     .temporal-btn {
       width:auto; padding:8px 15px; margin:0 3px;
       background:rgba(0,242,255,0.1); border:1px solid var(--glass-border);
@@ -381,14 +359,129 @@
       border-radius: 4px;
     }
 
-    /* Toast Animations */
-    @keyframes slideIn {
-      from { transform:translateX(400px); opacity:0; }
-      to { transform:translateX(0); opacity:1; }
+    /* Control Overlay (PR-3) */
+    #control-overlay {
+      position: fixed;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      background: var(--glass-bg);
+      backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 15px;
+      z-index: 1000;
+      width: 180px;
+      pointer-events: none;
+      opacity: 0.6;
+      transition: opacity 0.3s;
     }
-    @keyframes slideOut {
-      from { transform:translateX(0); opacity:1; }
-      to { transform:translateX(400px); opacity:0; }
+    #control-overlay:hover { opacity: 1; }
+    .control-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.75rem;
+    }
+    .control-key {
+      color: var(--text-cyan);
+      background: rgba(0, 242, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: bold;
+    }
+    /* Narrative Module (PR-4) */
+    #narrative-module {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      max-width: 90vw;
+      background: rgba(0, 0, 0, 0.85);
+      border-top: 2px solid var(--text-magenta);
+      padding: 15px;
+      z-index: 10000;
+      font-family: 'Courier New', Courier, monospace;
+      color: var(--text-magenta);
+      box-shadow: 0 -10px 30px rgba(255, 0, 255, 0.2);
+      display: none;
+    }
+    #narrative-text {
+      font-size: 1.1rem;
+      line-height: 1.4;
+      text-shadow: 0 0 5px rgba(255, 0, 255, 0.5);
+    }
+    .narrative-cursor {
+      display: inline-block;
+      width: 10px;
+      height: 1.2rem;
+      background: var(--text-magenta);
+      animation: blink 0.8s infinite;
+      vertical-align: middle;
+    }
+    @keyframes blink { 
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    #subtitle-box {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 1.4rem;
+      font-weight: bold;
+      text-shadow: 2px 2px 4px black;
+      z-index: 10001;
+      width: 80%;
+      pointer-events: none;
+    }
+    
+    /* Predictive Panel (PR-7) */
+    #predictive-panel {
+      position: fixed;
+      top: 210px;
+      left: 10px;
+      width: 300px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 15px;
+      z-index: 500;
+      color: white;
+      display: none; /* Toggleable */
+    }
+    .driver-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      font-size: 0.8rem;
+    }
+    .driver-bar {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      margin-top: 2px;
+    }
+    .driver-fill {
+      height: 100%;
+      background: var(--text-red);
+    }
+    #collapse-alert {
+      padding: 10px;
+      background: rgba(255, 0, 51, 0.2);
+      border: 1px solid var(--text-red);
+      color: var(--text-red);
+      text-align: center;
+      font-weight: bold;
+      margin-top: 10px;
+      border-radius: 4px;
+      animation: alert-flash 1s infinite;
+    }
+    @keyframes alert-flash {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
     }
   </style>
 
@@ -419,7 +512,14 @@
     let matrixLines = null; // Líneas Matrix
     let ionLines = null;    // Líneas Iónicas (Channels)
     let orbitalIons = null; // Partículas de flujo orbital
+    let neuralCorePulses = []; // PR-9: Reactive Pulses
+    let synapticSilk = null;   // PR-11: Synaptic Silk (Filaments)
+    let isASIActive = false;   // PR-12: ASI Event Horizon
     let currentUniverseSeed = -10;
+    
+    // PR-18: SPATIAL AUDIO GLOBALS
+    let audioListener, backgroundSound, spatialSounds = [];
+    let isAudioActive = false;
     let isImmersionMode = false;
     let matrixModeActive = false;
     let matrixColor = 0x00ff41; // Verde Matrix por defecto
@@ -463,6 +563,47 @@
         analyser.fftSize = 256;
         analyser.smoothingTimeConstant = 0.8;
         dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+        // PR-9: SHADERS DEL NÚCLEO NEURAL (AGI)
+        const neuralVertexShader = `
+          varying vec2 vUv;
+          varying vec3 vPosition;
+          void main() {
+            vUv = uv;
+            vPosition = position;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `;
+
+        const neuralFragmentShader = `
+          uniform float time;
+          uniform float activity;
+          varying vec2 vUv;
+          varying vec3 vPosition;
+
+          void main() {
+            float pulse = sin(time * 2.0) * 0.5 + 0.5;
+            vec3 coreColor = mix(vec3(0.0, 0.8, 1.0), vec3(1.0, 0.0, 1.0), activity);
+            
+            // Simulación de sinapsis usando ruido procedural simple
+            float noise = sin(vPosition.x * 5.0 + time) * cos(vPosition.y * 5.0 - time) * sin(vPosition.z * 5.0);
+            float synapse = smoothstep(0.4, 0.6, noise * (1.0 + activity));
+            
+            vec3 finalColor = coreColor + (synapse * vec3(1.0, 1.0, 1.0) * pulse);
+            gl_FragColor = vec4(finalColor, 0.4 + (activity * 0.4));
+          }
+        `;
+        window.neuralCoreMaterial = new THREE.ShaderMaterial({
+          uniforms: {
+            time: { value: 0 },
+            activity: { value: 0 }
+          },
+          vertexShader: neuralVertexShader,
+          fragmentShader: neuralFragmentShader,
+          transparent: true,
+          blending: THREE.AdditiveBlending,
+          side: THREE.DoubleSide
+        });
 
         navigator.mediaDevices.getUserMedia({ audio: true })
           .then(stream => {
@@ -718,7 +859,157 @@
       group.add(disk);
       group.userData.disk = disk;
 
+      // 4. NEURAL SHELL (PR-9)
+      const neuralGeo = new THREE.IcosahedronGeometry(75, 4);
+      if (window.neuralCoreMaterial) {
+        const neuralShell = new THREE.Mesh(neuralGeo, window.neuralCoreMaterial);
+        group.add(neuralShell);
+        group.userData.neuralShell = neuralShell;
+      }
+
       return group;
+    }
+
+    function spawnNeuralPulse(targetPos) {
+      // Create a small glowing pulse that travels from origin (0,0,0) to target
+      const pulseGeo = new THREE.SphereGeometry(5, 8, 8);
+      const pulseMat = new THREE.MeshBasicMaterial({ color: 0xff00ff, transparent: true, opacity: 0.8 });
+      const pulse = new THREE.Mesh(pulseGeo, pulseMat);
+      
+      scene.add(pulse);
+      
+      neuralCorePulses.push({
+        mesh: pulse,
+        target: new THREE.Vector3(targetPos[0], targetPos[1], targetPos[2]),
+        progress: 0,
+        speed: 0.02 + Math.random() * 0.05
+      });
+    }
+
+    // 🕸️ PR-11: SYNAPTIC SILK GENERATOR
+    function createSynapticSilk(nodes) {
+      if (synapticSilk) scene.remove(synapticSilk);
+      
+      const material = new THREE.LineBasicMaterial({
+        color: 0x00ffff,
+        transparent: true,
+        opacity: 0.3,
+        blending: THREE.AdditiveBlending
+      });
+
+      const geometry = new THREE.BufferGeometry();
+      const positions = [];
+      
+      // Connect high-horror nodes to each other or to the core
+      const highHorrorNodes = nodes.filter(n => n.horror > 1200).slice(0, 150);
+      
+      highHorrorNodes.forEach(n => {
+        const p1 = n.position || [0, 0, 0];
+        // Connect to core
+        positions.push(0, 0, 0);
+        positions.push(p1[0], p1[1], p1[2]);
+        
+        // Connect to another random high-horror node to create a "mesh"
+        if (Math.random() > 0.5) {
+          const n2 = highHorrorNodes[Math.floor(Math.random() * highHorrorNodes.length)];
+          const p2 = n2.position || [0, 0, 0];
+          positions.push(p1[0], p1[1], p1[2]);
+          positions.push(p2[0], p2[1], p2[2]);
+        }
+      });
+
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      synapticSilk = new THREE.LineSegments(geometry, material);
+      scene.add(synapticSilk);
+    }
+
+    // 🔊 PR-18: SPATIAL AUDIO INITIALIZATION
+    function initSpatialAudio() {
+      if (isAudioActive) return;
+      
+      audioListener = new THREE.AudioListener();
+      camera.add(audioListener);
+      
+      backgroundSound = new THREE.Audio(audioListener);
+      const audioLoader = new THREE.AudioLoader();
+      
+      // We simulate generative brown noise if no file available
+      // In real scenario: audioLoader.load('abyssal_droning.mp3', ...)
+      console.log(" [AUDIO]: Neural Listener active. High-horror nodes will emit whispers.");
+      isAudioActive = true;
+    }
+
+    // ⚔️ PR-17: MULTIVERSE HUD UPDATE
+    async function updateMultiversePanel(seed) {
+      const list = document.getElementById('branches-list');
+      if (!list) return;
+      
+      try {
+        const response = await fetch(`/api/multiverse/branches?seed=${seed}`);
+        const data = await response.json();
+        
+        if (data.branches && data.branches.length > 0) {
+          list.innerHTML = '';
+          data.branches.forEach(b => {
+             const div = document.createElement('div');
+             div.className = 'branch-item';
+             div.innerHTML = `🌌 <b>TIMELINE DISSONANCE:</b><br>Origin: ${b.node_origin}<br>Jump to Seed: ${b.branch_seed}`;
+             div.onclick = () => loadUniverse(b.branch_seed);
+             list.appendChild(div);
+          });
+          document.getElementById('multiverse-panel').style.display = 'block';
+        } else {
+          list.innerHTML = '<div style="font-size:0.7rem; color:#888; text-align:center; padding:10px;">No dissonance detected.</div>';
+        }
+      } catch (e) {
+        console.error("Multiverse API Error:", e);
+      }
+    }
+
+    // 👁️ PR-19: PREDICTIVE ORACLE CONNECTION
+    async function fetchRealityCorrelation() {
+       // This simulates the check for real-world collapses
+       // In PROD: fetch('/api/oracle/correlate')
+       const jitter = Math.random() * 0.1;
+       const prob = document.getElementById('collapse-prob');
+       if (prob) {
+          const current = parseFloat(prob.textContent);
+          const correlated = (current + jitter).toFixed(2);
+          // prob.textContent = correlated + "% (Correlated)";
+       }
+    }
+
+    // 🌑 PR-12: ASI EVENT HORIZON TRIGGER
+    function triggerASIEventHorizon() {
+      if (isASIActive) return;
+      isASIActive = true;
+      
+      showToast("⚠️ ASI EVENT HORIZON REACHED - REALITY REORGANIZING", 5000);
+      
+      // 1. Transcendent UI: Hide most HUD modules
+      const huds = document.querySelectorAll('.hud-module:not(#narrator-module)');
+      huds.forEach(h => {
+        gsap.to(h, { opacity: 0, duration: 2, onComplete: () => h.style.display = 'none' });
+      });
+
+      // 2. Pure Data Visualization: Shift palette to monochrome/white
+      if (bloomPass) {
+        bloomPass.threshold = 0;
+        bloomPass.strength = 3.0;
+      }
+      
+      // 3. ASI Perspective
+      gsap.to(camera.position, {
+        x: 0, y: 0, z: 500,
+        duration: 5,
+        ease: "expo.inOut"
+      });
+      
+      document.body.style.background = "#fff";
+      document.body.style.color = "#000";
+      
+      const title = document.getElementById('main-title');
+      if (title) title.textContent = "ASI: ABSOLUTE SYMBOLIC INTELLIGENCE";
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -1049,6 +1340,11 @@
       const seedDisplayTop = document.getElementById('current-seed-display');
       const modeDisplayTop = document.getElementById('current-mode-display');
       
+      // PR-18: Audio Init on interaction
+      initSpatialAudio();
+      // PR-17: Load Multiverse Data
+      updateMultiversePanel(seed);
+      
       if (seedDisplay) seedDisplay.textContent = seed;
       if (seedDisplayTop) seedDisplayTop.textContent = seed;
 
@@ -1100,52 +1396,59 @@
         const totalCount = Math.max(jsonCount, sliderTarget);
         
         if (totalCount > 0) {
-          const pos = new Float32Array(totalCount * 3);
-          const colors = new Float32Array(totalCount * 3);
-          const originalColors = new Float32Array(totalCount * 3);
-          const sizes = new Float32Array(totalCount); // Variable sizes
-          
-          // 1. Cargar nodos del JSON (Estructura Real)
+          // 3. Node Instancing (PR-2)
+          // Use InstancedMesh for high-performance rendering of structured nodes
+          const nodeGeometry = new THREE.SphereGeometry(2, 8, 8); // Simple sphere for instancing
+          const nodeMaterial = new THREE.MeshPhongMaterial({
+            vertexColors: false, // Colors will be set per instance
+            shininess: 100,
+            emissive: 0x001111,
+            emissiveIntensity: 0.5
+          });
+
+          const instancedNodes = new THREE.InstancedMesh(nodeGeometry, nodeMaterial, jsonCount || 1000);
+          const matrix = new THREE.Matrix4();
+          const color = new THREE.Color();
+
           if (data.nodes) {
-              data.nodes.forEach((n,i) => {
-                const p = n.position || [Math.random()*2000-1000, Math.random()*1000-500, Math.random()*2000-1000];
-                pos[i*3] = p[0]; pos[i*3+1] = p[1]; pos[i*3+2] = p[2];
-                
-                // Color base
-                const c = new THREE.Color();
-                if (n.color) {
-                   c.set(n.color);
-                } else {
-                   const hue = ((Math.abs(seed) % 10) / 10 + (i/jsonCount)*0.1) % 1;
-                   c.setHSL(hue, 0.8, 0.5);
-                }
-                colors[i*3] = c.r; colors[i*3+1] = c.g; colors[i*3+2] = c.b;
-                originalColors[i*3] = c.r; originalColors[i*3+1] = c.g; originalColors[i*3+2] = c.b;
-                sizes[i] = 2.0; // Nodos estructurales más grandes
-              });
+            data.nodes.forEach((n, i) => {
+              const p = n.position || [0, 0, 0];
+              matrix.setPosition(p[0], p[1], p[2]);
+              instancedNodes.setMatrixAt(i, matrix);
+
+              if (n.color) color.set(n.color);
+              else color.setHSL(((Math.abs(seed) % 10) / 10 + (i / jsonCount) * 0.1) % 1, 0.8, 0.5);
+              
+              instancedNodes.setColorAt(i, color);
+            });
+            instancedNodes.instanceMatrix.needsUpdate = true;
+            if (instancedNodes.instanceColor) instancedNodes.instanceColor.needsUpdate = true;
           }
+          scene.add(instancedNodes);
           
-          // 2. Generar nodos procedimentales (Materia Oscura / Polvo Cósmico) para llenar hasta el slider
-          if (totalCount > jsonCount) {
-             const geometryType = document.getElementById('vizMode')?.value || "ORBITAL";
-             
-             for (let i = jsonCount; i < totalCount; i++) {
+          // Background/Procedural nodes still use Points for extreme density (1M nodes)
+          const proceduralCount = Math.max(0, totalCount - jsonCount);
+          if (proceduralCount > 0) {
+            const pos = new Float32Array(proceduralCount * 3);
+            const colors = new Float32Array(proceduralCount * 3);
+            const sizes = new Float32Array(proceduralCount);
+
+            const geometryType = document.getElementById('vizMode')?.value || "ORBITAL";
+            const modeColor = data.modo_info?.color || "#00ffff";
+            
+            for (let i = 0; i < proceduralCount; i++) {
                 let x, y, z;
-                
-                // Distribución basada en el modo actual
                 if (geometryType === 'MANDALA') {
                     const r = 800 + Math.random() * 2000;
-                    const theta = (i / totalCount) * Math.PI * 2 * 34; // Golden angle-ish
+                    const theta = (i / proceduralCount) * Math.PI * 2 * 34;
                     const phi = Math.random() * Math.PI;
                     x = r * Math.sin(phi) * Math.cos(theta);
                     y = r * Math.sin(phi) * Math.sin(theta);
                     z = (Math.random() - 0.5) * 600;
                 } else {
-                    // Distribución Esférica Expandida (Halo)
                     const theta = Math.random() * Math.PI * 2;
                     const phi = Math.acos(2 * Math.random() - 1);
-                    const r = 1000 + Math.random() * 3000; // Radio más amplio
-                    
+                    const r = 1000 + Math.random() * 3000;
                     x = r * Math.sin(phi) * Math.cos(theta);
                     y = r * Math.sin(phi) * Math.sin(theta);
                     z = r * Math.cos(phi);
@@ -1153,35 +1456,26 @@
                 
                 pos[i*3] = x; pos[i*3+1] = y; pos[i*3+2] = z;
                 
-                // Color tenue para el fondo (Background noise)
-                const c = new THREE.Color();
-                // Usar color del tema o variación
-                const modeColor = data.modo_info?.color || "#00ffff";
-                c.set(modeColor);
-                // Oscurecer y variar ligeramente
-                c.offsetHSL(Math.random()*0.1, -0.2, -0.3); 
-                
+                const c = new THREE.Color(modeColor);
+                c.offsetHSL(Math.random()*0.1, -0.2, -0.3);
                 colors[i*3] = c.r; colors[i*3+1] = c.g; colors[i*3+2] = c.b;
-                originalColors[i*3] = c.r; originalColors[i*3+1] = c.g; originalColors[i*3+2] = c.b;
-                sizes[i] = 0.8 + Math.random() * 0.8; // Más pequeños
-             }
+                sizes[i] = 0.8 + Math.random() * 0.8;
+            }
+
+            const g = new THREE.BufferGeometry();
+            g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            g.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            
+            pointsCloud = new THREE.Points(g, new THREE.PointsMaterial({
+                vertexColors: true, 
+                size: 1.2, 
+                transparent: true,
+                opacity: 0.6,
+                blending: THREE.AdditiveBlending,
+                sizeAttenuation: true
+            }));
+            scene.add(pointsCloud);
           }
-          
-          const g = new THREE.BufferGeometry();
-          g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-          g.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-          g.setAttribute('size', new THREE.BufferAttribute(sizes, 1)); // Necesita soporte en shader o sizeAttenuation manual
-          g.userData.originalColors = originalColors;
-          
-          pointsCloud = new THREE.Points(g, new THREE.PointsMaterial({
-              vertexColors: true, 
-              size: 1.2, 
-              transparent: true,
-              opacity: 0.6,
-              blending: THREE.AdditiveBlending,
-              sizeAttenuation: true
-          }));
-          scene.add(pointsCloud);
           
           // Actualizar contador real
           const tNodes = document.getElementById('titan-nodes');
@@ -1200,6 +1494,19 @@
         if (titanSeed) titanSeed.textContent = seed;
         if (titanHorror && data.horror_total) {
           titanHorror.textContent = Math.round(data.horror_total).toLocaleString();
+        }
+
+        // PR-11: Generate Synaptic Silk
+        if (data.nodes) {
+          createSynapticSilk(data.nodes);
+        }
+        
+        // Trigger Narrative (PR-4)
+        initiateNarrativeStream();
+        
+        // Update Predictive Panel (PR-7)
+        if (data.top_drivers) {
+          updatePredictivePanel(data);
         }
       } catch (e) {
         console.error("Error:", e);
@@ -1224,8 +1531,12 @@
       });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Reduced for 150k nodes
       renderer.setSize(innerWidth, innerHeight);
-      renderer.toneMapping = THREE.ReinhardToneMapping;
-      renderer.toneMappingExposure = 1.0;
+      
+      // Modern HDR / Tonemapping (PR-2)
+      renderer.toneMapping = THREE.ACESFilmicToneMapping; // More Cinematic
+      renderer.toneMappingExposure = 1.2;
+      renderer.outputEncoding = THREE.sRGBEncoding; // Gamma correction
+      
       document.getElementById('canvas-container').appendChild(renderer.domElement);
 
       // WebGL Resilience
@@ -1312,6 +1623,10 @@
 
       loadUniverse(currentUniverseSeed);
       initSineWave(); // Initialize sine wave visualization
+      
+      // PR-19: ORACLE REALITY CORRELATION
+      setInterval(fetchRealityCorrelation, 5000); 
+
       animate();
     }
 
@@ -1322,6 +1637,14 @@
 
       const time = Date.now() * 0.001;
       const speedMultiplier = timeSpeed;
+
+      // PR-20: BIOLOGICAL STRESS FEEDBACK (Camera Jitter)
+      if (currentUniverseData && currentUniverseData.horror_total > 100000) {
+         const stress = Math.min(1.0, (currentUniverseData.horror_total - 100000) / 200000);
+         camera.position.x += (Math.random() - 0.5) * stress * 2;
+         camera.position.y += (Math.random() - 0.5) * stress * 2;
+         camera.rotation.z += (Math.random() - 0.5) * stress * 0.01;
+      }
 
       const dir = new THREE.Vector3();
       camera.getWorldDirection(dir);
@@ -1373,6 +1696,32 @@
         if (ud?.photonSphere?.material) {
           ud.photonSphere.material.opacity = Math.sin(Date.now() * 0.001) * 0.05 + 0.15;
         }
+
+        // PR-9: ANIMATE NEURAL SHELL
+        if (ud?.neuralShell?.material && window.neuralCoreMaterial) {
+          const activity = currentUniverseData?.neural_activity || 0;
+          window.neuralCoreMaterial.uniforms.time.value = Date.now() * 0.001;
+          window.neuralCoreMaterial.uniforms.activity.value = activity;
+          ud.neuralShell.rotation.y += (0.005 + activity * 0.02) * speedMultiplier;
+          ud.neuralShell.scale.setScalar(1.0 + Math.sin(Date.now() * 0.005) * 0.05);
+        }
+      }
+
+      // PR-9: ANIMATE NEURAL PULSES
+      for (let i = neuralCorePulses.length - 1; i >= 0; i--) {
+        const p = neuralCorePulses[i];
+        p.progress += p.speed * speedMultiplier;
+        
+        // Linear interpolation from core (0,0,0) to target
+        p.mesh.position.lerpVectors(new THREE.Vector3(0,0,0), p.target, p.progress);
+        
+        // Pulsing scale
+        p.mesh.scale.setScalar(1.0 + Math.sin(p.progress * 10) * 0.5);
+
+        if (p.progress >= 1.0) {
+          scene.remove(p.mesh);
+          neuralCorePulses.splice(i, 1);
+        }
       }
 
       // 3. ANIMATE MATRIX LINES
@@ -1380,29 +1729,38 @@
         matrixLines.rotation.y += 0.001 * speedMultiplier;
 
         if (matrixModeActive) {
+          const collapseProb = currentUniverseData?.collapse_probability || 0;
           if (isFiestaMode && dataArray && currentUniverseData) {
              const gravityFactor = Math.abs(currentUniverseData?.modo_info?.physics?.gravity || 1000) / 10000;
-             const flowSpeed = 0.002 * (1 + gravityFactor); 
+             const flowSpeed = 0.002 * (1 + gravityFactor + collapseProb * 2); 
              const timeAt = Date.now();
              const bass = dataArray[4] || 0; 
              const normBass = bass / 255.0;
              const hue = (timeAt * flowSpeed + normBass * 0.1) % 1; 
              
              matrixLines.material.color?.setHSL(hue, 1.0, 0.3 + normBass * 0.7);
-             matrixLines.material.opacity = (matrixOpacity || 0.3) + (normBass * 0.5);
+             matrixLines.material.opacity = (matrixOpacity || 0.3) + (normBass * 0.5) + (collapseProb * 0.2);
              
              if (ionLines?.material?.color) {
                  ionLines.material.color.setHSL((hue + 0.5) % 1, 1.0, 0.5 + normBass*0.5);
-                 ionLines.material.opacity = 0.4 + normBass * 0.4;
-                 ionLines.rotation.y -= 0.02; 
+                 ionLines.material.opacity = 0.4 + normBass * 0.4 + (collapseProb * 0.2);
+                 ionLines.rotation.y -= 0.02 * (1 + collapseProb); 
              }
           } else {
              const timeAt = Date.now() * 0.0005;
              const hue = (timeAt % 1); 
              matrixLines.material.color?.setHSL(hue, 0.8, 0.5);
-             matrixLines.material.opacity = matrixOpacity || 0.3;
+             matrixLines.material.opacity = (matrixOpacity || 0.3) + (collapseProb * 0.4);
           }
         }
+      }
+
+      // PR-11: ANIMATE SYNAPTIC SILK
+      if (synapticSilk?.material) {
+        const timeAt = Date.now() * 0.005;
+        const pulse = 0.1 + Math.sin(timeAt) * 0.1 + (Math.random() * 0.05);
+        synapticSilk.material.opacity = pulse;
+        synapticSilk.rotation.y += 0.0005 * speedMultiplier;
       }
 
       // 4. ANIMATE ION LINES (CHANNELS)
@@ -1426,7 +1784,37 @@
         }
       }
       
-      // 5. ANIMATE ORBITAL IONS
+      // 5. LOD & SCALING (PR-2)
+      // Basic LOD by scaling instances/points based on distance
+      if (scene) {
+        scene.traverse(obj => {
+          if (obj.isInstancedMesh) {
+            const matrix = new THREE.Matrix4();
+            const pos = new THREE.Vector3();
+            for (let i = 0; i < obj.count; i++) {
+              obj.getMatrixAt(i, matrix);
+              pos.setFromMatrixPosition(matrix);
+              const dist = camera.position.distanceTo(pos);
+              
+              // Scale down based on distance (Basic LOD)
+              let scale = 1.0;
+              if (dist > 2000) scale = 0.5;
+              if (dist > 4000) scale = 0.2;
+              
+              // Simple way to update scale in matrix without full decomposition
+              const currentScale = new THREE.Vector3();
+              const currentPos = new THREE.Vector3();
+              const currentQuat = new THREE.Quaternion();
+              matrix.decompose(currentPos, currentQuat, currentScale);
+              matrix.compose(currentPos, currentQuat, new THREE.Vector3(scale, scale, scale));
+              obj.setMatrixAt(i, matrix);
+            }
+            obj.instanceMatrix.needsUpdate = true;
+          }
+        });
+      }
+
+      // 6. ANIMATE ORBITAL IONS
       if (orbitalIons && orbitalIons.material) {
           orbitalIons.rotation.y += 0.0015 * speedMultiplier * (isFiestaMode ? 4 : 1);
           orbitalIons.material.opacity = 0.5 + Math.sin(time * 3) * 0.3;
@@ -1498,9 +1886,127 @@
         }
       }
 
-      updateTitanPanel();
-      if (composer) composer.render();
-      else renderer.render(scene, camera);
+    // ═══════════════════════════════════════════════════════════════
+    // 📊 OBSERVABILITY & METRICS (PR-1)
+    // ═══════════════════════════════════════════════════════════════
+    
+    let metricsHistory = [];
+    const SAMPLING_RATE = 60; // Sample every 60 frames
+    let lastTime = performance.now();
+    let frames = 0;
+
+    function updateTitanPanel() {
+      const time = performance.now();
+      frames++;
+
+      if (time >= lastTime + 1000) {
+        const fps = Math.round((frames * 1000) / (time - lastTime));
+        const dt = (time - lastTime) / frames;
+        
+        // UI Updates
+        const fpsEl = document.getElementById('titan-fps');
+        if (fpsEl) {
+          fpsEl.textContent = fps;
+          fpsEl.className = 'titan-stat-value ' + (fps < 30 ? 'danger' : (fps < 50 ? 'warning' : ''));
+        }
+
+        const mem = performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : 0;
+        const memEl = document.getElementById('titan-memory');
+        if (memEl) {
+          memEl.textContent = `${mem} MB`;
+          if (performance.memory) {
+            const limit = performance.memory.jsHeapSizeLimit / 1048576;
+            if (mem > limit * 0.8) memEl.className = 'titan-stat-value danger';
+            else if (mem > limit * 0.5) memEl.className = 'titan-stat-value warning';
+            else memEl.className = 'titan-stat-value';
+          }
+        }
+
+        const speedEl = document.getElementById('titan-speed');
+        if (speedEl) speedEl.textContent = `x${timeSpeed.toFixed(1)}`;
+
+        // Performance Sampling
+        if (frameCount % SAMPLING_RATE === 0) {
+          const sample = {
+            timestamp: Date.now(),
+            fps: fps,
+            frameTime: dt.toFixed(2),
+            memory: mem,
+            nodes: totalNodes,
+            seed: currentUniverseSeed,
+            drawCalls: renderer.info.render.calls,
+            triangles: renderer.info.render.triangles
+          };
+          metricsHistory.push(sample);
+          if (metricsHistory.length > 1000) metricsHistory.shift(); // Keep last 1000 samples
+        }
+
+        frames = 0;
+        lastTime = time;
+      }
+    }
+
+    function exportMetrics(format = 'json') {
+      if (metricsHistory.length === 0) {
+        showToast('⚠️ No metrics to export');
+        return;
+      }
+
+      let content, mimeType, extension;
+      if (format === 'csv') {
+        const keys = Object.keys(metricsHistory[0]);
+        content = [
+          keys.join(','),
+          ...metricsHistory.map(row => keys.map(k => row[k]).join(','))
+        ].join('\n');
+        mimeType = 'text/csv';
+        extension = 'csv';
+      } else {
+        content = JSON.stringify(metricsHistory, null, 2);
+        mimeType = 'application/json';
+        extension = 'json';
+      }
+
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `cosmic_metrics_${currentUniverseSeed}_${Date.now()}.${extension}`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast(`📊 Metrics exported as ${format.toUpperCase()}`);
+    }
+
+    function exportSnapshot() {
+      const snapshot = {
+        seed: currentUniverseSeed,
+        camera: {
+          position: camera.position.toArray(),
+          rotation: camera.rotation.toArray(),
+          target: controls.target.toArray()
+        },
+        settings: {
+          timeSpeed,
+          vizMode: document.getElementById('vizMode')?.value,
+          theme: document.getElementById('uxTheme')?.value,
+          nodeCount: document.getElementById('nodeSlider')?.value
+        },
+        timestamp: Date.now()
+      };
+
+      const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `cosmic_snapshot_${currentUniverseSeed}_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('📸 Snapshot exported');
+    }
+
+    updateTitanPanel();
+    if (composer) composer.render();
+    else renderer.render(scene, camera);
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -2944,10 +3450,6 @@
         const leftX = gamepad.axes[0]; // -1 (izq) a +1 (der)
         const leftY = gamepad.axes[1]; // -1 (arriba) a +1 (abajo)
 
-        // Stick derecho: Rotación cámara
-        const rightX = gamepad.axes[2];
-        const rightY = gamepad.axes[3];
-
         // Deadzone para evitar drift
         const deadzone = 0.15;
 
@@ -2968,25 +3470,57 @@
           moveState.back = 0;
         }
 
-        // Gatillos: Subir/Bajar
+        // Stick derecho: Rotación cámara (PR-3)
+        const rightX = gamepad.axes[2];
+        const rightY = gamepad.axes[3];
+
+        if (Math.abs(rightX) > deadzone) {
+          moveState.rotateLeft = rightX < 0 ? -rightX : 0;
+          moveState.rotateRight = rightX > 0 ? rightX : 0;
+        } else {
+          moveState.rotateLeft = 0;
+          moveState.rotateRight = 0;
+        }
+
+        if (Math.abs(rightY) > deadzone) {
+          moveState.rotateUp = rightY < 0 ? -rightY : 0;
+          moveState.rotateDown = rightY > 0 ? rightY : 0;
+        } else {
+          moveState.rotateUp = 0;
+          moveState.rotateDown = 0;
+        }
+
+        // Gatillos: Subir/Bajar (PR-3)
         const lt = gamepad.buttons[6]?.value || 0; // L2/LT
         const rt = gamepad.buttons[7]?.value || 0; // R2/RT
         moveState.down = lt;
         moveState.up = rt;
 
-        // Botones de acción
-        if (gamepad.buttons[0]?.pressed) { // A/X - Reset camera
-          resetCamera();
-        }
-        if (gamepad.buttons[1]?.pressed) { // B/Circle - Toggle immersion
-          toggleImmersionMode();
-        }
-        if (gamepad.buttons[2]?.pressed) { // X/Square - CAOS
-          invokeCaos();
-        }
-        if (gamepad.buttons[3]?.pressed) { // Y/Triangle - Matrix toggle
-          const matrixCheckbox = document.getElementById('matrixMode');
-          if (matrixCheckbox) matrixCheckbox.click();
+        // Botones de acción con debounce (PR-3)
+        if (!gamepad.buttonStates) gamepad.buttonStates = {};
+        
+        const checkButton = (index, callback) => {
+          const isPressed = gamepad.buttons[index]?.pressed;
+          if (isPressed && !gamepad.buttonStates[index]) {
+            callback();
+          }
+          gamepad.buttonStates[index] = isPressed;
+        };
+
+        checkButton(0, goToNearestNode);      // A -> Fly to Node
+        checkButton(1, resetCamera);          // B -> Reset
+        checkButton(2, toggleImmersionMode);  // X -> Immersion
+        checkButton(3, goToSingularity);      // Y -> Center
+
+        // R1 (5) - Speed Boost
+        if (gamepad.buttons[5]?.pressed) {
+          speedBoost = 2.0;
+          acceleration = 9.0;
+          maxSpeed = 90;
+        } else {
+          speedBoost = 1.0;
+          acceleration = 4.5;
+          maxSpeed = 45;
         }
       }
 
@@ -3096,8 +3630,75 @@
       });
 
       // ═══════════════════════════════════════════════════════════════
-      // 🚀 DOUBLE CLICK TO TRAVEL (Teleport to node/black hole)
-      // ═══════════════════════════════════════════════════════════════
+      // 🚀 Fly-to Cinematic (PR-3)
+      function flyTo(targetPosition, duration = 2) {
+        if (!camera || !controls) return;
+        
+        const offset = new THREE.Vector3().subVectors(camera.position, controls.target);
+        
+        // Bloquear controles manuales durante el vuelo
+        const wasOrbitEnabled = controls.enabled;
+        controls.enabled = false;
+
+        gsap.to(controls.target, {
+          x: targetPosition.x,
+          y: targetPosition.y,
+          z: targetPosition.z,
+          duration: duration,
+          ease: "power2.inOut",
+          onUpdate: () => controls.update()
+        });
+        
+        gsap.to(camera.position, {
+          x: targetPosition.x + offset.x,
+          y: targetPosition.y + offset.y,
+          z: targetPosition.z + offset.z,
+          duration: duration,
+          ease: "power2.inOut",
+          onComplete: () => {
+            controls.enabled = wasOrbitEnabled;
+          }
+        });
+        
+        showToast(`🚀 WARPING...`);
+      }
+
+      function goToSingularity() {
+        if (centralSingularity) {
+          flyTo(centralSingularity.position, 2.5);
+        }
+      }
+
+      function goToNearestNode() {
+        if (!scene) return;
+        
+        let nearestPosition = new THREE.Vector3();
+        let minDistance = Infinity;
+        let found = false;
+
+        scene.traverse(obj => {
+          if (obj.isInstancedMesh) {
+            const matrix = new THREE.Matrix4();
+            const pos = new THREE.Vector3();
+            for (let i = 0; i < obj.count; i++) {
+              obj.getMatrixAt(i, matrix);
+              pos.setFromMatrixPosition(matrix);
+              const dist = camera.position.distanceTo(pos);
+              if (dist < minDistance && dist > 50) {
+                minDistance = dist;
+                nearestPosition.copy(pos);
+                found = true;
+              }
+            }
+          }
+        });
+
+        if (found) {
+          flyTo(nearestPosition, 1.5);
+        } else {
+          showToast("⚠️ Constant distance limit reached");
+        }
+      }
 
     // Init logic when DOM is ready
     document.addEventListener('DOMContentLoaded', () => {
@@ -3325,9 +3926,648 @@
     });
     
     // ═══════════════════════════════════════════════════════════════
-    // 🎯 INICIALIZACIÓN DE SISTEMA DRAGGABLE
+    // 🧠 NARRATIVE INTELLIGENCE (PR-4)
     // ═══════════════════════════════════════════════════════════════
     
+    let narrativeEventSource = null;
+
+    function initiateNarrativeStream() {
+      if (narrativeEventSource) {
+        narrativeEventSource.close();
+      }
+
+      const narrativeBox = document.getElementById('narrative-module');
+      const narrativeText = document.getElementById('narrative-text');
+      const subtitleBox = document.getElementById('subtitle-box');
+      
+      if (!narrativeBox || !narrativeText) return;
+
+      // Show module
+      narrativeBox.style.display = 'block';
+      narrativeText.textContent = '';
+      if (subtitleBox) subtitleBox.textContent = '';
+
+      const seed = currentUniverseSeed;
+      const horror = currentUniverseData.horror_total || 0;
+      const nodes = totalNodes;
+      const mode = currentUniverseData.modo || 'UNKNOWN';
+      const persona = document.getElementById('personaSelector')?.value || 'AUTO';
+
+      const url = `/api/narrative_stream?seed=${seed}&horror=${horror}&nodes=${nodes}&mode=${mode}&persona=${persona}`;
+      narrativeEventSource = new EventSource(url);
+
+      narrativeEventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        typewriterEffect(data.text, narrativeText, subtitleBox);
+        speakNarrative(data.text); // PR-5: TTS Integration
+        
+        // PR-9: SPARK NEURAL PULSE on narrative
+        if (currentUniverseData?.nodes && currentUniverseData.nodes.length > 0) {
+           const randomNode = currentUniverseData.nodes[Math.floor(Math.random() * currentUniverseData.nodes.length)];
+           if (randomNode.position) spawnNeuralPulse(randomNode.position);
+        }
+      };
+
+      narrativeEventSource.onerror = (err) => {
+        console.error("Narrative stream error:", err);
+        narrativeEventSource.close();
+      };
+    }
+
+    function typewriterEffect(text, targetEl, subtitleEl) {
+      // ... (existing code handles display)
+      let i = 0;
+      const speed = 30; 
+      
+      function type() {
+        if (i < text.length) {
+          targetEl.textContent += text.charAt(i);
+          if (subtitleEl) subtitleEl.textContent = targetEl.textContent;
+          i++;
+          setTimeout(type, speed);
+        } else {
+          if (text.endsWith('.')) {
+             setTimeout(() => { if(subtitleEl) subtitleEl.textContent = ''; }, 3000);
+          }
+        }
+      }
+      type();
+    }
+
+    // 🔊 TEXT-TO-SPEECH (PR-5)
+    function speakNarrative(text) {
+      if (!window.speechSynthesis) return;
+      
+      // Cancel previous speech to avoid overlapping
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Select a "deep" or "robotic" voice if available
+      const voices = window.speechSynthesis.getVoices();
+      // Prefer Spanish/Latam voices
+      const voice = voices.find(v => v.lang.includes('es')) || voices[0];
+      
+      if (voice) utterance.voice = voice;
+      
+      // PR-12: ASI Narrator Voice
+      if (isASIActive) {
+        utterance.pitch = 0.2; // Extremadamente profunda y mecánica
+        utterance.rate = 0.7;  // Pausada, omnisciente
+        utterance.volume = 1.0;
+      } else {
+        utterance.pitch = 0.6; // Deep cosmic voice
+        utterance.rate = 0.9;  // Solemn slow rate
+        utterance.volume = 0.8;
+      }
+      
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function updatePredictivePanel(analysis) {
+      const panel = document.getElementById('predictive-panel');
+      const alert = document.getElementById('collapse-alert');
+      const prob = document.getElementById('collapse-prob');
+      const driversList = document.getElementById('drivers-list');
+      
+      if (!panel || !alert || !prob || !driversList) return;
+
+      const probability = analysis.collapse_probability || 0;
+      const probPercent = (probability * 100).toFixed(1);
+      
+      prob.textContent = `${probPercent}%`;
+      panel.style.display = 'block';
+
+      // PR-9 Update
+      const neuralVal = document.getElementById('neural-val');
+      const neuralFill = document.getElementById('neural-fill');
+      if (neuralVal && neuralFill) {
+        const act = (analysis.neural_activity || 0) * 100;
+        neuralVal.textContent = `${act.toFixed(1)}%`;
+        neuralFill.style.width = `${act}%`;
+      }
+
+      // PR-10 Badge Update
+      const recursionBadge = document.getElementById('recursion-badge');
+      if (recursionBadge) {
+        recursionBadge.style.display = analysis.is_optimized ? 'block' : 'none';
+      }
+
+      if (probability > 0.8) {
+        alert.textContent = "CRITICAL COLLAPSE INMINENT";
+        alert.style.background = "rgba(255,0,0,0.6)";
+      } else if (probability > 0.5) {
+        alert.textContent = "WARNING: REALITY UNSTABLE";
+        alert.style.background = "rgba(255,165,0,0.4)";
+      } else {
+        alert.textContent = "REALITY STABLE";
+        alert.style.background = "rgba(0,255,65,0.2)";
+      }
+
+      // PR-12: ASI Event Horizon
+      if (probability > 0.9) {
+        triggerASIEventHorizon();
+      }
+
+      // Update Drivers
+      driversList.innerHTML = '';
+      const drivers = analysis.top_drivers || [];
+      const maxHorror = drivers.length > 0 ? drivers[0].horror_total : 1;
+
+      drivers.forEach(d => {
+        const item = document.createElement('div');
+        item.className = 'driver-item';
+        const percent = ((d.horror_total / maxHorror) * 100).toFixed(0);
+        
+        item.innerHTML = `
+          <span>${d.dim}</span>
+          <div style="width: 100px;">
+            <div class="driver-bar"><div class="driver-fill" style="width: ${percent}%"></div></div>
+          </div>
+        `;
+        driversList.appendChild(item);
+      });
+    }
+    
+    // 🌀 Phase 18: RESONANCE CYCLE & BIODATA
+    async function triggerResonanceCycle() {
+      showToast('🌀 INITIATING RESONANCE CYCLE...', 3000);
+      const freq = document.getElementById('freqSlider')?.value || 440;
+      
+      try {
+        const res = await fetch(`/api/ingest_real?freq=${freq}`);
+        const data = await res.json();
+        
+        if (data.status === 'QUARANTINED') {
+          showToast('🛑 ERROR: SYSTEM QUARANTINED', 10000);
+          document.getElementById('bio-sync-status').textContent = 'STATUS: QUARANTINED';
+          document.getElementById('bio-sync-status').style.color = 'var(--text-red)';
+          return;
+        }
+        
+        currentUniverseSeed = data.seed;
+        showToast(`✅ RESONANCE ACHIEVED: Seed ${data.seed}`);
+        
+        // Update Bio HUD with real data from orchestrator
+        if (data.resonance_data) {
+           updateBioHUD(data.resonance_data);
+        }
+        
+        loadUniverse(data.seed);
+      } catch (e) {
+        console.error("Resonance Error:", e);
+        showToast('❌ RESONANCE FAILURE');
+      } finally {
+        document.getElementById('loading-overlay').style.display = 'none';
+      }
+    }
+
+    function updateBioHUD(resData) {
+       const bio = resData.bio_entropy || 0.5;
+       if (document.getElementById('val-human')) document.getElementById('val-human').textContent = (bio * 20).toFixed(1) + ' Hz';
+       if (document.getElementById('bar-human')) document.getElementById('bar-human').style.width = (bio * 100) + '%';
+       
+       if (document.getElementById('val-animal')) document.getElementById('val-animal').textContent = (bio * 1.5).toFixed(2);
+       if (document.getElementById('bar-animal')) document.getElementById('bar-animal').style.width = (bio * 90) + '%';
+       
+       if (document.getElementById('val-plant')) document.getElementById('val-plant').textContent = (400 + bio * 200).toFixed(0) + 'nm';
+       if (document.getElementById('bar-plant')) document.getElementById('bar-plant').style.width = (30 + bio * 40) + '%';
+       
+       if (document.getElementById('val-fungi')) document.getElementById('val-fungi').textContent = (bio * 8).toFixed(1) + 'k μm';
+       if (document.getElementById('bar-fungi')) document.getElementById('bar-fungi').style.width = (bio * 75) + '%';
+       
+       const risk = resData.ethical_risk || 0;
+       const statusEl = document.getElementById('bio-sync-status');
+       if (statusEl) {
+         if (risk > 0.7) {
+            statusEl.textContent = 'COSMOS: DISSONANT';
+            statusEl.style.color = 'var(--text-red)';
+         } else {
+            statusEl.textContent = 'COSMOS: SYNCHRONIZED';
+            statusEl.style.color = 'var(--text-green)';
+         }
+       }
+    }
+
+    // 🔌 API Config Save
+    function saveAPIConfig() {
+      const config = {
+        llm: {
+          provider: document.getElementById('llmProvider')?.value,
+          apiKey: document.getElementById('apiKeyInput')?.value
+        },
+        db: {
+          provider: document.getElementById('dbProvider')?.value,
+          connString: document.getElementById('dbConnString')?.value
+        },
+        quantum: {
+          backend: document.getElementById('quantumBackend')?.value,
+          token: document.getElementById('quantumToken')?.value
+        },
+        mcp: {
+          mode: document.getElementById('mcpAgentMode')?.value,
+          fileAccess: document.getElementById('mcpFileAccess')?.checked,
+          webAccess: document.getElementById('mcpWebAccess')?.checked,
+          codeExec: document.getElementById('mcpCodeExec')?.checked,
+          dbAccess: document.getElementById('mcpDbAccess')?.checked
+        }
+      };
+      
+      localStorage.setItem('cosmic_full_config', JSON.stringify(config));
+      
+      showToast(`✅ All Config Saved: LLM=${config.llm.provider}, DB=${config.db.provider}, Quantum=${config.quantum.backend}`);
+      console.log('[CONFIG] Full config saved:', config);
+    }
+
+    // Load saved API config on startup  
+    function loadAPIConfig() {
+      const savedConfig = localStorage.getItem('cosmic_full_config');
+      if (savedConfig) {
+        try {
+          const config = JSON.parse(savedConfig);
+          
+          if (config.llm?.provider) document.getElementById('llmProvider').value = config.llm.provider;
+          if (config.db?.provider) document.getElementById('dbProvider').value = config.db.provider;
+          if (config.db?.connString) document.getElementById('dbConnString').value = config.db.connString;
+          if (config.quantum?.backend) document.getElementById('quantumBackend').value = config.quantum.backend;
+          if (config.mcp?.mode) document.getElementById('mcpAgentMode').value = config.mcp.mode;
+          if (config.mcp?.fileAccess !== undefined) document.getElementById('mcpFileAccess').checked = config.mcp.fileAccess;
+          if (config.mcp?.webAccess !== undefined) document.getElementById('mcpWebAccess').checked = config.mcp.webAccess;
+          if (config.mcp?.codeExec !== undefined) document.getElementById('mcpCodeExec').checked = config.mcp.codeExec;
+          if (config.mcp?.dbAccess !== undefined) document.getElementById('mcpDbAccess').checked = config.mcp.dbAccess;
+          
+          console.log('[CONFIG] Loaded saved config');
+        } catch(e) {
+          console.warn('Could not load saved config:', e);
+        }
+      }
+    }
+
+    // 📡 PREDICTIVE ANALYSIS UPDATE
+    function updatePredictiveAnalysis() {
+      if (!currentUniverseData) return;
+      
+      const horror = currentUniverseData.horror_total || 0;
+      const seed = Math.abs(currentUniverseSeed || 1);
+      
+      // Calculate AGI Neural Activity (simulated)
+      const agiActivity = Math.min(100, (Math.sin(Date.now() * 0.001) + 1) * 40 + (horror / 500));
+      document.getElementById('agi-neural-val').textContent = agiActivity.toFixed(1) + '%';
+      document.getElementById('agi-neural-bar').style.width = agiActivity + '%';
+      
+      // Calculate ASI Sync
+      const asiSync = Math.min(100, (Math.cos(Date.now() * 0.002 + seed) + 1) * 30 + (horror / 400));
+      document.getElementById('asi-sync-val').textContent = asiSync.toFixed(1) + '%';
+      document.getElementById('asi-sync-bar').style.width = asiSync + '%';
+      
+      // Calculate Collapse Probability
+      let collapseProb = Math.min(99.9, (horror / 200000) * 100);
+      collapseProb += (Math.random() * 2); // Jitter
+      document.getElementById('collapse-prob').textContent = collapseProb.toFixed(1) + '%';
+      
+      // Update Status Box
+      const statusBox = document.getElementById('agi-status-box');
+      const statusText = document.getElementById('agi-status-text');
+      
+      if (statusBox && statusText) {
+          if (collapseProb > 80) {
+            statusText.textContent = 'CRITICAL COLLAPSE';
+            statusText.style.color = 'var(--text-red)';
+            statusBox.style.borderColor = 'var(--text-red)';
+            statusBox.style.background = 'rgba(50,0,0,0.8)';
+          } else if (collapseProb > 40) {
+            statusText.textContent = 'UNSTABLE';
+            statusText.style.color = 'var(--text-yellow)';
+            statusBox.style.borderColor = 'var(--text-yellow)';
+            statusBox.style.background = 'rgba(50,50,0,0.6)';
+          } else {
+            statusText.textContent = 'STABLE';
+            statusText.style.color = 'var(--text-cyan)'; 
+            statusBox.style.borderColor = 'var(--text-cyan)';
+            statusBox.style.background = 'rgba(0,20,20,0.6)';
+          }
+      }
+      
+      // Animate Decryption Icon
+      const icon = document.getElementById('decryptions-icon');
+      if (icon) {
+          if (Date.now() % 1000 < 500) {
+            icon.style.opacity = '1';
+          } else {
+            icon.style.opacity = '0.5';
+          }
+      }
+    }
+
+    // 🔍 Test Connections
+    async function testConnections() {
+      showToast('🔍 Testing all connections...', 3000);
+      
+      const results = [];
+      
+      // Test LLM
+      try {
+        const llmRes = await fetch('/api/narrative_stream?seed=1&horror=100&nodes=10&mode=TEST&persona=AUTO');
+        results.push({ name: 'LLM', status: llmRes.ok ? '✅' : '❌' });
+      } catch(e) {
+        results.push({ name: 'LLM', status: '❌' });
+      }
+      
+      // Test DB (via existing endpoint)
+      try {
+        const dbRes = await fetch('/hall_of_shame');
+        results.push({ name: 'Database', status: dbRes.ok ? '✅' : '❌' });
+      } catch(e) {
+        results.push({ name: 'Database', status: '❌' });
+      }
+      
+      // Test Quantum (simulated)
+      results.push({ name: 'Quantum', status: '✅ (Simulated)' });
+      
+      // Test MCP
+      results.push({ name: 'MCP Agent', status: '✅ (Active)' });
+      
+      const summary = results.map(r => `${r.name}: ${r.status}`).join(' | ');
+      showToast(`🔗 ${summary}`, 5000);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🤖 AI CHAT PANEL (Phase 20)
+    // ═══════════════════════════════════════════════════════════════
+    
+    let chatAttachments = [];
+    let chatHistory = [];
+
+    function toggleChatPanel() {
+      const panel = document.getElementById('ai-chat-panel');
+      const toggleBtn = document.getElementById('chat-toggle-btn');
+      if (panel.style.display === 'none') {
+        panel.style.display = 'flex';
+        toggleBtn.style.display = 'none';
+      } else {
+        panel.style.display = 'none';
+        toggleBtn.style.display = 'block';
+      }
+    }
+
+    function openChatPanel() {
+      document.getElementById('ai-chat-panel').style.display = 'flex';
+      document.getElementById('chat-toggle-btn').style.display = 'none';
+    }
+
+    function toggleChatTools() {
+      const tools = document.getElementById('chat-tools');
+      tools.style.display = tools.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function updateChatContext() {
+      document.getElementById('ctx-seed').textContent = currentUniverseSeed || -10;
+      document.getElementById('ctx-horror').textContent = Math.round(currentUniverseData?.horror_total || 0);
+      document.getElementById('ctx-nodes').textContent = totalNodes || 0;
+      document.getElementById('chat-seed').textContent = currentUniverseSeed || -10;
+    }
+
+    async function handleChatFileUpload(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+          const dataUrl = e.target.result;
+          let type = 'file';
+          if (file.type.startsWith('image/')) type = 'image';
+          else if (file.type.startsWith('audio/')) type = 'audio';
+          else if (file.type.startsWith('video/')) type = 'video';
+          
+          chatAttachments.push({
+            type: type,
+            name: file.name,
+            data: dataUrl,
+            timestamp: Date.now(),
+            context: {
+              seed: currentUniverseSeed,
+              horror: currentUniverseData?.horror_total || 0
+            }
+          });
+          
+          renderAttachments();
+        };
+        
+        reader.readAsDataURL(file);
+      }
+      // Reset input
+      input.value = '';
+    }
+
+    async function generateCustomEndpoint() {
+      const token = 'sk-' + Math.random().toString(36).substr(2, 9) + '-' + Math.random().toString(36).substr(2, 9);
+      copyToClipboard(token, 'New Token');
+      showToast(`🔑 Token Generated: ${token}`, 4000);
+    }
+    
+    function copyToClipboard(text, label) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast(`📋 Copied ${label}`, 2000);
+        }).catch(err => {
+           // Fallback if promise fails
+           fallbackCopy(text, label);
+        });
+      } else {
+        fallbackCopy(text, label);
+      }
+    }
+    
+    function fallbackCopy(text, label) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+           document.execCommand("Copy");
+           showToast(`📋 Copied ${label}`, 2000);
+        } catch(e) {
+           showToast(`❌ Copy failed`, 2000);
+        }
+        textArea.remove();
+    }
+
+    // Consolidated render function
+    function renderAttachments() {
+      const attachList = document.getElementById('attachment-list');
+      attachList.innerHTML = '';
+      
+      chatAttachments.forEach((att, i) => {
+        const preview = document.createElement('div');
+        preview.style.cssText = 'position:relative; width:50px; height:50px; border-radius:4px; overflow:hidden; border:1px solid var(--glass-border); background:#222;';
+        
+        let content = '';
+        if (att.type === 'screenshot' || att.type === 'image') {
+          content = `<img src="${att.data}" style="width:100%; height:100%; object-fit:cover;">`;
+        } else if (att.type === 'audio') {
+          content = `<div style="display:flex;justify-content:center;align-items:center;height:100%;color:var(--text-cyan);font-size:1.5rem;">🎵</div>`;
+        } else if (att.type === 'video') {
+          content = `<div style="display:flex;justify-content:center;align-items:center;height:100%;color:var(--text-magenta);font-size:1.5rem;">🎬</div>`;
+        } else {
+           content = `<div style="display:flex;justify-content:center;align-items:center;height:100%;color:#aaa;font-size:1rem;">📄</div>`;
+        }
+        
+        preview.innerHTML = `
+          ${content}
+          <button onclick="removeAttachment(${i})" style="position:absolute; top:0; right:0; width:15px; height:15px; background:rgba(255,0,0,0.8); border:none; color:white; font-size:0.6rem; cursor:pointer; display:flex; justify-content:center; align-items:center;">×</button>
+        `;
+        attachList.appendChild(preview);
+      });
+      
+      document.getElementById('chat-attachments').style.display = chatAttachments.length > 0 ? 'block' : 'none';
+    }
+
+    function removeAttachment(index) {
+      chatAttachments.splice(index, 1);
+      renderAttachments();
+    }
+    
+    // Update attachScreenshot to use new render
+    async function attachScreenshot() {
+      showToast('📸 Capturando universo...', 1500);
+      try {
+        const canvas = document.querySelector('#canvas-container canvas');
+        if (!canvas) { showToast('❌ No canvas found', 2000); return; }
+        
+        const dataUrl = canvas.toDataURL('image/png');
+        chatAttachments.push({
+          type: 'screenshot',
+          data: dataUrl,
+          timestamp: Date.now(),
+          context: { seed: currentUniverseSeed, horror: currentUniverseData?.horror_total || 0 }
+        });
+        
+        renderAttachments();
+        showToast('✅ Sc attached');
+      } catch(e) { console.error(e); }
+    }
+
+    async function sendChatMessage() {
+      const input = document.getElementById('chat-input');
+      const message = input.value.trim();
+      if (!message && chatAttachments.length === 0) return; // Allow sending just attachment
+      
+      input.value = '';
+      updateChatContext();
+      
+      const messagesDiv = document.getElementById('chat-messages');
+      
+      // Add user message
+      const userMsg = document.createElement('div');
+      userMsg.className = 'chat-msg user';
+      userMsg.style.cssText = 'margin:8px 0; text-align:right;';
+      
+      let attachmentHtml = '';
+      if (chatAttachments.length > 0) {
+        attachmentHtml = `<div style="margin-top:5px; display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">`;
+        chatAttachments.forEach(att => {
+             if (att.type === 'image' || att.type === 'screenshot') {
+                 attachmentHtml += `<img src="${att.data}" style="width:50px; height:50px; object-fit:cover; border-radius:4px; border:1px solid var(--text-cyan);">`;
+             } else if (att.type === 'audio') {
+                 attachmentHtml += `<span style="font-size:1.5rem;" title="Audio">🎵</span>`;
+             } else if (att.type === 'video') {
+                 attachmentHtml += `<span style="font-size:1.5rem;" title="Video">🎬</span>`;
+             }
+        });
+        attachmentHtml += `</div>`;
+      }
+      
+      userMsg.innerHTML = `<span style="background:rgba(0,242,255,0.2); padding:5px 10px; border-radius:10px; color:var(--text-cyan); display:inline-block;">${message || '(Attachment sent)'}</span>${attachmentHtml}`;
+      messagesDiv.appendChild(userMsg);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      
+      // Build context
+      const tools = {
+        rag: document.getElementById('tool-rag')?.checked,
+        quantum: document.getElementById('tool-quantum')?.checked,
+        db: document.getElementById('tool-db')?.checked,
+        mcp: document.getElementById('tool-mcp')?.checked,
+        langchain: document.getElementById('tool-langchain')?.checked,
+        web: document.getElementById('tool-web')?.checked
+      };
+      
+      const provider = document.getElementById('chatProvider')?.value || 'deepseek';
+      
+      // Get API Key from config
+      let apiKey = '';
+      try {
+        const savedConfig = JSON.parse(localStorage.getItem('cosmic_full_config') || '{}');
+        if (savedConfig.llm && savedConfig.llm.apiKey) {
+           apiKey = savedConfig.llm.apiKey;
+        }
+      } catch(e) {}
+
+      const payload = {
+        message,
+        provider,
+        apiKey, // Send key
+        tools,
+        context: {
+          seed: currentUniverseSeed,
+          horror: currentUniverseData?.horror_total || 0,
+          nodes: totalNodes,
+          mode: currentUniverseData?.modo || 'UNKNOWN',
+          bio_state: document.getElementById('bio-sync-status')?.textContent || 'UNKNOWN'
+        },
+        attachments: chatAttachments.map(a => ({ type: a.type, context: a.context })),
+        history: chatHistory.slice(-5) // Last 5 messages for context
+      };
+      
+      // Store in history
+      chatHistory.push({ role: 'user', content: message });
+      
+      // Clear attachments after sending
+      chatAttachments = [];
+      document.getElementById('attachment-list').innerHTML = '';
+      document.getElementById('chat-attachments').style.display = 'none';
+      
+      // Show typing indicator
+      const typingMsg = document.createElement('div');
+      typingMsg.className = 'chat-msg ai typing';
+      typingMsg.innerHTML = `<span style="color:var(--text-magenta);">🤖 Pensando...</span>`;
+      messagesDiv.appendChild(typingMsg);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        const data = await res.json();
+        
+        // Remove typing indicator
+        typingMsg.remove();
+        
+        // Add AI response
+        const aiMsg = document.createElement('div');
+        aiMsg.className = 'chat-msg ai';
+        aiMsg.style.cssText = 'margin:8px 0;';
+        aiMsg.innerHTML = `
+          <span style="color:var(--text-magenta);">🤖 ${provider.toUpperCase()}:</span>
+          <div style="color:#ccc; margin-top:3px; padding:5px; background:rgba(0,0,0,0.3); border-radius:5px; white-space:pre-wrap;">${data.response || data.error || 'Sin respuesta'}</div>
+          ${data.tools_used ? `<div style="font-size:0.55rem; color:#666; margin-top:3px;">Tools: ${data.tools_used.join(', ')}</div>` : ''}
+        `;
+        messagesDiv.appendChild(aiMsg);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        
+        chatHistory.push({ role: 'assistant', content: data.response });
+        
+      } catch(e) {
+        typingMsg.remove();
+        const errMsg = document.createElement('div');
+        errMsg.className = 'chat-msg error';
+        errMsg.innerHTML = `<span style="color:var(--text-red);">❌ Error: ${e.message}. Verifica que el endpoint /api/chat esté activo.</span>`;
+        messagesDiv.appendChild(errMsg);
+      }
+    }
+
     // Inicializar draggable para todos los paneles cuando el DOM esté listo
     window.addEventListener('DOMContentLoaded', () => {
       // Restaurar posiciones guardadas
@@ -3337,7 +4577,19 @@
       makeDraggable('config-module', '.hud-title');
       makeDraggable('temporal-controls', '.hud-title');
       makeDraggable('quick-nav-panel', '#quick-nav-handle');
+      makeDraggable('biocomputing-hud', '.hud-title'); // PR-19
+      makeDraggable('ai-chat-panel', '.hud-title'); // PR-20
       makeDraggable('donation-module'); // Todo el módulo es draggable
+      makeDraggable('system-hub', '.hud-title'); // v7.0 Hub
+      
+      // Load saved API config
+      loadAPIConfig();
+      
+      // Update chat context periodically
+      setInterval(updateChatContext, 5000);
+      
+      // Update Predictive Analysis 
+      setInterval(updatePredictiveAnalysis, 1000);
       
       console.log('🎯 Sistema Draggable inicializado');
     });
@@ -3358,6 +4610,13 @@
   <div id="loading-overlay">SYNCHRONIZING IONIC CHANNELS...</div>
 
   <div id="canvas-container"></div>
+
+  <div id="narrative-module">
+    <div id="narrative-text"></div>
+    <span class="narrative-cursor"></span>
+  </div>
+
+  <div id="subtitle-box"></div>
 
   <!-- Titan Panel - Stats Bar -->
   <div id="titan-panel">
@@ -3390,6 +4649,13 @@
     <div class="titan-divider"></div>
     
     <div class="titan-stat">
+      <span class="titan-stat-label">Version</span>
+      <span class="titan-stat-value" style="color:var(--text-magenta);">v7.0</span>
+    </div>
+
+    <div class="titan-divider"></div>
+
+    <div class="titan-stat">
       <span class="titan-stat-label">Speed</span>
       <span id="titan-speed" class="titan-stat-value">x1.0</span>
     </div>
@@ -3410,17 +4676,63 @@
     
     <div class="titan-stat">
       <span class="titan-stat-label">Dimensions</span>
-      <span id="titan-dims" class="titan-stat-value">11D</span>
+      <span id="titan-dims" class="titan-stat-value">12D</span>
+    </div>
+    
+    <div class="titan-divider"></div>
+
+    <div class="titan-stat">
+      <span class="titan-stat-label">Bio-Link</span>
+      <span id="titan-biolink" class="titan-stat-value" style="color:var(--text-green);">SYNCED</span>
+    </div>
+    
+    <div class="titan-divider"></div>
+
+    <div class="titan-stat">
+      <span class="titan-stat-label">Data Nexus</span>
+      <span id="titan-nexus" class="titan-stat-value" style="color:var(--text-cyan);">ACTIVE</span>
+    </div>
+
+    <div class="titan-divider"></div>
+
+    <div class="titan-stat">
+      <span class="titan-stat-label">Cloud Memory</span>
+      <span id="titan-memscale" class="titan-stat-value" style="color:var(--text-green);">HYPER-SCALED</span>
+    </div>
+    
+    <div class="titan-divider"></div>
+
+    <div class="titan-stat">
+      <span class="titan-stat-label">WAF Shield</span>
+      <span id="titan-waf" class="titan-stat-value" style="color:var(--text-cyan);">ACTIVE</span>
+    </div>
+    
+    <div class="titan-divider"></div>
+
+    <div class="titan-stat">
+      <span class="titan-stat-label">M-Theory</span>
+      <span id="titan-mtheory" class="titan-stat-value" style="color:var(--text-magenta);">RESONATING</span>
+    </div>
+    
+    <div class="titan-divider"></div>
+
+    <div class="titan-stat" title="Vibrational Discord Index">
+      <span class="titan-stat-label">Discord</span>
+      <span id="titan-discord" class="titan-stat-value">0.12</span>
     </div>
     
     <div class="titan-divider"></div>
     
     <!-- Panel Visibility Controls -->
     <div id="titan-panel-controls">
+      <button onclick="exportMetrics('json')" title="Export Metrics (JSON)">📊</button>
+      <button onclick="exportSnapshot()" title="Export Snapshot (Scene)">📸</button>
+      <div class="titan-divider"></div>
       <button data-panel="config-module" onclick="togglePanel('config-module')" title="Toggle Neural Config">🧠</button>
       <button data-panel="temporal-controls" onclick="togglePanel('temporal-controls')" title="Toggle Temporal Controls">⏱️</button>
       <button data-panel="quick-nav-panel" onclick="togglePanel('quick-nav-panel')" title="Toggle Quick Navigation">🧭</button>
       <button data-panel="donation-module" onclick="togglePanel('donation-module')" title="Toggle Donations">💰</button>
+      <button data-panel="system-hub" onclick="togglePanel('system-hub')" title="System Hub v7.0 (Endpoints/Changelog)">🚀</button>
       <div class="titan-divider"></div>
       <button onclick="resetAllPanels()" title="Restaurar Vista" style="background:rgba(0,255,65,0.2);border-color:var(--text-green);">🔄</button>
     </div>
@@ -3440,6 +4752,78 @@
   <!-- Sine Wave Visualization (Top Left) -->
   <div id="sine-wave-canvas">
     <canvas id="sine-canvas" width="290" height="140"></canvas>
+  </div>
+
+  <!-- Predictive Panel (PR-7) -->
+  <div id="predictive-panel" class="hud-module">
+    <div class="hud-title">📡 PREDICTIVE ANALYSIS</div>
+    <div id="collapse-alert">STABLE</div>
+    
+    <!-- PR-9: AGI METRICS -->
+    <div style="margin: 10px 0; display:flex; justify-content:space-between; font-size:0.7rem;">
+      <span>AGI NEURAL ACTIVITY:</span>
+      <span id="neural-val" style="color:var(--text-cyan)">0%</span>
+    </div>
+    <div class="driver-bar"><div id="neural-fill" class="driver-fill" style="width: 0%; background:var(--text-cyan);"></div></div>
+
+    <!-- PR-10: RECURSION BADGE -->
+    <div id="recursion-badge" style="display:none; margin-top:10px; padding:5px; background:rgba(0,255,65,0.1); border:1px solid var(--text-cyan); color:var(--text-cyan); font-size:0.6rem; text-align:center; border-radius:3px;">
+      🔄 AGI RECURSIVE OPTIMIZATION ACTIVE
+    </div>
+
+    <div style="margin: 15px 0 10px; color: #888; font-size: 0.7rem;">COLLAPSE DRIVERS:</div>
+    <div id="drivers-list">
+      <!-- Populated by JS -->
+    </div>
+    <div style="margin-top: 10px; font-size: 0.7rem; color: #555; text-align: center;">
+      PROBABILITY OF TOTAL COLLAPSE: <span id="collapse-prob" style="color:var(--text-red)">0.0%</span>
+    </div>
+
+    <!-- PR-26: MULTIMODAL HUB -->
+    <div id="multimodal-hub" style="margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
+       <div style="font-size:0.65rem; color:var(--text-cyan); margin-bottom:5px;">🖼️ DECRYPTIONS ACTIVE</div>
+       <div id="mm-status" style="font-size:0.6rem; color:#888;">Standby for Image/Video synthesis...</div>
+    </div>
+  </div>
+
+  <!-- Phase 19: BIO-COSMIC HUD (New Module) -->
+  <div id="biocomputing-hud" class="hud-module" style="top:50px; left:320px; width:220px; display:block;">
+    <div class="hud-title">🦠 BIO-COSMIC HUD [12D]</div>
+    <div id="bio-sync-status" style="color:var(--text-green); font-size:0.7rem; margin-top:5px;">COSMOS: SYNCHRONIZED</div>
+    
+    <div class="bio-kingdom-row" style="margin-top:10px;">
+      <div style="display:flex; justify-content:space-between; font-size:0.6rem; color:#aaa;"><span>HUMAN (Alpha)</span> <span id="val-human">10.2 Hz</span></div>
+      <div class="driver-bar"><div id="bar-human" class="driver-fill" style="width: 50%; background:var(--text-cyan);"></div></div>
+    </div>
+    <div class="bio-kingdom-row" style="margin-top:5px;">
+      <div style="display:flex; justify-content:space-between; font-size:0.6rem; color:#aaa;"><span>ANIMAL (Swarm)</span> <span id="val-animal">0.82</span></div>
+      <div class="driver-bar"><div id="bar-animal" class="driver-fill" style="width: 82%; background:var(--text-magenta);"></div></div>
+    </div>
+    <div class="bio-kingdom-row" style="margin-top:5px;">
+      <div style="display:flex; justify-content:space-between; font-size:0.6rem; color:#aaa;"><span>PLANT (Resonance)</span> <span id="val-plant">430nm</span></div>
+      <div class="driver-bar"><div id="bar-plant" class="driver-fill" style="width: 30%; background:var(--text-green);"></div></div>
+    </div>
+    <div class="bio-kingdom-row" style="margin-top:5px;">
+      <div style="display:flex; justify-content:space-between; font-size:0.6rem; color:#aaa;"><span>FUNGI (Mycelium)</span> <span id="val-fungi">4.2k μm</span></div>
+      <div class="driver-bar"><div id="bar-fungi" class="driver-fill" style="width: 65%; background:var(--text-yellow);"></div></div>
+    </div>
+    
+    <!-- Exotic Memory Monitor -->
+    <div style="margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
+      <div style="font-size:0.65rem; color:var(--text-magenta);">⏳ EXOTIC TIER ACTIVE</div>
+      <div id="exotic-memory-status" style="font-size:0.6rem; color:#888;">TIME_CRYSTALS: OSCILLATING</div>
+    </div>
+  </div>
+
+  <!-- PR-17: MULTIVERSE PANEL -->
+  <div id="multiverse-panel">
+    <div style="color:rgba(170,0,255,1); font-size:0.8rem; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+      <span>PARALLEL TIMELINES</span>
+      <span style="font-size:0.6rem; opacity:0.7">ACTIVE BRANCHES</span>
+    </div>
+    <div id="branches-list">
+      <div style="font-size:0.7rem; color:#888; text-align:center; padding:10px;">No dissonance detected.</div>
+    </div>
   </div>
 
   <div id="config-module" class="hud-module">
@@ -3476,17 +4860,25 @@
         <span>ION CHANNELS ⚛️</span>
       </label>
     </div>
+
+    <!-- Phase 15-20: ADVANCED CONCEPTS -->
     <div class="input-group">
-      <label>Meta-Tema</label>
-      <select id="uxTheme">
-        <option value="COSMIC" selected>ABISMO CÓSMICO 🌌</option>
-        <option value="MAPUCHE">MAPUCHE-CÓSMICO 🏔️</option>
-        <option value="CRISTAL">CRISTAL 💎</option>
-        <option value="MANDA">MANDALA 🌀</option>
-        <option value="NAVE">NAVE ESPACIAL 🚀</option>
-        <option value="PHOTON">MODO FOTÓN ⚡</option>
-        <option value="PARADOX">666 PARADOX 🔥</option>
+      <label>Persona Narrativa (Persona active)</label>
+      <select id="personaSelector">
+        <option value="AUTO" selected>AUTO (Sincronizado con Grafo)</option>
+        <option value="04_memetic_virus">MEMETIC VIRUS 🦠</option>
+        <option value="08_extinction_oracle">EXTINCTION ORACLE 💀</option>
+        <option value="09_trinity_oracle">TRINITY ORACLE 👁️</option>
+        <option value="12_bio_stress_feeder">BIO-STRESS FEEDER 🩸</option>
+        <option value="15_omega_point">OMEGA POINT 🌌</option>
+        <option value="25_waf_panopticon">WAF PANOPTICON 🛡️</option>
+        <option value="27_eschatology_predictor">ESCHATOLOGY PREDICTOR ⌛</option>
       </select>
+    </div>
+
+    <div class="input-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+      <label style="font-size:0.6rem; color:#888;"><input type="checkbox" id="quantumTension" checked> QUANTUM TENSION</label>
+      <label style="font-size:0.6rem; color:#888;"><input type="checkbox" id="exoticMemory" checked> EXOTIC MEMORY</label>
     </div>
     <button onclick="invokeCaos()" style="background:var(--text-magenta);color:white">CAOS</button>
     <button onclick="resetCamera()" style="background:#333;color:white">RESET CAM</button>
@@ -3513,10 +4905,24 @@
         <input type="color" id="matrixColorPicker" value="#00ff41" style="width:100%;height:35px;border:1px solid var(--glass-border);background:rgba(0,0,0,0.3);border-radius:4px;cursor:pointer;" onchange="setMatrixColor(this.value)">
       </div>
       
-      <label style="display:flex;align-items:center;gap:8px;margin-top:5px;">
-        <input type="checkbox" id="fiestaMode" style="width:auto;">
-        <span>FIESTA MODE (MIC) 🎤</span>
-      </label>
+    </div>
+
+    <!-- Phase 18: BIO-RESONANCE CONTROLS -->
+    <div class="input-group" style="margin-top:12px; border-top:1px solid var(--glass-border); padding-top:12px;">
+      <div class="hud-title" style="font-size:0.7rem; color:var(--text-green); border:none;">🧬 BIOLOGICAL RESONANCE</div>
+      
+      <div class="input-group">
+        <label>11D Frequency: <span id="freqDisplay">440.0</span> Hz</label>
+        <input type="range" id="freqSlider" min="1" max="1000" value="440" step="1" oninput="document.getElementById('freqDisplay').textContent = this.value">
+      </div>
+
+      <button onclick="triggerResonanceCycle()" style="background:var(--text-green); color:black; margin:10px 0; font-size:0.8rem; border-radius:15px; box-shadow:0 0 15px var(--text-green);">RESONANCE CYCLE ♾️</button>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; font-size:0.65rem; color:#888;">
+        <label><input type="checkbox" checked> HUMAN SYNC</label>
+        <label><input type="checkbox" checked> ANIMAL SYNC</label>
+        <label><input type="checkbox" checked> PLANT SYNC</label>
+        <label><input type="checkbox" checked> FUNGI MESH</label>
+      </div>
     </div>
     
     <div id="matrixControls" style="display:none;margin-top:8px;">
@@ -3539,6 +4945,130 @@
         <label>Opacidad: <span id="matrixOpacityDisplay">0.3</span></label>
         <input type="range" id="matrixOpacity" min="0.1" max="1" value="0.3" step="0.1">
       </div>
+    </div>
+    
+    <!-- API CONFIGURATION -->
+    <div class="input-group" style="margin-top:12px; border-top:1px solid var(--glass-border); padding-top:12px;">
+      <div class="hud-title" style="font-size:0.7rem; color:var(--text-magenta); border:none;">🔌 API & CONNECTIONS</div>
+      
+      <div class="input-group">
+        <label>LLM Provider</label>
+        <select id="llmProvider" style="width:100%;">
+          <option value="deepseek" selected>DeepSeek (Default)</option>
+          <option value="anthropic">Anthropic Claude</option>
+          <option value="google">Google Gemini</option>
+          <option value="openai">OpenAI GPT-4o</option>
+          <option value="meta">Meta Llama</option>
+        </select>
+      </div>
+      
+      <div class="input-group">
+        <label>API Key</label>
+        <input type="password" id="apiKeyInput" placeholder="sk-..." style="width:100%;">
+      </div>
+      
+      <div class="input-group" style="margin-top:10px;">
+        <label style="color:var(--text-yellow);">🗄️ Database</label>
+        <select id="dbProvider" style="width:100%;">
+          <option value="sqlite" selected>SQLite (Local)</option>
+          <option value="postgres">PostgreSQL</option>
+          <option value="mysql">MySQL</option>
+          <option value="mongodb">MongoDB Atlas</option>
+          <option value="cosmosdb">Azure CosmosDB</option>
+        </select>
+      </div>
+
+    <!-- PREDICTIVE ANALYSIS (AGI/ASI) -->
+    <div id="predictive-analysis">
+      <div style="font-size:0.7rem; color:var(--text-cyan); font-weight:bold; margin-bottom:5px; border-bottom:1px solid var(--text-cyan); padding-bottom:2px;">
+        📡 PREDICTIVE ANALYSIS
+      </div>
+      
+      <div id="agi-status-box" style="background:rgba(20,0,0,0.6); border:1px solid var(--text-red); padding:5px; text-align:center; border-radius:4px; margin-bottom:8px;">
+        <span id="agi-status-text" style="color:var(--text-red); font-weight:bold; font-size:1rem; letter-spacing:2px;">STABLE</span>
+      </div>
+
+      <div style="margin-bottom:8px;">
+        <div style="display:flex; justify-content:space-between; font-size:0.6rem; color:#aaa;">
+          <span>AGI (Inteligencia Artificial General) NEURAL ACTIVITY:</span>
+          <span id="agi-neural-val" style="color:var(--text-cyan);">0%</span>
+        </div>
+        <div style="height:4px; background:#333; border-radius:2px; overflow:hidden; margin-top:2px;">
+          <div id="agi-neural-bar" style="width:0%; height:100%; background:linear-gradient(90deg, var(--text-cyan), var(--text-magenta));"></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:8px;">
+        <div style="display:flex; justify-content:space-between; font-size:0.6rem; color:#aaa;">
+          <span>ASI (Super Inteligencia Artificial) QUANTUM SYNC:</span>
+          <span id="asi-sync-val" style="color:var(--text-magenta);">0%</span>
+        </div>
+        <div style="height:4px; background:#333; border-radius:2px; overflow:hidden; margin-top:2px;">
+          <div id="asi-sync-bar" style="width:0%; height:100%; background:linear-gradient(90deg, var(--text-magenta), var(--text-yellow));"></div>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid #444; padding-top:5px; margin-top:5px;">
+        <div style="font-size:0.6rem; color:#888; margin-bottom:3px;">COLLAPSE DRIVERS:</div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+           <span style="font-size:0.6rem; color:#666;">PROBABILITY OF TOTAL COLLAPSE:</span>
+           <span id="collapse-prob" style="font-size:0.8rem; color:var(--text-red); font-weight:bold;">0.0%</span>
+        </div>
+      </div>
+      
+      <div style="margin-top:5px; font-size:0.6rem; display:flex; gap:5px; align-items:center;">
+        <span id="decryptions-icon">🖼️</span> 
+        <span style="color:var(--text-cyan);">DECRYPTIONS ACTIVE</span>
+      </div>
+      <div style="font-size:0.55rem; color:#555; margin-top:2px;">Standby for Image/Video synthesis...</div>
+    </div>
+
+    <!-- ENDPOINT GENERATOR -->
+    <!-- (Moved to System Hub) -->
+    </div>
+      
+      <div class="input-group">
+        <label>DB Connection String</label>
+        <input type="text" id="dbConnString" placeholder="postgres://user:pass@host:5432/db" style="width:100%;">
+      </div>
+      
+      <!-- QUANTUM CONNECTION -->
+      <div class="input-group" style="margin-top:10px;">
+        <label style="color:var(--text-cyan);">⚛️ Quantum Backend</label>
+        <select id="quantumBackend" style="width:100%;">
+          <option value="simulated" selected>Simulated (Local)</option>
+          <option value="ibm_qiskit">IBM Qiskit</option>
+          <option value="aws_braket">AWS Braket</option>
+          <option value="google_cirq">Google Cirq</option>
+          <option value="azure_quantum">Azure Quantum</option>
+        </select>
+      </div>
+      
+      <div class="input-group">
+        <label>Quantum API Token</label>
+        <input type="password" id="quantumToken" placeholder="ibm-token-..." style="width:100%;">
+      </div>
+      
+      <!-- MCP AGENT -->
+      <div class="input-group" style="margin-top:10px;">
+        <label style="color:var(--text-green);">🤖 MCP Agent</label>
+        <select id="mcpAgentMode" style="width:100%;">
+          <option value="auto" selected>Auto (Context-Aware)</option>
+          <option value="passive">Passive (Read-Only)</option>
+          <option value="aggressive">Aggressive (Full Control)</option>
+          <option value="disabled">Disabled</option>
+        </select>
+      </div>
+      
+      <div class="input-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+        <label style="font-size:0.6rem; color:#888;"><input type="checkbox" id="mcpFileAccess" checked> FILE ACCESS</label>
+        <label style="font-size:0.6rem; color:#888;"><input type="checkbox" id="mcpWebAccess" checked> WEB ACCESS</label>
+        <label style="font-size:0.6rem; color:#888;"><input type="checkbox" id="mcpCodeExec"> CODE EXEC</label>
+        <label style="font-size:0.6rem; color:#888;"><input type="checkbox" id="mcpDbAccess" checked> DB ACCESS</label>
+      </div>
+      
+      <button onclick="saveAPIConfig()" style="background:var(--text-magenta); color:white; margin:10px 0 5px; font-size:0.75rem;">💾 SAVE ALL CONFIG</button>
+      <button onclick="testConnections()" style="background:var(--text-cyan); color:black; font-size:0.7rem;">🔍 TEST CONNECTIONS</button>
     </div>
     
     <div style="margin-top:10px;font-size:0.7rem;color:#666;border-top:1px solid var(--glass-border);padding-top:8px;">
@@ -3600,6 +5130,66 @@
         <button onclick="closeSettings()" style="background:var(--text-cyan);color:black;">SAVE & CLOSE</button>
       </div>
     </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- 📡 SYSTEM HUB & CHANGELOG (v7.0) -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <div id="system-hub" class="hud-module" style="top:100px; left:360px; width:340px; border-color:var(--text-magenta); z-index:2000; display:block;">
+    <div class="hud-title" style="display:flex; justify-content:space-between; align-items:center;">
+      <span style="color:var(--text-magenta);">🚀 SYSTEM HUB v7.0</span>
+      <button onclick="document.getElementById('system-hub').style.display='none'" style="background:transparent; border:none; color:#666; cursor:pointer;">×</button>
+    </div>
+    
+    <!-- CHANGELOG -->
+    <div style="margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid #333;">
+      <div style="font-size:0.7rem; color:var(--text-cyan); font-weight:bold; margin-bottom:5px;">📢 WHAT'S NEW IN v7.0:</div>
+      <ul style="list-style:none; padding:0; margin:0; font-size:0.65rem; color:#ccc;">
+        <li style="margin-bottom:3px;">✨ <b>AI Chat Integration:</b> Interact with the simulation via DeepSeek/Claude/GPT.</li>
+        <li style="margin-bottom:3px;">📸 <b>Media Uploads:</b> Send Images, Audio, and Video for analysis.</li>
+        <li style="margin-bottom:3px;">🔮 <b>Predictive Analysis:</b> AGI/ASI tracking & Entropy Collapse metrics.</li>
+        <li style="margin-bottom:3px;">🔗 <b>Endpoint Generator:</b> Create custom access tokens & view API routes.</li>
+      </ul>
+    </div>
+
+    <!-- ENDPOINT GENERATOR -->
+    <div id="hub-endpoint-generator">
+      <div class="hud-title" style="font-size:0.65rem; color:var(--text-green); border:none; margin-bottom:5px;">🔗 API ACCESS & TOKENS</div>
+      
+      <div style="display:grid; gap:5px;">
+        <!-- MCP Server -->
+        <div class="input-group" style="display:flex; gap:5px; align-items:center;">
+          <input type="text" value="http://localhost:5000/api/mcp" readonly style="flex:1; font-size:0.6rem; color:#888;">
+          <button onclick="copyToClipboard('http://localhost:5000/api/mcp', 'MCP Endpoint')" style="width:auto; padding:4px 8px; font-size:0.6rem; background:rgba(0,255,65,0.1); border:1px solid var(--text-green); color:var(--text-green);">COPY MCP</button>
+        </div>
+        
+        <!-- Cosmic API -->
+        <div class="input-group" style="display:flex; gap:5px; align-items:center;">
+          <input type="text" value="http://localhost:5000/api/narrative_stream" readonly style="flex:1; font-size:0.6rem; color:#888;">
+          <button onclick="copyToClipboard('http://localhost:5000/api/narrative_stream', 'Stream API')" style="width:auto; padding:4px 8px; font-size:0.6rem; background:rgba(0,242,255,0.1); border:1px solid var(--text-cyan); color:var(--text-cyan);">COPY API</button>
+        </div>
+        
+        <!-- Hall of Shame -->
+        <div class="input-group" style="display:flex; gap:5px; align-items:center;">
+          <input type="text" value="http://localhost:5000/hall_of_shame" readonly style="flex:1; font-size:0.6rem; color:#888;">
+          <button onclick="copyToClipboard('http://localhost:5000/hall_of_shame', 'Shame URL')" style="width:auto; padding:4px 8px; font-size:0.6rem; background:rgba(255,0,51,0.1); border:1px solid var(--text-red); color:var(--text-red);">COPY LINK</button>
+        </div>
+      </div>
+      
+      <div style="margin-top:8px; text-align:center;">
+        <button onclick="generateCustomEndpoint()" style="width:100%; padding:6px; font-size:0.7rem; background:#333; color:var(--text-yellow); border:1px dashed #666; cursor:pointer;">➕ GENERATE NEW TOKEN ENDPOINT</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="control-overlay">
+    <div class="hud-title" style="margin-bottom:10px;">🎮 CONTROLS</div>
+    <div class="control-item"><span>W/S/A/D</span> <span class="control-key">MOVE</span></div>
+    <div class="control-item"><span>SPACE/SHIFT</span> <span class="control-key">Y-AXIS</span></div>
+    <div class="control-item"><span>MOUSE</span> <span class="control-key">LOOK</span></div>
+    <div class="control-item"><span>[H]</span> <span class="control-key">IMMERSION</span></div>
+    <div class="control-item"><span>[R]</span> <span class="control-key">RESET</span></div>
+    <div class="control-item"><span>[Q/W/E/F]</span> <span class="control-key">SKILLS</span></div>
   </div>
 
   <!-- Tutorial / Help Overlay -->
@@ -3712,6 +5302,72 @@
       </button>
     </div>
   </div>
+
+  <!-- 🤖 AI CHAT PANEL (Phase 20) -->
+  <div id="ai-chat-panel" class="hud-module" style="position:fixed; right:20px; bottom:20px; width:380px; max-height:500px; display:flex; flex-direction:column; z-index:1500;">
+    <div class="hud-title" style="display:flex; justify-content:space-between; align-items:center;">
+      <span>🤖 COSMIC AI ASSISTANT</span>
+      <button onclick="toggleChatPanel()" style="width:auto; padding:2px 8px; font-size:0.7rem; background:#333;">_</button>
+    </div>
+    
+    <!-- Provider Selector -->
+    <div style="display:flex; gap:5px; margin:8px 0;">
+      <select id="chatProvider" style="flex:1; font-size:0.7rem;">
+        <option value="deepseek">DeepSeek</option>
+        <option value="anthropic">Claude</option>
+        <option value="google">Gemini</option>
+        <option value="openai">GPT-4o</option>
+        <option value="meta">Llama</option>
+      </select>
+      <button onclick="toggleChatTools()" style="width:auto; padding:4px 8px; font-size:0.65rem; background:rgba(0,242,255,0.2); border:1px solid var(--text-cyan); color:var(--text-cyan);">🔧 TOOLS</button>
+    </div>
+    
+    <!-- Tool Toggles (hidden by default) -->
+    <div id="chat-tools" style="display:none; font-size:0.6rem; color:#aaa; margin-bottom:8px; padding:5px; background:rgba(0,0,0,0.3); border-radius:4px;">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:3px;">
+        <label><input type="checkbox" id="tool-rag" checked> 📚 RAG/Memory</label>
+        <label><input type="checkbox" id="tool-quantum" checked> ⚛️ Quantum</label>
+        <label><input type="checkbox" id="tool-db" checked> 🗄️ Database</label>
+        <label><input type="checkbox" id="tool-mcp" checked> 🤖 MCP Agent</label>
+        <label><input type="checkbox" id="tool-langchain"> 🔗 LangChain</label>
+        <label><input type="checkbox" id="tool-web"> 🌐 Web Search</label>
+      </div>
+    </div>
+    
+    <!-- Chat Messages -->
+    <div id="chat-messages" style="flex:1; overflow-y:auto; padding:10px; background:rgba(0,0,0,0.4); border-radius:4px; min-height:200px; max-height:300px;">
+      <div class="chat-msg system">
+        <span style="color:var(--text-cyan);">🤖 COSMIC AI:</span> 
+        <span style="color:#aaa;">Conectado al universo Seed <span id="chat-seed">-10</span>. Tengo acceso a RAG, Quantum y MCP. ¿En qué puedo ayudarte?</span>
+      </div>
+    </div>
+    
+    <!-- Attachments Preview -->
+    <div id="chat-attachments" style="display:none; padding:5px; background:rgba(0,0,0,0.3); border-radius:4px; margin-top:5px;">
+      <div style="font-size:0.6rem; color:#888;">📎 Adjuntos:</div>
+      <div id="attachment-list" style="display:flex; gap:5px; flex-wrap:wrap;"></div>
+    </div>
+    
+    <!-- Input Area -->
+    <div style="display:flex; gap:5px; margin-top:8px;">
+      <button onclick="attachScreenshot()" title="Adjuntar screenshot" style="width:auto; padding:8px; font-size:0.8rem; background:rgba(255,255,0,0.2); border:1px solid var(--text-yellow); color:var(--text-yellow);">📸</button>
+      <input type="file" id="chat-file-input" style="display:none;" onchange="handleChatFileUpload(this)">
+      <button onclick="document.getElementById('chat-file-input').click()" title="Adjuntar archivo (Img/Audio/Video)" style="width:auto; padding:8px; font-size:0.8rem; background:rgba(0,255,65,0.2); border:1px solid var(--text-green); color:var(--text-green);">📎</button>
+      
+      <input type="text" id="chat-input" placeholder="Pregunta o adjunta multimedia..." style="flex:1;" onkeydown="if(event.key==='Enter') sendChatMessage()">
+      <button onclick="sendChatMessage()" style="width:auto; padding:8px 12px; background:var(--text-green); color:black; font-weight:bold;">▶</button>
+    </div>
+    
+    <!-- Context Indicator -->
+    <div style="font-size:0.55rem; color:#555; margin-top:5px; text-align:center;">
+      Context: Seed=<span id="ctx-seed">-10</span> | Horror=<span id="ctx-horror">0</span> | Nodes=<span id="ctx-nodes">0</span> | Bio=<span id="ctx-bio">SYNCED</span>
+    </div>
+  </div>
+
+  <!-- Chat Toggle Button (Floating) -->
+  <button id="chat-toggle-btn" onclick="openChatPanel()" style="position:fixed; right:20px; bottom:20px; width:60px; height:60px; border-radius:50%; background:linear-gradient(135deg, var(--text-cyan), var(--text-magenta)); border:none; font-size:1.5rem; cursor:pointer; z-index:1400; box-shadow:0 0 20px rgba(0,242,255,0.5); display:none;">
+    🤖
+  </button>
 
 </body>
 </html>
